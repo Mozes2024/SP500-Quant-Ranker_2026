@@ -261,7 +261,8 @@ FUNDAMENTAL_FIELDS = [
     "beta", "sharesOutstanding", "shortRatio",
     "targetMeanPrice", "currentPrice", "52WeekChange",
     "recommendationMean", "numberOfAnalystOpinions",
-    "workingCapital", "earningsPerShare", "trailingEps", "revenuePerShare",
+    "workingCapital", "currentAssets", "currentLiabilities",
+    "earningsPerShare", "trailingEps", "revenuePerShare",
     "averageVolume",
 ]
 
@@ -368,12 +369,22 @@ def compute_piotroski(row: pd.Series) -> float:
 def compute_altman(row: pd.Series) -> float:
     try:
         ta  = _safe(row.get("totalAssets"), 1)
-        wc  = _safe(row.get("workingCapital"))
+        # workingCapital fallback: currentAssets - currentLiabilities
+        wc = _safe(row.get("workingCapital"))
+        if wc is None or (isinstance(wc, float) and np.isnan(wc)):
+            ca = _safe(row.get("currentAssets"))
+            cl = _safe(row.get("currentLiabilities"))
+            if ca is not None and cl is not None:
+                wc = ca - cl
+            else:
+                return np.nan
         re_ = _safe(row.get("totalStockholdersEquity"))
         eb  = _safe(row.get("ebitda"))
         mv  = _safe(row.get("marketCap"))
         td  = _safe(row.get("totalDebt"), 1)
         rev = _safe(row.get("totalRevenue"))
+        if any(v is None for v in [re_, eb, mv, rev]):
+            return np.nan
         return round(1.2*(wc/ta) + 1.4*(re_/ta) + 3.3*(eb/ta)
                      + 0.6*(mv/td) + 1.0*(rev/ta), 3)
     except Exception:
@@ -1251,6 +1262,20 @@ def run_pipeline(use_cache: bool = True) -> pd.DataFrame:
         print("\n[3/6]  Computing metrics...")
         df["piotroski_score"]        = df.apply(compute_piotroski,        axis=1)
         df["altman_z"]               = df.apply(compute_altman,           axis=1)
+        # PEG fallback: pegRatio from Yahoo is often missing → compute from PE / epsGrowth
+        def _compute_peg(row):
+            peg = row.get("pegRatio")
+            if peg is not None and not (isinstance(peg, float) and np.isnan(peg)):
+                return peg
+            pe = row.get("trailingPE")
+            eg = row.get("earningsGrowth")  # fraction e.g. 0.15 = 15%
+            if pe is not None and eg is not None and eg > 0.01:
+                try:
+                    return round(float(pe) / (float(eg) * 100), 2)
+                except Exception:
+                    return np.nan
+            return np.nan
+        df["pegRatio"] = df.apply(_compute_peg, axis=1)
         df["roic"]                   = df.apply(compute_roic,             axis=1)
         fcf_cols = df.apply(compute_fcf_metrics, axis=1, result_type="expand")
         df = pd.concat([df, fcf_cols], axis=1)
