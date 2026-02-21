@@ -144,6 +144,10 @@ td{padding:11px 8px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis
 .loading-text{font-size:13px;font-weight:600;color:var(--text2);letter-spacing:2px;animation:blink 1.5s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 #error-msg{display:none;text-align:center;padding:60px;color:var(--red);}
+.double-signal-row td:first-child{border-left:3px solid var(--gold);}
+.double-signal-row{background:linear-gradient(90deg,rgba(245,166,35,.07) 0%,transparent 60%)!important;}
+.double-signal-row:hover{background:linear-gradient(90deg,rgba(245,166,35,.13) 0%,transparent 60%)!important;}
+.ds-badge{display:inline-flex;align-items:center;gap:3px;background:linear-gradient(135deg,#2a1f00,#3d2e00);border:1px solid var(--gold);border-radius:5px;padding:2px 6px;font-size:10px;font-weight:800;color:var(--gold);letter-spacing:.5px;white-space:nowrap;vertical-align:middle;box-shadow:0 0 8px rgba(245,166,35,.3);}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
@@ -329,9 +333,12 @@ function renderTable(){
     const sLabel=lang==='he'?(sMap[d.sector]||d.sector):(d.sector||'').replace('Information Technology','IT').replace('Communication Services','Comm').replace('Consumer Discretionary','Cons D').replace('Consumer Staples','Cons S').replace('Health Care','Health');
     const isBreakout=valid(d.breakout_score);
     const doubleSignal=isBreakout&&(d.composite||0)>=65;
-    let cells=`<td class="td-rank ${d.rank<=3?'top3':''}">${d.rank}</td><td class="td-ticker">${doubleSignal?'<span title="Double Signal!" style="color:var(--gold);font-size:10px;display:block;line-height:1">⚡★</span>':''}<a href="https://finance.yahoo.com/quote/${d.ticker}" target="_blank" onclick="event.stopPropagation()">${d.ticker}</a></td><td class="td-company" title="${d.company||''}">${(d.company||'').substring(0,24)}</td><td><span class="sector-pill" style="background:${sc.bg};color:${sc.color}">${sLabel}</span></td>`;
+    const dsBadge = doubleSignal ? '<span class="ds-badge" title="Double Signal: Top breakout + High composite score">⚡ SIGNAL</span>' : '';
+    let cells=`<td class="td-rank ${d.rank<=3?'top3':''}">${d.rank}</td><td class="td-ticker"><a href="https://finance.yahoo.com/quote/${d.ticker}" target="_blank" onclick="event.stopPropagation()">${d.ticker}</a>${dsBadge}</td><td class="td-company" title="${d.company||''}">${(d.company||'').substring(0,24)}</td><td><span class="sector-pill" style="background:${sc.bg};color:${sc.color}">${sLabel}</span></td>`;
     cols.forEach(c=>{const raw=d[c.key];const content=c.fmt?c.fmt(raw):(valid(raw)?raw:'—');const cls=c.cls?(typeof c.cls==='function'?c.cls(raw):c.cls):'';cells+=`<td class="td-num ${cls}">${content}</td>`;});
-    const tr=document.createElement('tr');tr.innerHTML=cells;
+    const tr=document.createElement('tr');
+    if(doubleSignal)tr.classList.add('double-signal-row');
+    tr.innerHTML=cells;
     const detailRow=document.createElement('tr');detailRow.className='stock-detail-row';
     detailRow.innerHTML=`<td colspan="99">${buildDetailPanel(d)}</td>`;
     tr.addEventListener('click',()=>{const isOpen=detailRow.classList.contains('open');document.querySelectorAll('.stock-detail-row.open').forEach(r=>r.classList.remove('open'));document.querySelectorAll('tr.expanded').forEach(r=>r.classList.remove('expanded'));if(!isOpen){detailRow.classList.add('open');tr.classList.add('expanded');}});
