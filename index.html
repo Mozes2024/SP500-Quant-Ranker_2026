@@ -9,124 +9,482 @@
 :root {
   --bg:#070c12; --surface:#0c1520; --surface2:#111d2b; --surface3:#162436;
   --border:#1d2e40; --border2:#243a50;
-  --gold:#f5a623; --gold2:#ffc15e; --teal:#00d4aa; --red:#ff4757;
-  --text:#dce8f4; --text2:#8aaccb; --text3:#4a6a8a;
+  --gold:#f5a623; --gold2:#ffc15e; --teal:#00d4aa; --red:#ff4757; --blue:#3d9af1;
+  --text:#dce8f4; --text2:#8aaccb; --text3:#4a6a8a; --text4:#2a4a6a;
   --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
+  --radius:10px; --radius-sm:6px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;font-size:15px;}
-/* כל ה-CSS שלך נשאר בדיוק כמו שהיה (אני לא משנה אותו כדי שלא יהיו באגים) */
-.ss-badge,.breakout-badge{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;font-family:var(--mono);font-size:13px;font-weight:800;}
-.breakout-badge.gold{background:#ffd700;color:#000;}
-.phase-badge{font-size:11px;padding:2px 6px;border-radius:4px;font-weight:700;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;font-size:14px;}
+header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--surface) 0%,#0a1828 100%);position:sticky;top:0;z-index:100;}
+.logo-title{font-size:22px;font-weight:900;letter-spacing:-0.5px;}
+.logo-accent{color:var(--gold);}
+.logo-sub{font-size:11px;color:var(--text2);margin-top:2px;font-family:var(--mono);}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--teal);margin-right:6px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.last-updated{font-size:12px;color:var(--text2);display:flex;align-items:center;}
+.stats-bar{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto;}
+.stat-item{padding:14px 20px;border-right:1px solid var(--border);min-width:130px;flex-shrink:0;}
+.stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.stat-value{font-size:20px;font-weight:800;font-family:var(--mono);color:var(--gold);}
+.stat-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.controls{display:flex;align-items:center;gap:10px;padding:12px 24px;background:var(--surface2);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.search-box{flex:1;min-width:200px;max-width:320px;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-size:13px;font-family:var(--sans);}
+.search-box:focus{outline:none;border-color:var(--gold);}
+.search-box::placeholder{color:var(--text3);}
+select{background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-size:13px;cursor:pointer;}
+select:focus{outline:none;border-color:var(--gold);}
+.btn{padding:8px 16px;border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;border:none;letter-spacing:.5px;transition:all .15s;font-family:var(--sans);}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2);}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+.btn-gold{background:var(--gold);color:#000;}
+.btn-gold:hover{background:var(--gold2);}
+.view-tabs{display:flex;gap:0;padding:0 24px;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto;}
+.view-tab{padding:10px 16px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;}
+.view-tab:hover{color:var(--text2);}
+.view-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.table-wrap{overflow-x:auto;padding:0 0 100px;}
+table{width:100%;border-collapse:collapse;min-width:900px;}
+thead{position:sticky;top:57px;z-index:50;}
+th{background:var(--surface2);color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.8px;padding:10px 12px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
+th:hover{color:var(--text2);}
+th.sorted-asc::after{content:' ▲';color:var(--gold);}
+th.sorted-desc::after{content:' ▼';color:var(--gold);}
+td{padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap;vertical-align:middle;}
+tr{transition:background .1s;cursor:pointer;}
+tr:hover td{background:var(--surface2);}
+.rank-num{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text3);width:36px;text-align:right;display:inline-block;}
+.rank-num.top5{color:var(--gold);}
+.rank-num.top20{color:var(--gold2);}
+.ticker-cell .tk{font-family:var(--mono);font-weight:800;font-size:14px;color:var(--text);}
+.ticker-cell .co{font-size:11px;color:var(--text3);max-width:160px;overflow:hidden;text-overflow:ellipsis;}
+.sector-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;}
+.score-bar-wrap{display:flex;align-items:center;gap:8px;}
+.score-bar-bg{width:80px;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:3px;}
+.score-val{font-family:var(--mono);font-size:13px;font-weight:700;min-width:36px;}
+.ss-badge{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;font-family:var(--mono);font-size:13px;font-weight:800;}
+.breakout-badge{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-family:var(--mono);font-size:12px;font-weight:800;}
+.phase-badge{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:800;font-family:var(--mono);}
+.vcp-badge{font-size:10px;padding:2px 6px;border-radius:4px;background:#ffd700;color:#000;font-weight:800;}
+.consensus-badge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;}
+.pos{color:var(--teal);}
+.neg{color:var(--red);}
+.mid{color:var(--gold);}
+.neutral{color:var(--text2);}
+.dim{color:var(--text3);}
+.loading{text-align:center;padding:80px 20px;font-size:18px;color:var(--text2);}
+.spinner{width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-msg{text-align:center;padding:60px 20px;color:var(--red);}
+.filter-bar{display:flex;gap:8px;padding:8px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center;}
+.filter-label{font-size:11px;color:var(--text3);margin-right:4px;}
+.filter-btn{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text3);transition:all .15s;white-space:nowrap;}
+.filter-btn:hover{border-color:var(--text2);color:var(--text2);}
+.filter-btn.active{background:var(--gold);border-color:var(--gold);color:#000;}
+.detail-overlay{position:fixed;inset:0;z-index:200;background:rgba(7,12,18,.85);backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:flex-end;}
+.detail-panel{width:min(520px,100vw);height:100vh;overflow-y:auto;background:var(--surface);border-left:1px solid var(--border2);padding:24px;}
+.detail-close{float:right;background:var(--surface3);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:18px;line-height:1;}
+.detail-close:hover{color:var(--text);}
+.detail-ticker{font-family:var(--mono);font-size:28px;font-weight:900;color:var(--gold);margin-top:12px;}
+.detail-company{font-size:14px;color:var(--text2);margin-bottom:16px;}
+.detail-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.detail-card-title{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:12px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.detail-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.detail-item label{font-size:10px;color:var(--text3);display:block;margin-bottom:3px;}
+.detail-item .val{font-family:var(--mono);font-size:14px;font-weight:700;}
+.breakout-card{border-color:var(--gold) !important;}
+.breakout-card .detail-card-title{color:var(--gold);}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--surface);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 </style>
 </head>
 <body>
 
-<!-- כל ה-HTML שלך (header, stats, controls, filter, view-tabs, loading, table-wrap) נשאר בדיוק כמו שהיה -->
-
 <header>
-  <div class="logo-block">
+  <div>
     <div class="logo-title">S&amp;P 500 <span class="logo-accent">Mozes</span> Ranker</div>
-    <div class="logo-sub">v5.3 · 9-Pillar + Breakout Scanner</div>
+    <div class="logo-sub">v5.3 &middot; 9-Pillar + Breakout Scanner</div>
   </div>
-  <div class="header-right">
-    <div class="last-updated" id="lastUpdated"><span class="live-dot"></span>Loading...</div>
-  </div>
+  <div class="last-updated" id="lastUpdated"><span class="live-dot"></span>Loading...</div>
 </header>
 
-<!-- stats-bar, controls, filter-panel, view-tabs, loading, error-msg, table-wrap - הכל כמו שהיה -->
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-label">Total Stocks</div><div class="stat-value" id="statTotal">—</div></div>
+  <div class="stat-item"><div class="stat-label">Showing</div><div class="stat-value" id="statShowing">—</div></div>
+  <div class="stat-item"><div class="stat-label">Breakout Signals</div><div class="stat-value" id="statBreakout">—</div></div>
+  <div class="stat-item"><div class="stat-label">SmartScore ≥8</div><div class="stat-value" id="statSS">—</div></div>
+  <div class="stat-item"><div class="stat-label">Avg Composite</div><div class="stat-value" id="statAvg">—</div></div>
+  <div class="stat-item"><div class="stat-label">Generated</div><div class="stat-value" id="statDate" style="font-size:12px;padding-top:4px">—</div></div>
+</div>
 
+<div class="controls">
+  <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search ticker or company..." oninput="applyFilters()">
+  <select id="sectorFilter" onchange="applyFilters()">
+    <option value="">All Sectors</option>
+    <option>Communication Services</option><option>Consumer Discretionary</option>
+    <option>Consumer Staples</option><option>Energy</option><option>Financials</option>
+    <option>Health Care</option><option>Industrials</option><option>Information Technology</option>
+    <option>Materials</option><option>Real Estate</option><option>Utilities</option>
+  </select>
+  <select id="topFilter" onchange="applyFilters()">
+    <option value="0">All Stocks</option><option value="10">Top 10</option>
+    <option value="25">Top 25</option><option value="50">Top 50</option><option value="100">Top 100</option>
+  </select>
+  <button class="btn btn-ghost" onclick="resetFilters()">Reset</button>
+  <button class="btn btn-ghost" id="breakoutToggle" onclick="toggleBreakout()">⚡ Breakout Only</button>
+</div>
+
+<div class="filter-bar">
+  <span class="filter-label">Quick:</span>
+  <button class="filter-btn" id="fq-vcp" onclick="quickFilter('vcp',this)">✅ VCP</button>
+  <button class="filter-btn" id="fq-ss8" onclick="quickFilter('ss8',this)">⭐ SmartScore ≥8</button>
+  <button class="filter-btn" id="fq-sb" onclick="quickFilter('strong_buy',this)">🟢 Strong Buy</button>
+  <button class="filter-btn" id="fq-mom" onclick="quickFilter('top_momentum',this)">🚀 Top Momentum</button>
+  <button class="filter-btn" id="fq-val" onclick="quickFilter('undervalued',this)">💎 Undervalued</button>
+  <span style="margin-left:auto;font-size:11px;color:var(--text3)" id="activeFilterLabel"></span>
+</div>
+
+<div class="view-tabs" id="viewTabs"></div>
+
+<div id="loadingEl" class="loading"><div class="spinner"></div>Loading S&amp;P 500 data...</div>
+<div id="errorEl" class="error-msg" style="display:none"></div>
 <div class="table-wrap" id="tableWrap" style="display:none">
-  <table id="mainTable"><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table>
+  <table id="mainTable">
+    <thead id="tableHead"></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<div class="detail-overlay" id="detailOverlay" style="display:none" onclick="closeDetailOvl(event)">
+  <div class="detail-panel" id="detailPanel"></div>
 </div>
 
 <script>
-// ====================== I18N + ALL YOUR ORIGINAL CODE ======================
-const T = { /* כל ה-T שלך נשאר בדיוק */ };
-// ... (כל ה-T, SECTOR_COLORS, formatters ישנים - הכל כמו שהיה) ...
+var allData=[], filteredData=[], sortKey='rank', sortDir=1, currentView='score', breakoutOnly=false, activeQF=null;
 
-// ====================== NEW FORMATTERS FOR BREAKOUT ======================
-function breakoutScoreBadge(v){
-  if(!valid(v)) return '<span style="color:var(--text4)">—</span>';
-  const f=parseFloat(v);
-  const c=f>=95?'#ffd700':f>=85?'var(--teal)':f>=70?'var(--gold)':'var(--text2)';
-  return `<span class="breakout-badge" style="background:${c};color:#000">${f.toFixed(1)}</span>`;
+var SECTOR_COLORS={'Information Technology':'#3d9af1','Health Care':'#00d4aa','Financials':'#f5a623','Consumer Discretionary':'#ff6b9d','Communication Services':'#a78bfa','Industrials':'#60a5fa','Consumer Staples':'#34d399','Energy':'#fb923c','Real Estate':'#f87171','Materials':'#a3e635','Utilities':'#e879f9'};
+
+var VIEWS={
+  score:{label:'📊 Scores',cols:[
+    {k:'composite',l:'Composite',f:'scoreBar'},{k:'breakout_score',l:'Breakout',f:'brkBadge'},
+    {k:'p_valuation',l:'Valuation',f:'s1'},{k:'p_profitability',l:'Profit',f:'s1'},
+    {k:'p_growth',l:'Growth',f:'s1'},{k:'p_fcf',l:'FCF',f:'s1'},
+    {k:'p_health',l:'Health',f:'s1'},{k:'p_momentum',l:'Momentum',f:'s1'},
+    {k:'p_analyst',l:'Analyst',f:'s1'},{k:'p_piotroski',l:'Piotroski',f:'s1'},
+    {k:'tr_smartscore',l:'SmartScore',f:'ssBadge'}
+  ]},
+  breakout:{label:'⚡ Breakout',cols:[
+    {k:'breakout_score',l:'B.Score',f:'brkBadge'},{k:'breakout_rank',l:'B.Rank',f:'n0'},
+    {k:'breakout_phase',l:'Phase',f:'phase'},{k:'breakout_rr',l:'R/R',f:'rr'},
+    {k:'breakout_rs',l:'RS',f:'rs'},{k:'breakout_stop',l:'Stop',f:'dollar'},
+    {k:'has_vcp',l:'VCP',f:'vcp'},{k:'vcp_quality',l:'VCP Qual',f:'n0'},
+    {k:'composite',l:'Composite',f:'scoreBar'}
+  ]},
+  valuation:{label:'💎 Valuation',cols:[
+    {k:'valuation',l:'Val.Score',f:'scoreBar'},{k:'pe',l:'P/E',f:'n2'},
+    {k:'fwd_pe',l:'Fwd P/E',f:'n2'},{k:'peg',l:'PEG',f:'n2'},
+    {k:'ps',l:'P/S',f:'n2'},{k:'pb',l:'P/B',f:'n2'},
+    {k:'ev_ebitda',l:'EV/EBITDA',f:'n1'},{k:'fcf_yield',l:'FCF Yield',f:'pct2s'},
+    {k:'div_yield',l:'Div Yield',f:'pct2'},{k:'pt_upside',l:'PT Upside',f:'pct1s'}
+  ]},
+  profitability:{label:'💰 Profit',cols:[
+    {k:'p_profitability',l:'Score',f:'scoreBar'},{k:'roe',l:'ROE%',f:'pct1s'},
+    {k:'roa',l:'ROA%',f:'pct1s'},{k:'roic',l:'ROIC%',f:'pct1s'},
+    {k:'net_margin',l:'Net Margin',f:'pct1s'},{k:'gross_margin',l:'Gross Margin',f:'pct1'},
+    {k:'op_margin',l:'Op Margin',f:'pct1s'}
+  ]},
+  growth:{label:'📈 Growth',cols:[
+    {k:'p_growth',l:'Score',f:'scoreBar'},{k:'rev_growth',l:'Rev Growth',f:'pct1s'},
+    {k:'eps_growth',l:'EPS Growth',f:'pct1s'},{k:'perf_12m',l:'12m',f:'pct1s'},
+    {k:'perf_6m',l:'6m',f:'pct1s'},{k:'perf_3m',l:'3m',f:'pct1s'},
+    {k:'perf_1m',l:'1m',f:'pct1s'},{k:'momentum',l:'RS Score',f:'n2'}
+  ]},
+  health:{label:'🏥 Health',cols:[
+    {k:'p_health',l:'Score',f:'scoreBar'},{k:'current_ratio',l:'Current R.',f:'n2'},
+    {k:'debt_equity',l:'D/E',f:'n2'},{k:'altman_z',l:'Altman Z',f:'n2'},
+    {k:'piotroski_f',l:'Piotroski F',f:'n0'},{k:'fcf_margin',l:'FCF Margin',f:'pct1s'},
+    {k:'beta',l:'Beta',f:'n2'}
+  ]},
+  tipranks:{label:'⭐ TipRanks',cols:[
+    {k:'tr_smartscore',l:'SmartScore',f:'ssBadge'},{k:'tr_consensus',l:'Consensus',f:'cons'},
+    {k:'tr_pt_upside',l:'PT Upside',f:'pct1s'},{k:'tr_news_bull',l:'News Bull%',f:'pct1p'},
+    {k:'tr_blogger_bull',l:'Blog Bull%',f:'pct1p'},{k:'tr_insider',l:'Insider',f:'txt'},
+    {k:'tr_hedge',l:'Hedge Fund',f:'txt'},{k:'analysts',l:'# Analysts',f:'n0'}
+  ]},
+  momentum:{label:'🚀 Momentum',cols:[
+    {k:'p_momentum',l:'Score',f:'scoreBar'},{k:'perf_12m',l:'12m',f:'pct1s'},
+    {k:'perf_6m',l:'6m',f:'pct1s'},{k:'perf_3m',l:'3m',f:'pct1s'},
+    {k:'perf_1m',l:'1m',f:'pct1s'},{k:'momentum',l:'RS',f:'n2'},
+    {k:'vs_sector',l:'vs Sector',f:'n1s'},{k:'beta',l:'Beta',f:'n2'}
+  ]}
+};
+
+function vv(x){return x!==null&&x!==undefined&&x!==''&&!Number.isNaN(x);}
+function scColor(f){return f>=80?'#00d4aa':f>=60?'#f5a623':f>=40?'#ffc15e':'#ff4757';}
+
+function fc(fmt,val){
+  var f,c,bg;
+  if(fmt==='scoreBar'){
+    if(!vv(val))return dim();
+    f=parseFloat(val);c=scColor(f);
+    return '<div class="score-bar-wrap"><div class="score-bar-bg"><div class="score-bar-fill" style="width:'+f+'%;background:'+c+'"></div></div><span class="score-val" style="color:'+c+'">'+f.toFixed(1)+'</span></div>';
+  }
+  if(fmt==='brkBadge'){
+    if(!vv(val))return dim();
+    f=parseFloat(val);bg=f>=95?'#ffd700':f>=85?'#00d4aa':f>=70?'#f5a623':'#8aaccb';
+    return '<span class="breakout-badge" style="background:'+bg+';color:#000">'+f.toFixed(0)+'</span>';
+  }
+  if(fmt==='ssBadge'){
+    if(!vv(val))return dim();
+    f=parseFloat(val);bg=f>=8?'#ffd700':f>=6?'#00d4aa':f>=4?'#f5a623':'#4a6a8a';
+    var tc=f>=4?'#000':'#fff';
+    return '<span class="ss-badge" style="background:'+bg+';color:'+tc+'">'+f.toFixed(0)+'</span>';
+  }
+  if(fmt==='phase'){
+    if(!vv(val))return dim();
+    var pc={1:'#ffd600',2:'#00e676',3:'#ffab40',4:'#ff5252'},pl={1:'Base',2:'Up',3:'Top',4:'Down'};
+    return '<span class="phase-badge" style="background:'+(pc[val]||'#555')+';color:#000">P'+val+' '+(pl[val]||'')+'</span>';
+  }
+  if(fmt==='vcp') return val?'<span class="vcp-badge">VCP</span>':dim();
+  if(fmt==='cons'){
+    if(!val||val==='—')return dim();
+    var cc={'Strong Buy':'#00d4aa','Buy':'#60a5fa','Hold':'#f5a623','Sell':'#ff4757','Strong Sell':'#ff1a2e'};
+    c=cc[val]||'#8aaccb';
+    return '<span class="consensus-badge" style="background:'+c+'22;color:'+c+';border:1px solid '+c+'44">'+val+'</span>';
+  }
+  if(fmt==='s1'){if(!vv(val))return dim();f=parseFloat(val);c=scColor(f);return '<span style="color:'+c+';font-family:var(--mono);font-weight:700">'+f.toFixed(1)+'</span>';}
+  if(fmt==='n0') return !vv(val)?dim():'<span class="neutral" style="font-family:var(--mono)">'+parseFloat(val).toFixed(0)+'</span>';
+  if(fmt==='n1') return !vv(val)?dim():'<span class="neutral" style="font-family:var(--mono)">'+parseFloat(val).toFixed(1)+'</span>';
+  if(fmt==='n1s'){if(!vv(val))return dim();f=parseFloat(val);return '<span class="'+(f>0?'pos':f<0?'neg':'neutral')+'" style="font-family:var(--mono)">'+f.toFixed(1)+'</span>';}
+  if(fmt==='n2') return !vv(val)?dim():'<span class="neutral" style="font-family:var(--mono)">'+parseFloat(val).toFixed(2)+'</span>';
+  if(fmt==='pct1'){if(!vv(val))return dim();return '<span class="neutral" style="font-family:var(--mono)">'+parseFloat(val).toFixed(1)+'%</span>';}
+  if(fmt==='pct1s'){if(!vv(val))return dim();f=parseFloat(val);return '<span class="'+(f>0?'pos':f<0?'neg':'neutral')+'" style="font-family:var(--mono)">'+f.toFixed(1)+'%</span>';}
+  if(fmt==='pct1p'){if(!vv(val))return dim();f=parseFloat(val);return '<span class="'+(f>=60?'pos':f>=40?'mid':'neg')+'" style="font-family:var(--mono)">'+f.toFixed(1)+'%</span>';}
+  if(fmt==='pct2'){if(!vv(val))return dim();return '<span class="neutral" style="font-family:var(--mono)">'+parseFloat(val).toFixed(2)+'%</span>';}
+  if(fmt==='pct2s'){if(!vv(val))return dim();f=parseFloat(val);return '<span class="'+(f>0?'pos':f<0?'neg':'neutral')+'" style="font-family:var(--mono)">'+f.toFixed(2)+'%</span>';}
+  if(fmt==='rr'){if(!vv(val))return dim();f=parseFloat(val);return '<span class="'+(f>=2?'pos':f>=1.5?'mid':'neutral')+'" style="font-family:var(--mono)">'+f.toFixed(1)+'x</span>';}
+  if(fmt==='rs'){if(!vv(val))return dim();f=parseFloat(val);return '<span class="'+(f>=1.05?'pos':f>=0.95?'mid':'neg')+'" style="font-family:var(--mono)">'+f.toFixed(2)+'</span>';}
+  if(fmt==='dollar') return !vv(val)?dim():'<span class="neutral" style="font-family:var(--mono)">$'+parseFloat(val).toFixed(2)+'</span>';
+  if(fmt==='txt') return (val&&val!=='—'&&val!=='')?'<span class="neutral">'+val+'</span>':dim();
+  return vv(val)?String(val):dim();
 }
-function phaseBadge(v){
-  if(!valid(v)) return '—';
-  const colors={1:'#ffd600',2:'#00e676',3:'#ffab40',4:'#ff5252'};
-  const labels={1:'Base',2:'Uptrend',3:'Top',4:'Down'};
-  return `<span class="phase-badge" style="background:${colors[v]||'#333'};color:#fff">P${v} ${labels[v]||''}</span>`;
-}
-function rsCls(v){if(!valid(v))return'neutral';return parseFloat(v)>=1.05?'pos':parseFloat(v)>=0.95?'mid':'neg';}
+function dim(){return '<span class="dim">—</span>';}
+function fmtMcap(val){var f=parseFloat(val);return f>=1e12?(f/1e12).toFixed(1)+'T':f>=1e9?(f/1e9).toFixed(1)+'B':(f/1e6).toFixed(0)+'M';}
 
-// ====================== BUILD VIEWS - FULL WITH BREAKOUT ======================
-function buildViews(){
-  return {
-    score: [
-      {key:'composite', lk:'composite', tk:'composite', fmt:scoreBar},
-      {key:'breakout_score', lk:'breakout_score', tk:'breakout_score', fmt:breakoutScoreBadge},
-      {key:'valuation', lk:'valuation', tk:'valuation', fmt:v=>n(v,1), cls:valCls},
-      {key:'p_profitability', lk:'p_profitability', tk:'p_profitability', fmt:v=>n(v,1), cls:scoreCls},
-      {key:'p_growth', lk:'p_growth', tk:'p_growth', fmt:v=>n(v,1), cls:scoreCls},
-      {key:'p_fcf', lk:'p_fcf', tk:'p_fcf', fmt:v=>n(v,1), cls:scoreCls},
-      {key:'p_health', lk:'p_health', tk:'p_health', fmt:v=>n(v,1), cls:scoreCls},
-      {key:'p_momentum', lk:'p_momentum', tk:'p_momentum', fmt:v=>n(v,1), cls:scoreCls},
-      {key:'p_analyst', lk:'p_analyst', tk:'p_analyst', fmt:v=>n(v,1), cls:scoreCls},
-      {key:'p_piotroski', lk:'p_piotroski', tk:'p_piotroski', fmt:v=>n(v,1), cls:scoreCls},
-      {key:'p_eq', lk:'p_eq', tk:'p_eq', fmt:v=>n(v,1), cls:scoreCls},
-      {key:'tr_smartscore', lk:'smartscore', tk:'smartscore', fmt:ssBadge},
-      {key:'vs_sector', lk:'vs_sector', tk:'vs_sector', fmt:v=>n(v,1), cls:signCls},
-    ],
-    valuation: [ /* כל העמודות של Valuation כמו שהיו */ ],
-    profitability: [ /* כמו שהיו */ ],
-    growth: [ /* כמו שהיו */ ],
-    cashflow: [ /* כמו שהיו */ ],
-    health: [ /* כמו שהיו */ ],
-    momentum: [ /* כמו שהיו */ ],
-    analyst: [ /* כמו שהיו */ ],
-    breakout: [
-      {key:'breakout_score', lk:'breakout_score', tk:'breakout_score', fmt:breakoutScoreBadge},
-      {key:'breakout_rank', lk:'breakout_rank', tk:'breakout_rank', fmt:v=>n(v,0)},
-      {key:'breakout_phase', lk:'breakout_phase', tk:'breakout_phase', fmt:phaseBadge},
-      {key:'breakout_rr', lk:'breakout_rr', tk:'breakout_rr', fmt:v=>n(v,1,'x')},
-      {key:'breakout_rs', lk:'breakout_rs', tk:'breakout_rs', fmt:v=>n(v,2), cls:rsCls},
-      {key:'breakout_stop', lk:'breakout_stop', tk:'breakout_stop', fmt:v=>valid(v)?'$'+n(v,2):'—'},
-      {key:'has_vcp', lk:'has_vcp', tk:'has_vcp', fmt:v=>v?'✅ VCP':'—'},
-      {key:'vcp_quality', lk:'vcp_quality', tk:'vcp_quality', fmt:v=>n(v,0)},
-      {key:'breakout_entry', lk:'breakout_entry', tk:'breakout_entry', fmt:v=>v||'—'},
-      {key:'breakout_reasons', lk:'breakout_reasons', tk:'breakout_reasons', fmt:v=>v?v.substring(0,60)+'...':'—'},
-    ],
-    tipranks: [ /* כמו שהיו */ ]
-  };
+async function loadData(){
+  try{
+    var res=await fetch('sp500_data.json?t='+Date.now());
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    var json=await res.json();
+    allData=json.data||[];
+    var brk=allData.filter(d=>d.breakout_score!=null).length;
+    var ss=allData.filter(d=>d.tr_smartscore>=8).length;
+    var avg=allData.reduce((s,d)=>s+(d.composite||0),0)/allData.length;
+    document.getElementById('statTotal').textContent=json.count||allData.length;
+    document.getElementById('statDate').textContent=(json.generated||'').substring(0,10);
+    document.getElementById('statBreakout').textContent=brk;
+    document.getElementById('statSS').textContent=ss;
+    document.getElementById('statAvg').textContent=avg.toFixed(1);
+    document.getElementById('lastUpdated').innerHTML='<span class="live-dot"></span>Updated: '+(json.generated||'Today');
+    buildViewTabs();
+    applyFilters();
+    document.getElementById('loadingEl').style.display='none';
+    document.getElementById('tableWrap').style.display='block';
+  }catch(err){
+    document.getElementById('loadingEl').style.display='none';
+    var el=document.getElementById('errorEl');
+    el.style.display='block';
+    el.innerHTML='<div style="font-size:40px;margin-bottom:16px">❌</div><b>Failed to load sp500_data.json</b><br><small style="color:var(--text3)">'+err.message+'</small>';
+  }
 }
 
-// ====================== DETAIL PANEL עם BREAKOUT CARD ======================
-function buildDetailPanel(d){
-  // ... כל הקוד הקיים שלך ...
-  // בסוף ה-overview הוסף:
-  let breakoutHTML = valid(d.breakout_score) ? `
-    <div style="margin-top:20px;background:var(--surface);border:2px solid var(--gold);border-radius:12px;padding:18px">
-      <div style="color:var(--gold);font-weight:700;font-size:15px;margin-bottom:12px">⚡ BREAKOUT SIGNAL</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px">
-        <div><b>Score</b><br>${breakoutScoreBadge(d.breakout_score)}</div>
-        <div><b>Phase</b><br>${phaseBadge(d.breakout_phase)}</div>
-        <div><b>R/R</b><br><span style="color:var(--teal)">${n(d.breakout_rr,1,'x')}</span></div>
-        <div><b>RS</b><br><span style="color:${parseFloat(d.breakout_rs||0)>=1?'var(--teal)':'var(--red)'}">${n(d.breakout_rs,2)}</span></div>
-        <div><b>Stop</b><br>$${n(d.breakout_stop,2)}</div>
-        <div><b>VCP</b><br>${d.has_vcp?'<span style="color:#ffd700">YES</span>':'—'}</div>
-        <div><b>Entry</b><br>${d.breakout_entry||'—'}</div>
-      </div>
-      ${d.breakout_reasons?`<div style="margin-top:12px;font-size:12px;color:var(--text2)">${d.breakout_reasons}</div>`:''}
-    </div>` : '';
+function buildViewTabs(){
+  document.getElementById('viewTabs').innerHTML=Object.entries(VIEWS).map(([k,d])=>
+    '<div class="view-tab'+(k===currentView?' active':'')+'" onclick="setView(\''+k+'\')">'+d.label+'</div>'
+  ).join('');
+}
+function setView(k){currentView=k;buildViewTabs();renderTable();}
 
-  // הוסף את breakoutHTML בסוף ה-overview
-  return `...${breakoutHTML}...`; // שים אותו במקום המתאים ב-detail
+function applyFilters(){
+  var s=document.getElementById('searchBox').value.toLowerCase();
+  var sec=document.getElementById('sectorFilter').value;
+  var top=parseInt(document.getElementById('topFilter').value)||0;
+  filteredData=allData.filter(d=>{
+    if(s&&!d.ticker.toLowerCase().includes(s)&&!d.company.toLowerCase().includes(s))return false;
+    if(sec&&d.sector!==sec)return false;
+    if(breakoutOnly&&!d.breakout_score)return false;
+    if(activeQF==='vcp'&&!d.has_vcp)return false;
+    if(activeQF==='ss8'&&!(d.tr_smartscore>=8))return false;
+    if(activeQF==='strong_buy'&&d.tr_consensus!=='Strong Buy')return false;
+    if(activeQF==='top_momentum'&&!(d.p_momentum>=70))return false;
+    if(activeQF==='undervalued'&&!(d.p_valuation>=80))return false;
+    return true;
+  });
+  if(top>0)filteredData=filteredData.slice(0,top);
+  document.getElementById('statShowing').textContent=filteredData.length;
+  renderTable();
 }
 
-// ====================== שאר הקוד שלך (loadData, init, renderTable וכו') ======================
-// ... (הכל בדיוק כמו שהיה אצלך) ...
+function resetFilters(){
+  document.getElementById('searchBox').value='';
+  document.getElementById('sectorFilter').value='';
+  document.getElementById('topFilter').value='0';
+  breakoutOnly=false;activeQF=null;
+  document.getElementById('breakoutToggle').className='btn btn-ghost';
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('activeFilterLabel').textContent='';
+  applyFilters();
+}
+
+function toggleBreakout(){
+  breakoutOnly=!breakoutOnly;
+  document.getElementById('breakoutToggle').className='btn '+(breakoutOnly?'btn-gold':'btn-ghost');
+  applyFilters();
+}
+
+function quickFilter(key,el){
+  if(activeQF===key){activeQF=null;el.classList.remove('active');}
+  else{
+    activeQF=key;
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    el.classList.add('active');
+    var lbl={vcp:'VCP Stocks',ss8:'SmartScore ≥8',strong_buy:'Strong Buy',top_momentum:'Top Momentum',undervalued:'Undervalued'};
+    document.getElementById('activeFilterLabel').textContent='● '+lbl[key];
+  }
+  if(!activeQF)document.getElementById('activeFilterLabel').textContent='';
+  applyFilters();
+}
+
+function sortBy(key){
+  if(sortKey===key)sortDir*=-1;else{sortKey=key;sortDir=-1;}
+  filteredData.sort((a,b)=>{
+    var va=a[key]??((sortDir<0)?-Infinity:Infinity);
+    var vb=b[key]??((sortDir<0)?-Infinity:Infinity);
+    return va<vb?-sortDir:va>vb?sortDir:0;
+  });
+  renderTable();
+}
+
+function renderTable(){
+  var view=VIEWS[currentView];
+  var sk=sortKey,sd=sortDir;
+  function thc(k){return sk===k?(sd>0?'sorted-asc':'sorted-desc'):'';}
+  
+  var head='<tr><th onclick="sortBy(\'rank\')" class="'+thc('rank')+'">Rank</th><th>Ticker</th>';
+  head+='<th onclick="sortBy(\'price\')" class="'+thc('price')+'">Price</th>';
+  head+='<th onclick="sortBy(\'market_cap\')" class="'+thc('market_cap')+'">Mkt Cap</th>';
+  view.cols.forEach(c=>{head+='<th onclick="sortBy(\''+c.k+'\')" class="'+thc(c.k)+'">'+c.l+'</th>';});
+  head+='</tr>';
+  document.getElementById('tableHead').innerHTML=head;
+
+  var body='';
+  if(filteredData.length===0){
+    body='<tr><td colspan="'+(4+view.cols.length)+'" style="text-align:center;padding:40px;color:var(--text3)">No stocks match the current filters</td></tr>';
+  } else {
+    filteredData.forEach(function(d,i){
+      var rk=d.rank<=5?'top5':d.rank<=20?'top20':'';
+      var sc=SECTOR_COLORS[d.sector]||'#8aaccb';
+      var price=vv(d.price)?'$'+parseFloat(d.price).toFixed(2):'—';
+      var mc=vv(d.market_cap)?fmtMcap(d.market_cap):'—';
+      var cols='';
+      view.cols.forEach(c=>{cols+='<td>'+fc(c.f,d[c.k])+'</td>';});
+      body+='<tr onclick="openDetail('+i+')">';
+      body+='<td><span class="rank-num '+rk+'">'+d.rank+'</span></td>';
+      body+='<td class="ticker-cell"><div class="tk">'+d.ticker+'</div><div class="co"><span class="sector-dot" style="background:'+sc+'"></span>'+d.company+'</div></td>';
+      body+='<td><span style="font-family:var(--mono)">'+price+'</span></td>';
+      body+='<td><span class="dim" style="font-family:var(--mono);font-size:12px">'+mc+'</span></td>';
+      body+=cols+'</tr>';
+    });
+  }
+  document.getElementById('tableBody').innerHTML=body;
+}
+
+function openDetail(idx){
+  var d=filteredData[idx];
+  var sc=SECTOR_COLORS[d.sector]||'#8aaccb';
+  
+  var bcard='';
+  if(vv(d.breakout_score)){
+    bcard='<div class="detail-card breakout-card"><div class="detail-card-title">⚡ BREAKOUT SIGNAL</div><div class="detail-grid-3">';
+    bcard+='<div class="detail-item"><label>Score</label><div class="val">'+fc('brkBadge',d.breakout_score)+'</div></div>';
+    bcard+='<div class="detail-item"><label>Phase</label><div class="val">'+fc('phase',d.breakout_phase)+'</div></div>';
+    bcard+='<div class="detail-item"><label>VCP</label><div class="val">'+fc('vcp',d.has_vcp)+'</div></div>';
+    bcard+='<div class="detail-item"><label>Risk/Reward</label><div class="val">'+fc('rr',d.breakout_rr)+'</div></div>';
+    bcard+='<div class="detail-item"><label>RS</label><div class="val">'+fc('rs',d.breakout_rs)+'</div></div>';
+    bcard+='<div class="detail-item"><label>Stop Loss</label><div class="val">'+fc('dollar',d.breakout_stop)+'</div></div>';
+    bcard+='<div class="detail-item"><label>VCP Quality</label><div class="val">'+fc('n0',d.vcp_quality)+'</div></div>';
+    bcard+='<div class="detail-item"><label>B.Rank</label><div class="val">'+fc('n0',d.breakout_rank)+'</div></div>';
+    bcard+='<div class="detail-item"><label>Entry</label><div class="val" style="font-size:11px">'+(d.breakout_entry||'—')+'</div></div>';
+    bcard+='</div>';
+    if(d.breakout_reasons)bcard+='<div style="margin-top:12px;font-size:11px;color:var(--text2);line-height:1.5">'+d.breakout_reasons+'</div>';
+    bcard+='</div>';
+  }
+  
+  var pillars=[['Valuation',d.p_valuation],['Profitability',d.p_profitability],['Growth',d.p_growth],['FCF',d.p_fcf],['Health',d.p_health],['Momentum',d.p_momentum],['Analyst',d.p_analyst],['Piotroski',d.p_piotroski],['Earn.Quality',d.p_eq]];
+  var pbars=pillars.map(function(p){
+    var f=vv(p[1])?parseFloat(p[1]):0;var c=scColor(f);
+    return '<div style="display:flex;align-items:center;gap:10px"><div style="width:90px;font-size:11px;color:var(--text2)">'+p[0]+'</div><div style="flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden"><div style="width:'+f+'%;height:100%;background:'+c+';border-radius:3px"></div></div><div style="width:36px;font-family:var(--mono);font-size:12px;color:'+c+';text-align:right">'+f.toFixed(0)+'</div></div>';
+  }).join('');
+
+  var html='<button class="detail-close" onclick="closeDetail()">×</button>';
+  html+='<div class="detail-ticker">'+d.ticker+'</div>';
+  html+='<div class="detail-company"><span class="sector-dot" style="background:'+sc+'"></span>'+d.company+' · '+d.sector+'</div>';
+  
+  html+='<div class="detail-card"><div class="detail-card-title">📊 Overview</div><div class="detail-grid">';
+  html+='<div class="detail-item"><label>Rank</label><div class="val" style="color:var(--gold)">#'+d.rank+' / '+allData.length+'</div></div>';
+  html+='<div class="detail-item"><label>Price</label><div class="val">'+(vv(d.price)?'$'+parseFloat(d.price).toFixed(2):'—')+'</div></div>';
+  html+='<div class="detail-item"><label>Market Cap</label><div class="val">'+(vv(d.market_cap)?fmtMcap(d.market_cap):'—')+'</div></div>';
+  html+='<div class="detail-item"><label>Composite</label><div class="val" style="color:var(--teal)">'+(vv(d.composite)?parseFloat(d.composite).toFixed(1):'—')+'</div></div>';
+  html+='<div class="detail-item"><label>vs Sector</label><div class="val">'+fc('n1s',d.vs_sector)+'</div></div>';
+  html+='<div class="detail-item"><label>Beta</label><div class="val">'+fc('n2',d.beta)+'</div></div>';
+  html+='</div></div>';
+  
+  html+=bcard;
+  
+  html+='<div class="detail-card"><div class="detail-card-title">⭐ TipRanks</div><div class="detail-grid">';
+  html+='<div class="detail-item"><label>SmartScore</label><div class="val">'+fc('ssBadge',d.tr_smartscore)+'</div></div>';
+  html+='<div class="detail-item"><label>Consensus</label><div class="val">'+fc('cons',d.tr_consensus)+'</div></div>';
+  html+='<div class="detail-item"><label>PT Upside</label><div class="val">'+fc('pct1s',d.tr_pt_upside)+'</div></div>';
+  html+='<div class="detail-item"><label>News Bull%</label><div class="val">'+fc('pct1p',d.tr_news_bull)+'</div></div>';
+  html+='<div class="detail-item"><label>Insider</label><div class="val" style="font-size:12px">'+(d.tr_insider||'—')+'</div></div>';
+  html+='<div class="detail-item"><label>Hedge Fund</label><div class="val" style="font-size:12px">'+(d.tr_hedge||'—')+'</div></div>';
+  html+='</div></div>';
+  
+  html+='<div class="detail-card"><div class="detail-card-title">📈 9-Pillar Scores</div><div style="display:flex;flex-direction:column;gap:8px">'+pbars+'</div></div>';
+  
+  html+='<div class="detail-card"><div class="detail-card-title">💎 Valuation</div><div class="detail-grid">';
+  html+='<div class="detail-item"><label>P/E</label><div class="val">'+fc('n2',d.pe)+'</div></div>';
+  html+='<div class="detail-item"><label>Fwd P/E</label><div class="val">'+fc('n2',d.fwd_pe)+'</div></div>';
+  html+='<div class="detail-item"><label>PEG</label><div class="val">'+fc('n2',d.peg)+'</div></div>';
+  html+='<div class="detail-item"><label>P/S</label><div class="val">'+fc('n2',d.ps)+'</div></div>';
+  html+='<div class="detail-item"><label>P/B</label><div class="val">'+fc('n2',d.pb)+'</div></div>';
+  html+='<div class="detail-item"><label>EV/EBITDA</label><div class="val">'+fc('n1',d.ev_ebitda)+'</div></div>';
+  html+='<div class="detail-item"><label>FCF Yield</label><div class="val">'+fc('pct2s',d.fcf_yield)+'</div></div>';
+  html+='<div class="detail-item"><label>Div Yield</label><div class="val">'+fc('pct2',d.div_yield)+'</div></div>';
+  html+='</div></div>';
+  
+  html+='<div class="detail-card"><div class="detail-card-title">💰 Profitability & Growth</div><div class="detail-grid">';
+  html+='<div class="detail-item"><label>ROE</label><div class="val">'+fc('pct1s',d.roe)+'</div></div>';
+  html+='<div class="detail-item"><label>ROA</label><div class="val">'+fc('pct1s',d.roa)+'</div></div>';
+  html+='<div class="detail-item"><label>ROIC</label><div class="val">'+fc('pct1s',d.roic)+'</div></div>';
+  html+='<div class="detail-item"><label>Net Margin</label><div class="val">'+fc('pct1s',d.net_margin)+'</div></div>';
+  html+='<div class="detail-item"><label>Rev Growth</label><div class="val">'+fc('pct1s',d.rev_growth)+'</div></div>';
+  html+='<div class="detail-item"><label>EPS Growth</label><div class="val">'+fc('pct1s',d.eps_growth)+'</div></div>';
+  html+='<div class="detail-item"><label>12m Perf</label><div class="val">'+fc('pct1s',d.perf_12m)+'</div></div>';
+  html+='<div class="detail-item"><label>1m Perf</label><div class="val">'+fc('pct1s',d.perf_1m)+'</div></div>';
+  html+='</div></div>';
+  
+  document.getElementById('detailPanel').innerHTML=html;
+  document.getElementById('detailOverlay').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function closeDetail(){document.getElementById('detailOverlay').style.display='none';document.body.style.overflow='';}
+function closeDetailOvl(e){if(e.target===document.getElementById('detailOverlay'))closeDetail();}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDetail();});
 
 loadData();
 </script>
