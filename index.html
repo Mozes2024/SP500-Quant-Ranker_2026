@@ -7,195 +7,207 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:       #080d14;
-  --surface:  #0e1623;
-  --surface2: #131f30;
-  --border:   #1e2e42;
-  --gold:     #f0a500;
-  --gold2:    #ffc84a;
-  --teal:     #00c9a7;
-  --red:      #ff4d6d;
-  --blue:     #4fc3f7;
-  --purple:   #ce93d8;
-  --green:    #69f0ae;
-  --text:     #c8d8e8;
-  --text2:    #6b8aaa;
-  --text3:    #3a5570;
-  --mono:     'Space Mono', monospace;
-  --sans:     'Syne', sans-serif;
+  --bg:#080d14; --surface:#0e1623; --surface2:#131f30; --border:#1e2e42;
+  --gold:#f0a500; --gold2:#ffc84a; --teal:#00c9a7; --red:#ff4d6d;
+  --text:#c8d8e8; --text2:#6b8aaa; --text3:#3a5570;
+  --mono:'Space Mono',monospace; --sans:'Syne',sans-serif;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;}
+body.rtl{direction:rtl;}
 
 /* HEADER */
-header {
-  padding: 20px 32px 16px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  background: linear-gradient(180deg, #0a1220 0%, var(--bg) 100%);
-  position: sticky; top: 0; z-index: 200;
+header{
+  padding:16px 28px; border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(180deg,#0a1220 0%,var(--bg) 100%);
+  position:sticky;top:0;z-index:300;
 }
-.logo-title { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -.5px; }
-.logo-sub { font-family: var(--mono); font-size: 10px; color: var(--gold); letter-spacing: 2px; margin-top: 2px; }
-.live-dot { width:7px; height:7px; border-radius:50%; background:var(--teal); box-shadow:0 0 8px var(--teal); display:inline-block; margin-right:6px; animation:pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
-.last-updated { font-family:var(--mono); font-size:11px; color:var(--text2); }
+.logo-title{font-size:19px;font-weight:800;color:#fff;letter-spacing:-.5px;}
+.logo-sub{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:2px;margin-top:2px;}
+.header-right{display:flex;align-items:center;gap:16px;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);display:inline-block;margin-right:6px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+.last-updated{font-family:var(--mono);font-size:10px;color:var(--text2);}
+.lang-btn{
+  padding:5px 14px;border-radius:4px;border:1px solid var(--border);
+  background:transparent;color:var(--text2);font-family:var(--mono);font-size:10px;
+  cursor:pointer;transition:all .15s;letter-spacing:1px;
+}
+.lang-btn:hover,.lang-btn.active{background:var(--gold);border-color:var(--gold);color:#000;font-weight:700;}
 
 /* STATS */
-.stats-bar { display:grid; grid-template-columns:repeat(5,1fr); border-bottom:1px solid var(--border); }
-.stat-item { padding:14px 24px; border-right:1px solid var(--border); }
-.stat-item:last-child { border-right:none; }
-.stat-label { font-family:var(--mono); font-size:9px; color:var(--text3); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:5px; }
-.stat-value { font-size:24px; font-weight:800; color:#fff; }
-.stat-accent { color:var(--gold); }
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid var(--border);}
+.stat-item{padding:12px 22px;border-right:1px solid var(--border);}
+.stat-item:last-child{border-right:none;}
+.stat-label{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+.stat-value{font-size:22px;font-weight:800;color:#fff;}
+.stat-accent{color:var(--gold);}
 
 /* CONTROLS */
-.controls {
-  padding:14px 32px;
-  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-  border-bottom:1px solid var(--border);
-  background:var(--surface);
-  position:sticky; top:65px; z-index:150;
+.controls{
+  padding:12px 28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  border-bottom:1px solid var(--border);background:var(--surface);
+  position:sticky;top:61px;z-index:200;
 }
-.search-wrap { position:relative; flex:0 0 240px; }
-.search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:13px; }
-#search {
-  width:100%; background:var(--bg); border:1px solid var(--border); border-radius:5px;
-  padding:8px 10px 8px 30px; font-family:var(--mono); font-size:12px; color:var(--text); outline:none;
+.search-wrap{position:relative;flex:0 0 220px;}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px;}
+#search{
+  width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;
+  padding:7px 9px 7px 28px;font-family:var(--mono);font-size:11px;color:var(--text);outline:none;
 }
-#search:focus { border-color:var(--gold); }
-#search::placeholder { color:var(--text3); }
+#search:focus{border-color:var(--gold);}
+#search::placeholder{color:var(--text3);}
 
-.sector-filters { display:flex; gap:5px; flex-wrap:wrap; flex:1; }
-.sector-btn {
-  padding:5px 10px; border-radius:3px; border:1px solid var(--border);
-  background:transparent; color:var(--text2); font-family:var(--mono); font-size:9px;
-  letter-spacing:.5px; cursor:pointer; transition:all .15s; white-space:nowrap;
+/* FILTER PANEL */
+.filter-toggle{
+  padding:6px 12px;border-radius:4px;border:1px solid var(--border);
+  background:transparent;color:var(--text2);font-family:var(--mono);font-size:9px;
+  letter-spacing:.5px;cursor:pointer;transition:all .15s;white-space:nowrap;
 }
-.sector-btn:hover { border-color:var(--gold); color:var(--gold); }
-.sector-btn.active { background:var(--gold); border-color:var(--gold); color:#000; font-weight:700; }
+.filter-toggle:hover,.filter-toggle.open{border-color:var(--teal);color:var(--teal);}
 
-.count-badge { font-family:var(--mono); font-size:11px; color:var(--text2); margin-left:auto; white-space:nowrap; }
-.count-badge span { color:var(--gold); font-weight:700; }
+.filter-panel{
+  display:none;padding:14px 28px;gap:16px;flex-wrap:wrap;align-items:flex-end;
+  border-bottom:1px solid var(--border);background:#0a1520;
+}
+.filter-panel.open{display:flex;}
+.filter-group{display:flex;flex-direction:column;gap:5px;}
+.filter-label{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;}
+.filter-range{display:flex;align-items:center;gap:6px;}
+.filter-range input{
+  width:70px;background:var(--bg);border:1px solid var(--border);border-radius:3px;
+  padding:5px 7px;font-family:var(--mono);font-size:11px;color:var(--text);outline:none;
+}
+.filter-range input:focus{border-color:var(--teal);}
+.filter-range span{color:var(--text3);font-size:11px;}
+.filter-select{
+  background:var(--bg);border:1px solid var(--border);border-radius:3px;
+  padding:5px 7px;font-family:var(--mono);font-size:11px;color:var(--text);outline:none;
+  cursor:pointer;
+}
+.filter-reset{
+  padding:5px 12px;border-radius:3px;border:1px solid var(--border);
+  background:transparent;color:var(--text3);font-family:var(--mono);font-size:9px;cursor:pointer;
+}
+.filter-reset:hover{border-color:var(--red);color:var(--red);}
+
+.sector-filters{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
+.sector-btn{
+  padding:4px 9px;border-radius:3px;border:1px solid var(--border);
+  background:transparent;color:var(--text2);font-family:var(--mono);font-size:9px;
+  letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.sector-btn:hover{border-color:var(--gold);color:var(--gold);}
+.sector-btn.active{background:var(--gold);border-color:var(--gold);color:#000;font-weight:700;}
+.count-badge{font-family:var(--mono);font-size:10px;color:var(--text2);margin-left:auto;white-space:nowrap;}
+.count-badge span{color:var(--gold);font-weight:700;}
 
 /* VIEW TABS */
-.view-tabs {
-  padding:0 32px;
-  display:flex; gap:2px;
-  border-bottom:1px solid var(--border);
-  background:var(--surface);
-  position:sticky; top:115px; z-index:140;
-  overflow-x:auto;
+.view-tabs{
+  padding:0 28px;display:flex;gap:1px;border-bottom:1px solid var(--border);
+  background:var(--surface);position:sticky;top:105px;z-index:190;overflow-x:auto;
 }
-.view-tabs::-webkit-scrollbar { height:3px; }
-.view-tabs::-webkit-scrollbar-thumb { background:var(--border); }
-.view-tab {
-  padding:10px 16px;
-  font-family:var(--mono); font-size:10px; letter-spacing:1px; text-transform:uppercase;
-  color:var(--text3); cursor:pointer; white-space:nowrap;
-  border-bottom:2px solid transparent;
-  transition:all .15s;
-  background:transparent; border-top:none; border-left:none; border-right:none;
+.view-tabs::-webkit-scrollbar{height:3px;}
+.view-tabs::-webkit-scrollbar-thumb{background:var(--border);}
+.view-tab{
+  padding:9px 14px;font-family:var(--mono);font-size:9px;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--text3);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;
+  transition:all .15s;background:transparent;border-top:none;border-left:none;border-right:none;
 }
-.view-tab:hover { color:var(--text); }
-.view-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+.view-tab:hover{color:var(--text);}
+.view-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
 
-/* TABLE */
-.table-wrap { overflow-x:auto; padding:0 32px 60px; }
-table { width:100%; border-collapse:collapse; margin-top:12px; font-size:12px; }
+/* TABLE — fixed layout to prevent shift */
+.table-wrap{overflow-x:auto;padding:0 28px 60px;}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px;table-layout:fixed;}
+.col-rank{width:40px;}
+.col-ticker{width:72px;}
+.col-company{width:170px;}
+.col-sector{width:120px;}
+.col-data{width:100px;}
 
-thead th {
-  padding:10px 8px; text-align:left;
-  font-family:var(--mono); font-size:9px; letter-spacing:1.2px; text-transform:uppercase;
-  color:var(--text3); border-bottom:1px solid var(--border);
-  white-space:nowrap; cursor:pointer; user-select:none; transition:color .15s;
+thead th{
+  padding:9px 7px;text-align:left;font-family:var(--mono);font-size:9px;
+  letter-spacing:1px;text-transform:uppercase;color:var(--text3);
+  border-bottom:1px solid var(--border);white-space:nowrap;
+  cursor:pointer;user-select:none;transition:color .15s;overflow:hidden;
   position:relative;
 }
-thead th:hover { color:var(--gold); }
-thead th.sorted { color:var(--gold); }
-thead th.sorted::after { content:' ↓'; }
-thead th.sorted.asc::after { content:' ↑'; }
+thead th:hover{color:var(--gold);}
+thead th.sorted{color:var(--gold);}
+thead th.sorted::after{content:' ↓';}
+thead th.sorted.asc::after{content:' ↑';}
 
-/* TOOLTIP */
-thead th[data-tip]:hover::after {
-  content: attr(data-tip);
-  position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
-  background:#1a2d42; border:1px solid var(--border);
-  color:var(--text); font-size:10px; font-family:var(--sans); font-weight:400;
-  letter-spacing:0; text-transform:none; white-space:normal;
-  padding:8px 12px; border-radius:5px;
-  width:200px; line-height:1.5; z-index:999;
+/* TOOLTIP — pure CSS, robust */
+.th-wrap{position:relative;display:inline-block;width:100%;}
+.th-tip{
+  visibility:hidden;opacity:0;
+  position:fixed;
+  background:#0f1e30;border:1px solid var(--border);
+  color:var(--text);font-size:11px;font-family:var(--sans);font-weight:400;
+  letter-spacing:0;text-transform:none;white-space:normal;
+  padding:10px 14px;border-radius:6px;
+  width:220px;line-height:1.55;z-index:9999;
+  box-shadow:0 8px 32px #000c;
   pointer-events:none;
-  box-shadow:0 8px 24px #000a;
+  transition:opacity .15s;
 }
-thead th[data-tip]:hover::before {
-  content:'';
-  position:absolute; bottom:calc(100% + 1px); left:50%; transform:translateX(-50%);
-  border:5px solid transparent; border-top-color:#1a2d42; z-index:999;
-}
+thead th:hover .th-tip{visibility:visible;opacity:1;}
 
-tbody tr { border-bottom:1px solid #0e1a26; transition:background .1s; cursor:pointer; }
-tbody tr:hover { background:var(--surface2); }
-tbody tr.expanded { background:var(--surface2); }
+tbody tr{border-bottom:1px solid #0a1520;transition:background .1s;cursor:pointer;}
+tbody tr:hover{background:var(--surface2);}
+tbody tr.expanded{background:var(--surface2);}
+td{padding:9px 7px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-td { padding:10px 8px; vertical-align:middle; white-space:nowrap; }
+.td-rank{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.td-rank.top3{color:var(--gold2);font-weight:700;}
+.td-ticker{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;}
+.td-ticker a{color:inherit;text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s;}
+.td-ticker a:hover{border-color:var(--gold);color:var(--gold);}
+.td-company{color:var(--text2);font-size:11px;}
+.sector-pill{display:inline-block;padding:2px 7px;border-radius:3px;font-size:9px;font-family:var(--mono);white-space:nowrap;}
 
-.td-rank { font-family:var(--mono); font-size:10px; color:var(--text3); width:36px; }
-.td-rank.top3 { color:var(--gold2); font-weight:700; }
-.td-ticker { font-family:var(--mono); font-size:13px; font-weight:700; color:#fff; min-width:65px; }
-.td-ticker a { color:inherit; text-decoration:none; border-bottom:1px solid transparent; transition:border-color .15s; }
-.td-ticker a:hover { border-color:var(--gold); color:var(--gold); }
-.td-company { color:var(--text2); font-size:11px; max-width:160px; overflow:hidden; text-overflow:ellipsis; }
+.score-cell{display:flex;align-items:center;gap:6px;}
+.score-num{font-family:var(--mono);font-size:12px;font-weight:700;width:36px;text-align:right;flex-shrink:0;}
+.score-bar-bg{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:2px;}
 
-.sector-pill { display:inline-block; padding:3px 7px; border-radius:3px; font-size:9px; font-family:var(--mono); letter-spacing:.3px; white-space:nowrap; }
+.td-num{font-family:var(--mono);font-size:11px;text-align:right;padding-right:10px;}
+.td-num.pos{color:var(--teal);}
+.td-num.neg{color:var(--red);}
+.td-num.neutral{color:var(--text2);}
+.td-num.hi{color:#a5f3d0;}
+.td-num.lo{color:#fca5a5;}
+.td-num.mid{color:var(--gold2);}
 
-.score-cell { display:flex; align-items:center; gap:7px; min-width:110px; }
-.score-num { font-family:var(--mono); font-size:12px; font-weight:700; width:36px; text-align:right; }
-.score-bar-bg { flex:1; height:4px; background:var(--border); border-radius:2px; overflow:hidden; min-width:45px; }
-.score-bar-fill { height:100%; border-radius:2px; }
+.ss-badge{display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;border-radius:4px;font-family:var(--mono);font-size:11px;font-weight:700;}
 
-.td-num { font-family:var(--mono); font-size:11px; text-align:right; padding-right:12px; }
-.td-num.pos { color:var(--teal); }
-.td-num.neg { color:var(--red); }
-.td-num.neutral { color:var(--text2); }
-
-.ss-badge { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:5px; font-family:var(--mono); font-size:11px; font-weight:700; }
-
-/* PILLAR EXPAND */
-.pillar-row { display:none; background:#060c15; border-bottom:1px solid var(--border); }
-.pillar-row.open { display:table-row; }
-.pillar-inner { padding:16px 52px 20px; }
-.pillar-header { font-family:var(--mono); font-size:9px; color:var(--text3); letter-spacing:2px; margin-bottom:14px; }
-
-.pillar-grid { display:grid; grid-template-columns:repeat(9,1fr); gap:10px; margin-bottom:16px; }
-.pillar-name { font-family:var(--mono); font-size:8px; color:var(--text3); letter-spacing:1px; text-transform:uppercase; margin-bottom:5px; }
-.pillar-score { font-size:22px; font-weight:800; margin-bottom:4px; }
-.pillar-bar-bg { height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
-.pillar-bar-fill { height:100%; border-radius:2px; }
-
-.detail-tabs { display:flex; gap:4px; margin-bottom:10px; }
-.detail-tab { padding:4px 12px; border-radius:3px; border:1px solid var(--border); background:transparent; color:var(--text3); font-family:var(--mono); font-size:9px; cursor:pointer; transition:all .15s; }
-.detail-tab:hover { border-color:var(--teal); color:var(--teal); }
-.detail-tab.active { background:var(--teal); border-color:var(--teal); color:#000; font-weight:700; }
-
-.detail-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
-.detail-item { background:var(--surface); border:1px solid var(--border); border-radius:5px; padding:10px 12px; }
-.detail-label { font-family:var(--mono); font-size:8px; color:var(--text3); letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
-.detail-value { font-family:var(--mono); font-size:14px; font-weight:700; color:#fff; }
-.detail-value.pos { color:var(--teal); }
-.detail-value.neg { color:var(--red); }
+/* EXPAND */
+.pillar-row{display:none;background:#060b13;border-bottom:1px solid var(--border);}
+.pillar-row.open{display:table-row;}
+.pillar-inner{padding:14px 48px 18px;}
+.pillar-header{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:2px;margin-bottom:12px;}
+.pillar-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:10px;margin-bottom:14px;}
+.pillar-name{font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px;}
+.pillar-score{font-size:21px;font-weight:800;margin-bottom:3px;}
+.pillar-bar-bg{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.pillar-bar-fill{height:100%;border-radius:2px;}
+.detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;}
+.detail-item{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:9px 11px;}
+.detail-label{font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px;}
+.detail-value{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;}
 
 /* LOADING */
-#loading { display:flex; flex-direction:column; align-items:center; justify-content:center; height:60vh; gap:20px; }
-.spinner { width:44px; height:44px; border:3px solid var(--border); border-top-color:var(--gold); border-radius:50%; animation:spin .8s linear infinite; }
-@keyframes spin { to { transform:rotate(360deg); } }
-.loading-text { font-family:var(--mono); font-size:11px; color:var(--text2); letter-spacing:2px; animation:blink 1.5s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-#error-msg { display:none; text-align:center; padding:60px; font-family:var(--mono); color:var(--red); }
-
-::-webkit-scrollbar { width:5px; height:5px; }
-::-webkit-scrollbar-track { background:var(--bg); }
-::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+#loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:20px;}
+.spinner{width:42px;height:42px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:2px;animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+#error-msg{display:none;text-align:center;padding:60px;font-family:var(--mono);color:var(--red);}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 </style>
 </head>
 <body>
@@ -205,40 +217,76 @@ td { padding:10px 8px; vertical-align:middle; white-space:nowrap; }
     <div class="logo-title">S&amp;P 500 Quant Ranker</div>
     <div class="logo-sub">v5.2 · Senior Quant Pro · 9-Pillar Model</div>
   </div>
-  <div class="last-updated" id="lastUpdated"><span class="live-dot"></span>Loading...</div>
+  <div class="header-right">
+    <div class="last-updated" id="lastUpdated"><span class="live-dot"></span>Loading...</div>
+    <button class="lang-btn active" id="btnEn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnHe" onclick="setLang('he')">עב</button>
+  </div>
 </header>
 
 <div class="stats-bar" id="statsBar" style="display:none">
-  <div class="stat-item"><div class="stat-label">Stocks Ranked</div><div class="stat-value" id="statTotal">—</div></div>
-  <div class="stat-item"><div class="stat-label">Avg Composite</div><div class="stat-value stat-accent" id="statAvg">—</div></div>
-  <div class="stat-item"><div class="stat-label">Top Sector</div><div class="stat-value" id="statTopSector" style="font-size:15px;margin-top:4px">—</div></div>
-  <div class="stat-item"><div class="stat-label">SmartScore ≥ 8</div><div class="stat-value stat-accent" id="statSS8">—</div></div>
-  <div class="stat-item"><div class="stat-label">TR Coverage</div><div class="stat-value" id="statTR">—</div></div>
+  <div class="stat-item"><div class="stat-label" id="lbl-ranked">Stocks Ranked</div><div class="stat-value" id="statTotal">—</div></div>
+  <div class="stat-item"><div class="stat-label" id="lbl-avg">Avg Composite</div><div class="stat-value stat-accent" id="statAvg">—</div></div>
+  <div class="stat-item"><div class="stat-label" id="lbl-topsec">Top Sector</div><div class="stat-value" id="statTopSector" style="font-size:14px;margin-top:3px">—</div></div>
+  <div class="stat-item"><div class="stat-label" id="lbl-ss8">SmartScore ≥ 8</div><div class="stat-value stat-accent" id="statSS8">—</div></div>
+  <div class="stat-item"><div class="stat-label" id="lbl-tr">TR Coverage</div><div class="stat-value" id="statTR">—</div></div>
 </div>
 
 <div class="controls" id="controls" style="display:none">
   <div class="search-wrap">
     <span class="search-icon">⌕</span>
-    <input type="text" id="search" placeholder="Search ticker or company…">
+    <input type="text" id="search" placeholder="Search ticker…">
   </div>
+  <button class="filter-toggle" id="filterToggle" onclick="toggleFilter()">⚙ FILTERS</button>
   <div class="sector-filters" id="sectorFilters"></div>
-  <div class="count-badge">Showing <span id="showCount">—</span> stocks</div>
+  <div class="count-badge"><span id="showCount">—</span> <span id="lbl-stocks">stocks</span></div>
 </div>
 
-<div class="view-tabs" id="viewTabs" style="display:none">
-  <button class="view-tab active" data-view="score">📊 Score</button>
-  <button class="view-tab" data-view="valuation">💰 Valuation</button>
-  <button class="view-tab" data-view="profitability">💹 Profitability</button>
-  <button class="view-tab" data-view="growth">🚀 Growth</button>
-  <button class="view-tab" data-view="cashflow">💵 Cash Flow</button>
-  <button class="view-tab" data-view="health">🏦 Balance Sheet</button>
-  <button class="view-tab" data-view="momentum">⚡ Momentum</button>
-  <button class="view-tab" data-view="analyst">🔭 Analyst</button>
-  <button class="view-tab" data-view="tipranks">🎯 TipRanks</button>
+<div class="filter-panel" id="filterPanel">
+  <div class="filter-group">
+    <div class="filter-label" id="lbl-f-composite">Composite Score</div>
+    <div class="filter-range">
+      <input type="number" id="fCompMin" placeholder="Min" min="0" max="100">
+      <span>–</span>
+      <input type="number" id="fCompMax" placeholder="Max" min="0" max="100">
+    </div>
+  </div>
+  <div class="filter-group">
+    <div class="filter-label" id="lbl-f-smartscore">SmartScore</div>
+    <div class="filter-range">
+      <select id="fSSMin" class="filter-select">
+        <option value="">Any</option>
+        <option value="8">≥ 8</option>
+        <option value="9">≥ 9</option>
+        <option value="10">= 10</option>
+      </select>
+    </div>
+  </div>
+  <div class="filter-group">
+    <div class="filter-label" id="lbl-f-consensus">Consensus</div>
+    <select id="fConsensus" class="filter-select">
+      <option value="">Any</option>
+      <option value="StrongBuy">Strong Buy</option>
+      <option value="Buy">Buy</option>
+      <option value="ModerateBuy">Moderate Buy</option>
+      <option value="Hold">Hold</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <div class="filter-label" id="lbl-f-pe">P/E Max</div>
+    <input type="number" id="fPEMax" placeholder="e.g. 25" style="width:90px;background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:5px 7px;font-family:var(--mono);font-size:11px;color:var(--text);outline:none;">
+  </div>
+  <div class="filter-group">
+    <div class="filter-label" id="lbl-f-perf">12M Return Min %</div>
+    <input type="number" id="fPerfMin" placeholder="e.g. 10" style="width:90px;background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:5px 7px;font-family:var(--mono);font-size:11px;color:var(--text);outline:none;">
+  </div>
+  <button class="filter-reset" onclick="resetFilters()" id="lbl-f-reset">✕ Reset</button>
 </div>
 
-<div id="loading"><div class="spinner"></div><div class="loading-text">LOADING MARKET DATA...</div></div>
-<div id="error-msg">⚠ Could not load sp500_data.json<br><span style="color:var(--text2);font-size:11px;display:block;margin-top:8px">Make sure the GitHub Actions workflow has run at least once.</span></div>
+<div class="view-tabs" id="viewTabs" style="display:none" id="viewTabs"></div>
+
+<div id="loading"><div class="spinner"></div><div class="loading-text" id="loadingText">LOADING MARKET DATA...</div></div>
+<div id="error-msg">⚠ Could not load sp500_data.json<br><span style="color:var(--text2);font-size:11px;display:block;margin-top:8px">Run the GitHub Actions workflow first.</span></div>
 
 <div class="table-wrap" id="tableWrap" style="display:none">
   <table id="mainTable">
@@ -248,283 +296,546 @@ td { padding:10px 8px; vertical-align:middle; white-space:nowrap; }
 </div>
 
 <script>
-// ═══ DATA ═══════════════════════════════════════════════════
-const SECTOR_COLORS = {
-  'Information Technology': { bg:'#0d2137', color:'#4fc3f7' },
-  'Health Care':            { bg:'#0d2118', color:'#69f0ae' },
-  'Financials':             { bg:'#1a1a0d', color:'#fff176' },
-  'Consumer Discretionary': { bg:'#1a100d', color:'#ffab91' },
-  'Communication Services': { bg:'#150d1a', color:'#ce93d8' },
-  'Industrials':            { bg:'#0d1a1a', color:'#80deea' },
-  'Consumer Staples':       { bg:'#1a160d', color:'#ffcc80' },
-  'Energy':                 { bg:'#1a0d0d', color:'#ef9a9a' },
-  'Real Estate':            { bg:'#0d1a13', color:'#a5d6a7' },
-  'Materials':              { bg:'#0d1318', color:'#90caf9' },
-  'Utilities':              { bg:'#120d1a', color:'#b39ddb' },
+// ═══ I18N ════════════════════════════════════════════════════
+const T = {
+  en: {
+    ranked:'Stocks Ranked', avg:'Avg Composite', topsec:'Top Sector',
+    ss8:'SmartScore ≥ 8', tr:'TR Coverage', stocks:'stocks',
+    searchph:'Search ticker or company…',
+    filters:'⚙ FILTERS', reset:'✕ Reset',
+    fcomposite:'Composite Score', fss:'SmartScore', fconsensus:'Consensus',
+    fpe:'P/E Max', fperf:'12M Return Min %',
+    loading:'LOADING MARKET DATA...',
+    allsectors:'ALL SECTORS',
+    tabs:{
+      score:'📊 Score', valuation:'💰 Valuation', profitability:'💹 Profitability',
+      growth:'🚀 Growth', cashflow:'💵 Cash Flow', health:'🏦 Balance Sheet',
+      momentum:'⚡ Momentum', analyst:'🔭 Analyst', tipranks:'🎯 TipRanks'
+    },
+    cols:{
+      rank:'#', ticker:'Ticker', company:'Company', sector:'Sector',
+      composite:'Composite Score', valuation:'Valuation', smartscore:'SmartScore',
+      consensus:'Consensus', pe:'P/E', fwd_pe:'Fwd P/E', peg:'PEG',
+      ps:'P/S', pb:'P/B', ev_ebitda:'EV/EBITDA', fcf_yield:'FCF Yield %',
+      pt_upside:'PT Upside %', div_yield:'Div Yield %',
+      pillar_prof:'Pillar Score', roe:'ROE %', roa:'ROA %', roic:'ROIC %',
+      net_margin:'Net Margin %', gross_margin:'Gross Margin %', op_margin:'Op. Margin %',
+      eq_score:'EQ Score', piotroski_f:'Piotroski F',
+      pillar_growth:'Pillar Score', rev_growth:'Rev Growth %', eps_growth:'EPS Growth %',
+      fcf_margin:'FCF Margin %', tr_asset_gr:'Asset Growth %',
+      pillar_fcf:'FCF Pillar', fcf_to_ni:'FCF/Net Income', payout_ratio:'Payout %',
+      pillar_health:'Health Pillar', current_ratio:'Current Ratio', debt_equity:'Debt/Equity',
+      altman_z:'Altman Z', beta:'Beta',
+      pillar_mom:'Mom. Pillar', perf_12m:'12M Return %', perf_6m:'6M Return %',
+      perf_3m:'3M Return %', perf_1m:'1M Return %', momentum:'Composite Mom.',
+      tr_mom_12m:'TR Tech Mom.',
+      pillar_analyst:'Analyst Pillar', analyst_mean:'Yahoo Rating', analysts:'# Analysts',
+      tr_consensus:'TR Consensus', tr_pt_upside:'TR PT Upside %',
+      tr_smartscore:'SmartScore', tr_news_bull:'News Bull. %', tr_blogger_bull:'Blogger Bull. %',
+      tr_insider:'Insider Trend', tr_hedge:'Hedge Trend',
+      tr_inv_chg_30d:'Inv. Chg 30D %', tr_inv_chg_7d:'Inv. Chg 7D %',
+      vs_sector:'vs Sector', coverage:'Coverage %',
+      p_profitability:'Profitab.', p_growth:'Growth', p_eq:'EQ Qual.',
+      p_fcf:'FCF Qual.', p_health:'Fin. Health', p_momentum:'Momentum',
+      p_analyst:'Analyst', p_piotroski:'Piotroski',
+    },
+    tips:{
+      composite:'Weighted average of all 9 pillars (10–100). Higher = better overall quality + value.',
+      valuation:'How cheap vs expensive vs sector peers. 100 = deeply undervalued.',
+      smartscore:'TipRanks SmartScore 1–10. AI aggregation of analyst, news, insider and hedge fund signals. 8–10 = Outperform.',
+      consensus:'Analyst consensus from last 3 months of ratings.',
+      pe:'Price / Earnings (trailing 12M). Lower = potentially cheaper.',
+      fwd_pe:'Forward P/E based on next 12M EPS estimate. More forward-looking.',
+      peg:'P/E ÷ growth rate. PEG < 1 often considered undervalued.',
+      ps:'Price / Sales. Useful for unprofitable companies.',
+      pb:'Price / Book value. P/B < 1 = stock trades below net assets.',
+      ev_ebitda:'EV / EBITDA. Preferred over P/E as it ignores capital structure.',
+      fcf_yield:'Free Cash Flow / Market Cap. High FCF yield = generating lots of cash vs price.',
+      pt_upside:'Yahoo analyst consensus price target upside vs current price.',
+      div_yield:'Annual dividend / price. Income return from holding the stock.',
+      roe:'Return on Equity. Measures how efficiently equity is used.',
+      roa:'Return on Assets. Measures asset utilization efficiency.',
+      roic:'Return on Invested Capital. Best measure of capital efficiency.',
+      net_margin:'Net income / revenue. % of each revenue dollar that ends as profit.',
+      gross_margin:'(Revenue - COGS) / Revenue. Pricing power and production efficiency.',
+      op_margin:'Operating income / revenue. Profitability before interest and taxes.',
+      eq_score:'Earnings Quality 0–5: is net income backed by real cash? Low accrual = high quality.',
+      piotroski_f:'Piotroski F-Score 0–9: 9 binary financial strength tests. 8–9 = very strong.',
+      rev_growth:'Year-over-year revenue growth. Core measure of top-line momentum.',
+      eps_growth:'Year-over-year EPS growth. Bottom-line expansion.',
+      fcf_margin:'FCF / Revenue. How much revenue converts to free cash — quality growth signal.',
+      tr_asset_gr:'TipRanks: YoY total asset growth. Balance sheet expansion.',
+      fcf_to_ni:'FCF / Net Income. Ratio > 1 = earnings fully cash-backed. < 0.5 = red flag.',
+      payout_ratio:'Dividends / Net Income. High payout may be unsustainable.',
+      current_ratio:'Current Assets / Current Liabilities. > 1.5 = healthy. < 1 = liquidity risk.',
+      debt_equity:'Total Debt / Equity. Lower = less leverage.',
+      altman_z:'Altman Z-Score: > 3 = safe, 1.8–3 = grey zone, < 1.8 = distress.',
+      beta:'Price volatility vs S&P 500. > 1 = amplified moves. < 1 = more stable.',
+      perf_12m:'12-month price return. Strongest predictor in momentum factor investing.',
+      perf_6m:'6-month price return. Medium-term momentum signal.',
+      perf_3m:'3-month price return. Short-term trend.',
+      perf_1m:'1-month price return. Very short-term, can be noisy.',
+      momentum:'Weighted composite: 12M×50% + 6M×30% + 3M×15% + 1M×5%.',
+      tr_mom_12m:'TipRanks technical 12-month momentum signal.',
+      analyst_mean:'Yahoo Finance consensus: 1=Strong Buy, 2=Buy, 3=Hold, 4=Sell, 5=Strong Sell.',
+      analysts:'Number of analysts covering the stock. More = more reliable consensus.',
+      tr_pt_upside:'TipRanks aggregated analyst price target upside.',
+      tr_news_bull:'% of recent news with bullish sentiment (TipRanks NLP).',
+      tr_blogger_bull:'% of financial bloggers with bullish stance on TipRanks.',
+      tr_insider:'Recent insider trading direction: Increased / Decreased / Unchanged.',
+      tr_hedge:'Hedge fund portfolio activity trend.',
+      tr_inv_chg_30d:'Change in institutional investor holdings over last 30 days.',
+      tr_inv_chg_7d:'Change in institutional holdings over last 7 days.',
+      vs_sector:'Composite score minus sector median — how much above/below sector peers.',
+      coverage:'Data completeness: % of the 17 core metrics available for this stock.',
+    }
+  },
+  he: {
+    ranked:'מניות מדורגות', avg:'ציון ממוצע', topsec:'סקטור מוביל',
+    ss8:'SmartScore ≥ 8', tr:'כיסוי TipRanks', stocks:'מניות',
+    searchph:'חפש טיקר או חברה…',
+    filters:'⚙ פילטרים', reset:'✕ איפוס',
+    fcomposite:'ציון קומפוזיט', fss:'SmartScore', fconsensus:'קונצנזוס',
+    fpe:'P/E מקסימום', fperf:'תשואה 12M מינימום %',
+    loading:'טוען נתוני שוק...',
+    allsectors:'כל הסקטורים',
+    tabs:{
+      score:'📊 ציון', valuation:'💰 שווי', profitability:'💹 רווחיות',
+      growth:'🚀 צמיחה', cashflow:'💵 תזרים', health:'🏦 מאזן',
+      momentum:'⚡ מומנטום', analyst:'🔭 אנליסטים', tipranks:'🎯 TipRanks'
+    },
+    cols:{
+      rank:'#', ticker:'טיקר', company:'חברה', sector:'סקטור',
+      composite:'ציון קומפוזיט', valuation:'שווי', smartscore:'SmartScore',
+      consensus:'קונצנזוס', pe:'P/E', fwd_pe:'P/E עתידי', peg:'PEG',
+      ps:'P/S', pb:'P/B', ev_ebitda:'EV/EBITDA', fcf_yield:'תשואת FCF %',
+      pt_upside:'יעד מחיר %', div_yield:'תשואת דיב. %',
+      pillar_prof:'ציון פילר', roe:'ROE %', roa:'ROA %', roic:'ROIC %',
+      net_margin:'מרג׳ין נטו %', gross_margin:'מרג׳ין גולמי %', op_margin:'מרג׳ין תפעולי %',
+      eq_score:'איכות רווח', piotroski_f:'Piotroski F',
+      pillar_growth:'ציון פילר', rev_growth:'צמיחת הכנסות %', eps_growth:'צמיחת EPS %',
+      fcf_margin:'מרג׳ין FCF %', tr_asset_gr:'צמיחת נכסים %',
+      pillar_fcf:'פילר FCF', fcf_to_ni:'FCF/רווח נקי', payout_ratio:'יחס חלוקה %',
+      pillar_health:'פילר בריאות', current_ratio:'יחס שוטף', debt_equity:'חוב/הון',
+      altman_z:'Altman Z', beta:'בטא',
+      pillar_mom:'פילר מומנטום', perf_12m:'תשואה 12M %', perf_6m:'תשואה 6M %',
+      perf_3m:'תשואה 3M %', perf_1m:'תשואה 1M %', momentum:'מומנטום משוקלל',
+      tr_mom_12m:'מומנטום טכני TR',
+      pillar_analyst:'פילר אנליסטים', analyst_mean:'דירוג Yahoo', analysts:'מס׳ אנליסטים',
+      tr_consensus:'קונצנזוס TR', tr_pt_upside:'יעד מחיר TR %',
+      tr_smartscore:'SmartScore', tr_news_bull:'חדשות חיוביות %', tr_blogger_bull:'בלוגרים חיוביים %',
+      tr_insider:'מגמת פנים', tr_hedge:'מגמת גידור',
+      tr_inv_chg_30d:'שינוי מוסדי 30י %', tr_inv_chg_7d:'שינוי מוסדי 7י %',
+      vs_sector:'מול סקטור', coverage:'כיסוי נתונים %',
+      p_profitability:'רווחיות', p_growth:'צמיחה', p_eq:'איכות רווח',
+      p_fcf:'FCF', p_health:'בריאות פיננסית', p_momentum:'מומנטום',
+      p_analyst:'אנליסטים', p_piotroski:'Piotroski',
+    },
+    tips:{
+      composite:'ממוצע משוקלל של 9 פילרים (10–100). גבוה יותר = איכות וערך כולל טובים יותר.',
+      valuation:'עד כמה המניה זולה ביחס לעמיתים בסקטור. 100 = זולה מאוד.',
+      smartscore:'TipRanks SmartScore 1–10. צבירת AI של אנליסטים, חדשות, פנים וקרנות גידור. 8–10 = ביצועי יתר.',
+      consensus:'קונצנזוס אנליסטים מ-3 החודשים האחרונים.',
+      pe:'מחיר / רווח (12 חודשים אחורה). נמוך יותר = פוטנציאל זול יותר.',
+      fwd_pe:'P/E עתידי על בסיס תחזית EPS לשנה הבאה.',
+      peg:'P/E חלקי שיעור צמיחה. PEG < 1 נחשב לרוב זול.',
+      ps:'מחיר / מכירות. שימושי לחברות לא רווחיות.',
+      pb:'מחיר / ערך ספרים. P/B < 1 = המניה נסחרת מתחת לשווי הנכסים.',
+      ev_ebitda:'שווי פירמה / EBITDA. עדיף על P/E כי מתעלם ממבנה ההון.',
+      fcf_yield:'תזרים חופשי / שווי שוק. FCF yield גבוה = יצירת מזומן גבוהה ביחס למחיר.',
+      pt_upside:'יעד המחיר הממוצע של אנליסטי Yahoo מול המחיר הנוכחי.',
+      div_yield:'דיבידנד שנתי / מחיר. תשואה ישירה מהחזקת המניה.',
+      roe:'תשואה על ההון. מודד ייעולי שימוש בהון העצמי.',
+      roa:'תשואה על נכסים. מודד ייעולי שימוש בנכסים.',
+      roic:'תשואה על ההון המושקע. המדד הטוב ביותר ליעילות הון.',
+      net_margin:'רווח נקי / הכנסות. אחוז כל שקל הכנסה שהפך לרווח.',
+      gross_margin:'(הכנסות - עלות מכר) / הכנסות. כוח תמחור ויעילות ייצור.',
+      op_margin:'רווח תפעולי / הכנסות. רווחיות לפני ריבית ומסים.',
+      eq_score:'איכות רווח 0–5: האם הרווח מגובה במזומן? יחס צבירה נמוך = איכות גבוהה.',
+      piotroski_f:'Piotroski F-Score 0–9: 9 בדיקות בינאריות לחוסן פיננסי. 8–9 = חוזק גבוה.',
+      rev_growth:'צמיחת הכנסות שנה על שנה. מדד מרכזי למומנטום שורת ההכנסות.',
+      eps_growth:'צמיחת רווח למניה שנה על שנה. התרחבות שורת הרווח.',
+      fcf_margin:'FCF / הכנסות. כמה מההכנסות הופך למזומן חופשי.',
+      tr_asset_gr:'TipRanks: צמיחת סך הנכסים שנה על שנה.',
+      fcf_to_ni:'FCF / רווח נקי. > 1 = הרווח מגובה במלואו במזומן. < 0.5 = דגל אדום.',
+      payout_ratio:'דיבידנדים / רווח נקי. יחס חלוקה גבוה עלול להיות לא בר-קיימא.',
+      current_ratio:'נכסים שוטפים / התחייבויות שוטפות. > 1.5 = בריאות פיננסית טובה.',
+      debt_equity:'חוב כולל / הון עצמי. נמוך יותר = פחות מינוף.',
+      altman_z:'Altman Z-Score: > 3 = אזור בטוח, 1.8–3 = אפור, < 1.8 = מצוקה.',
+      beta:'תנודתיות מחיר לעומת S&P 500. > 1 = תנועות מוגברות. < 1 = יציב יותר.',
+      perf_12m:'תשואת מחיר ל-12 חודשים. המנבא החזק ביותר בהשקעת מומנטום.',
+      perf_6m:'תשואת מחיר ל-6 חודשים. אות מומנטום לטווח בינוני.',
+      perf_3m:'תשואת מחיר ל-3 חודשים. מגמה לטווח קצר.',
+      perf_1m:'תשואת מחיר לחודש. אות קצר מאוד, עלול להיות רועש.',
+      momentum:'מורכב משוקלל: 12M×50% + 6M×30% + 3M×15% + 1M×5%.',
+      tr_mom_12m:'אות מומנטום טכני ל-12 חודשים של TipRanks.',
+      analyst_mean:'קונצנזוס Yahoo: 1=קנייה חזקה, 2=קנייה, 3=החזקה, 4=מכירה, 5=מכירה חזקה.',
+      analysts:'מספר אנליסטים שמכסים את המניה. יותר = קונצנזוס אמין יותר.',
+      tr_pt_upside:'פוטנציאל עליה לפי יעד המחיר הממוצע של TipRanks.',
+      tr_news_bull:'% כתבות חדשות עם סנטימנט חיובי (NLP של TipRanks).',
+      tr_blogger_bull:'% בלוגרים פיננסיים עם עמדה חיובית ב-TipRanks.',
+      tr_insider:'כיוון עסקאות פנים אחרונות: עלה / ירד / ללא שינוי.',
+      tr_hedge:'מגמת פעילות תיק קרנות הגידור.',
+      tr_inv_chg_30d:'שינוי אחזקות משקיעים מוסדיים ב-30 ימים האחרונים.',
+      tr_inv_chg_7d:'שינוי אחזקות מוסדיות ב-7 ימים האחרונים.',
+      vs_sector:'ציון קומפוזיט פחות חציון הסקטור — כמה מעל/מתחת לעמיתים.',
+      coverage:'שלמות נתונים: % מתוך 17 מדדים מרכזיים זמינים עבור מניה זו.',
+    }
+  }
 };
 
-// ═══ VIEW DEFINITIONS ════════════════════════════════════════
-// Each view: array of { key, label, tip, fmt, class }
-const VIEWS = {
-  score: {
-    label: 'Score',
-    cols: [
-      { key:'composite', label:'Composite', tip:'Weighted average of all 9 pillars (10–100). Higher = better overall quality + value.', fmt: scoreBar },
-      { key:'valuation',    label:'Valuation',     tip:'How cheap vs expensive relative to sector peers (1=expensive, 100=cheap).', fmt:(v)=>numFmt(v,1), cls: valCls },
-      { key:'p_profitability', label:'Profitab.',  tip:'Sector-relative profitability pillar score (10–100).', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'p_growth',     label:'Growth',        tip:'Sector-relative growth pillar score (10–100).', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'p_fcf',        label:'FCF Qual.',      tip:'Free Cash Flow quality pillar: FCF yield + FCF margin vs sector peers.', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'p_health',     label:'Fin. Health',   tip:'Financial health pillar: current ratio, debt/equity, Altman Z-Score.', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'p_momentum',   label:'Momentum',      tip:'Multi-timeframe price momentum pillar (12M/6M/3M/1M weighted).', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'p_analyst',    label:'Analyst',        tip:'Combined pillar: Yahoo analyst consensus + TipRanks sentiment signals.', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'p_piotroski',  label:'Piotroski',     tip:'Piotroski F-Score pillar (10–100): 8 binary financial strength tests.', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'p_eq',         label:'EQ Qual.',       tip:'Earnings Quality pillar: accrual ratio, ROIC, margins — are earnings cash-backed?', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'tr_smartscore',label:'SmartScore',    tip:'TipRanks SmartScore 1–10: AI-powered aggregation of analyst, news, insider and hedge fund signals.', fmt: ssBadge },
-      { key:'coverage',     label:'Coverage %',    tip:'Data completeness: % of the 17 core metrics available for this stock.', fmt:(v)=>numFmt(v,0,'%'), cls:'neutral' },
-      { key:'vs_sector',    label:'vs Sector',     tip:'Composite score minus the sector median — how much above/below its peers.', fmt:(v)=>numFmt(v,1), cls: signCls },
-    ]
-  },
-  valuation: {
-    label: 'Valuation',
-    cols: [
-      { key:'valuation',    label:'Val. Score',    tip:'Composite valuation score 1–100 using dynamic sector thresholds. 100 = deeply undervalued.', fmt:(v)=>numFmt(v,1), cls: valCls },
-      { key:'pe',           label:'P/E (TTM)',      tip:'Price to Earnings (trailing 12 months). Lower = potentially cheaper.', fmt:(v)=>numFmt(v,1), cls:'neutral' },
-      { key:'fwd_pe',       label:'Fwd P/E',        tip:'Forward P/E based on next 12-month EPS estimate. More forward-looking than trailing.', fmt:(v)=>numFmt(v,1), cls:'neutral' },
-      { key:'peg',          label:'PEG',            tip:'P/E divided by earnings growth rate. PEG < 1 often considered undervalued.', fmt:(v)=>numFmt(v,2), cls:'neutral' },
-      { key:'ps',           label:'P/S',            tip:'Price to Sales ratio. Useful for unprofitable companies. Lower = cheaper relative to revenue.', fmt:(v)=>numFmt(v,2), cls:'neutral' },
-      { key:'pb',           label:'P/B',            tip:'Price to Book value. P/B < 1 means stock trades below net asset value.', fmt:(v)=>numFmt(v,2), cls:'neutral' },
-      { key:'ev_ebitda',    label:'EV/EBITDA',      tip:'Enterprise Value / EBITDA. Preferred over P/E as it excludes capital structure effects.', fmt:(v)=>numFmt(v,1), cls:'neutral' },
-      { key:'fcf_yield',    label:'FCF Yield %',    tip:'Free Cash Flow / Market Cap. High FCF yield = generating lots of cash relative to price.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'pt_upside',    label:'PT Upside %',    tip:'Yahoo Finance: analyst consensus price target vs current price. How much upside analysts expect.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'div_yield',    label:'Div Yield %',    tip:'Annual dividend / current price. Income return from holding the stock.', fmt:(v)=>numFmt(v,2,'%'), cls:'neutral' },
-    ]
-  },
-  profitability: {
-    label: 'Profitability',
-    cols: [
-      { key:'p_profitability', label:'Pillar Score', tip:'Sector-relative profitability score combining ROE, ROA, ROIC, Net Margin.', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'roe',          label:'ROE %',          tip:'Return on Equity: net income / shareholder equity. Measures how efficiently equity is used.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'roa',          label:'ROA %',          tip:'Return on Assets: net income / total assets. Measures asset utilization efficiency.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'roic',         label:'ROIC %',         tip:'Return on Invested Capital = NOPAT / (Equity + Debt - Cash). Best measure of capital efficiency.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'net_margin',   label:'Net Margin %',   tip:'Net income / revenue. What % of each dollar of revenue ends up as profit.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'gross_margin', label:'Gross Margin %', tip:'(Revenue - COGS) / Revenue. Reflects pricing power and production efficiency.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'op_margin',    label:'Op. Margin %',   tip:'Operating income / revenue. Profitability before interest and taxes.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'eq_score',     label:'EQ Score (0–5)', tip:'Earnings Quality score: is net income backed by real cash? Low accrual ratio = high quality.', fmt:(v)=>numFmt(v,1), cls:'neutral' },
-      { key:'piotroski_f',  label:'Piotroski F',    tip:'Piotroski F-Score 0–9: 9 binary tests for profitability, leverage, and efficiency. 8–9 = strong.', fmt:(v)=>numFmt(v,0), cls:'neutral' },
-    ]
-  },
-  growth: {
-    label: 'Growth',
-    cols: [
-      { key:'p_growth',     label:'Pillar Score',  tip:'Sector-relative growth score combining revenue growth, earnings growth, FCF margin, asset growth.', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'rev_growth',   label:'Rev Growth %',  tip:'Year-over-year revenue growth rate. Core measure of top-line momentum.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'eps_growth',   label:'EPS Growth %',  tip:'Year-over-year earnings per share growth. Measures bottom-line expansion.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'fcf_margin',   label:'FCF Margin %',  tip:'Free Cash Flow / Revenue. How much of revenue converts to free cash — quality growth indicator.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'tr_asset_gr',  label:'Asset Growth %',tip:'TipRanks: year-over-year total asset growth. Measures balance sheet expansion.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-    ]
-  },
-  cashflow: {
-    label: 'Cash Flow',
-    cols: [
-      { key:'p_fcf',        label:'FCF Pillar',    tip:'FCF Quality pillar score: FCF yield + FCF/Net Income + FCF margin vs sector peers.', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'fcf_yield',    label:'FCF Yield %',   tip:'Free Cash Flow / Market Cap. The "earnings yield" of real cash generation.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'fcf_margin',   label:'FCF Margin %',  tip:'FCF / Revenue. How efficiently the business converts revenue to free cash.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'fcf_to_ni',    label:'FCF/NI',        tip:'Free Cash Flow / Net Income. Ratio > 1 means earnings are fully cash-backed. Red flag if < 0.5.', fmt:(v)=>numFmt(v,2), cls:'neutral' },
-      { key:'div_yield',    label:'Div Yield %',   tip:'Annual dividend / current price. Portion of FCF returned to shareholders as dividends.', fmt:(v)=>numFmt(v,2,'%'), cls:'neutral' },
-      { key:'payout_ratio', label:'Payout %',      tip:'Dividends / Net Income. Very high payout ratios may be unsustainable.', fmt:(v)=>numFmt(v,1,'%'), cls:'neutral' },
-    ]
-  },
-  health: {
-    label: 'Balance Sheet',
-    cols: [
-      { key:'p_health',     label:'Health Pillar', tip:'Financial health pillar score: current ratio, debt/equity, Altman Z-Score vs sector.', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'current_ratio',label:'Current Ratio', tip:'Current Assets / Current Liabilities. > 1.5 generally healthy. < 1 may signal liquidity risk.', fmt:(v)=>numFmt(v,2), cls:'neutral' },
-      { key:'debt_equity',  label:'Debt/Equity',   tip:'Total Debt / Equity. Lower = less leveraged. Capital-intensive sectors naturally have higher D/E.', fmt:(v)=>numFmt(v,2), cls:'neutral' },
-      { key:'altman_z',     label:'Altman Z',       tip:'Altman Z-Score: > 3 = safe zone, 1.8–3 = grey zone, < 1.8 = distress zone.', fmt:(v)=>numFmt(v,2), cls: altmanCls },
-      { key:'piotroski_f',  label:'Piotroski F',   tip:'Piotroski F-Score: tests profitability, leverage change, and operating efficiency. 8–9 = very strong.', fmt:(v)=>numFmt(v,0), cls:'neutral' },
-      { key:'beta',         label:'Beta',           tip:'Price volatility vs S&P 500. Beta=1 moves with market. >1 = amplified moves. <1 = more stable.', fmt:(v)=>numFmt(v,2), cls:'neutral' },
-    ]
-  },
-  momentum: {
-    label: 'Momentum',
-    cols: [
-      { key:'p_momentum',   label:'Mom. Pillar',   tip:'Momentum pillar: 12M×50% + 6M×30% + 3M×15% + 1M×5% weighted composite vs sector.', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'perf_12m',     label:'12M Return %',  tip:'12-month price performance. Strongest predictor in momentum factor investing.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'perf_6m',      label:'6M Return %',   tip:'6-month price performance. Medium-term momentum signal.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'perf_3m',      label:'3M Return %',   tip:'3-month price performance. Short-term momentum / recent trend.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'perf_1m',      label:'1M Return %',   tip:'1-month price performance. Very short-term signal — can be noisy.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'momentum',     label:'Composite Mom.',tip:'Weighted composite: 0.50×12M + 0.30×6M + 0.15×3M + 0.05×1M.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'beta',         label:'Beta',           tip:'Market sensitivity. Lower beta = more stable relative to S&P 500.', fmt:(v)=>numFmt(v,2), cls:'neutral' },
-      { key:'tr_mom_12m',   label:'TR Tech Mom.',   tip:'TipRanks technical 12-month momentum signal.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-    ]
-  },
-  analyst: {
-    label: 'Analyst',
-    cols: [
-      { key:'p_analyst',    label:'Analyst Pillar',tip:'Combined analyst + sentiment pillar score vs sector peers.', fmt:(v)=>numFmt(v,1), cls: scoreCls },
-      { key:'analyst_mean', label:'Yahoo Rating',   tip:'Yahoo Finance analyst consensus: 1=Strong Buy, 2=Buy, 3=Hold, 4=Sell, 5=Strong Sell.', fmt:(v)=>numFmt(v,2), cls:'neutral' },
-      { key:'analysts',     label:'# Analysts',    tip:'Number of analysts covering the stock. More analysts = more reliable consensus.', fmt:(v)=>numFmt(v,0), cls:'neutral' },
-      { key:'pt_upside',    label:'PT Upside %',   tip:'Yahoo analyst consensus price target vs current price. Expected upside from analysts.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'tr_consensus', label:'TR Consensus',  tip:'TipRanks analyst consensus label based on last 3 months of ratings.', fmt: consensusFmt },
-      { key:'tr_pt_upside', label:'TR PT Upside %',tip:'TipRanks price target upside vs current price.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-    ]
-  },
-  tipranks: {
-    label: 'TipRanks',
-    cols: [
-      { key:'tr_smartscore',   label:'SmartScore',   tip:'TipRanks SmartScore 1–10: AI aggregation of analyst, news, insider and hedge fund signals. 8–10 = Outperform.', fmt: ssBadge },
-      { key:'tr_consensus',    label:'Consensus',    tip:'Analyst consensus from last 3 months of ratings on TipRanks.', fmt: consensusFmt },
-      { key:'tr_pt_upside',    label:'PT Upside %',  tip:'TipRanks aggregated analyst price target upside.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'tr_news_bull',    label:'News Bull. %', tip:'% of recent news articles with bullish sentiment (TipRanks NLP analysis).', fmt:(v)=>numFmt(v,0,'%'), cls:'neutral' },
-      { key:'tr_blogger_bull', label:'Blogger Bull.%',tip:'% of financial bloggers with bullish stance on TipRanks.', fmt:(v)=>numFmt(v,0,'%'), cls:'neutral' },
-      { key:'tr_insider',      label:'Insider Trend',tip:'Recent insider trading direction: Increased / Decreased / Unchanged.', fmt:(v)=>v||'—' },
-      { key:'tr_hedge',        label:'Hedge Trend',  tip:'Hedge fund portfolio activity trend: Increased / Decreased / Unchanged holdings.', fmt:(v)=>v||'—' },
-      { key:'tr_inv_chg_30d',  label:'Inv. Chg 30D%',tip:'Change in institutional investor holdings over last 30 days on TipRanks.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-      { key:'tr_inv_chg_7d',   label:'Inv. Chg 7D%', tip:'Change in institutional investor holdings over last 7 days — very short-term signal.', fmt:(v)=>numFmt(v,1,'%'), cls: signCls },
-    ]
-  },
+let lang = 'en';
+
+function setLang(l) {
+  lang = l;
+  document.body.classList.toggle('rtl', l==='he');
+  document.getElementById('btnEn').classList.toggle('active', l==='en');
+  document.getElementById('btnHe').classList.toggle('active', l==='he');
+  applyI18n();
+  if(allData.length) renderTable();
+}
+
+function t(key) { return T[lang][key] || T.en[key] || key; }
+function tc(key) { return (T[lang].cols||{})[key] || (T.en.cols||{})[key] || key; }
+function tt(key) { return (T[lang].tips||{})[key] || (T.en.tips||{})[key] || ''; }
+function ttab(key) { return (T[lang].tabs||{})[key] || (T.en.tabs||{})[key] || key; }
+
+function applyI18n() {
+  document.getElementById('lbl-ranked').textContent = t('ranked');
+  document.getElementById('lbl-avg').textContent = t('avg');
+  document.getElementById('lbl-topsec').textContent = t('topsec');
+  document.getElementById('lbl-ss8').textContent = t('ss8');
+  document.getElementById('lbl-tr').textContent = t('tr');
+  document.getElementById('lbl-stocks').textContent = t('stocks');
+  document.getElementById('lbl-f-composite').textContent = t('fcomposite');
+  document.getElementById('lbl-f-smartscore').textContent = t('fss');
+  document.getElementById('lbl-f-consensus').textContent = t('fconsensus');
+  document.getElementById('lbl-f-pe').textContent = t('fpe');
+  document.getElementById('lbl-f-perf').textContent = t('fperf');
+  document.getElementById('lbl-f-reset').textContent = t('reset');
+  document.getElementById('filterToggle').textContent = t('filters');
+  document.getElementById('search').placeholder = t('searchph');
+  document.getElementById('loadingText').textContent = t('loading');
+  // Rebuild sector buttons and tabs
+  buildSectorBtns();
+  buildViewTabs();
+}
+
+// ═══ SECTOR COLORS ════════════════════════════════════════════
+const SECTOR_COLORS = {
+  'Information Technology':{bg:'#0d2137',color:'#4fc3f7'},
+  'Health Care':{bg:'#0d2118',color:'#69f0ae'},
+  'Financials':{bg:'#1a1a0d',color:'#fff176'},
+  'Consumer Discretionary':{bg:'#1a100d',color:'#ffab91'},
+  'Communication Services':{bg:'#150d1a',color:'#ce93d8'},
+  'Industrials':{bg:'#0d1a1a',color:'#80deea'},
+  'Consumer Staples':{bg:'#1a160d',color:'#ffcc80'},
+  'Energy':{bg:'#1a0d0d',color:'#ef9a9a'},
+  'Real Estate':{bg:'#0d1a13',color:'#a5d6a7'},
+  'Materials':{bg:'#0d1318',color:'#90caf9'},
+  'Utilities':{bg:'#120d1a',color:'#b39ddb'},
 };
+
+// ═══ VIEWS ════════════════════════════════════════════════════
+// Each col: key, labelKey, tipKey, fmt, clsFn
+function buildViews() {
+  return {
+    score:[
+      {key:'composite', lk:'composite', tk:'composite', fmt:scoreBar},
+      {key:'valuation', lk:'valuation', tk:'valuation', fmt:(v)=>n(v,1), cls:valCls},
+      {key:'p_profitability', lk:'p_profitability', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'p_growth', lk:'p_growth', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'p_fcf', lk:'p_fcf', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'p_health', lk:'p_health', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'p_momentum', lk:'p_momentum', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'p_analyst', lk:'p_analyst', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'p_piotroski', lk:'p_piotroski', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'p_eq', lk:'p_eq', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'tr_smartscore', lk:'smartscore', tk:'smartscore', fmt:ssBadge},
+      {key:'coverage', lk:'coverage', tk:'coverage', fmt:(v)=>n(v,0,'%'), cls:'neutral'},
+      {key:'vs_sector', lk:'vs_sector', tk:'vs_sector', fmt:(v)=>n(v,1), cls:signCls},
+    ],
+    valuation:[
+      {key:'valuation', lk:'valuation', tk:'valuation', fmt:(v)=>n(v,1), cls:valCls},
+      {key:'pe', lk:'pe', tk:'pe', fmt:(v)=>n(v,1), cls:'neutral'},
+      {key:'fwd_pe', lk:'fwd_pe', tk:'fwd_pe', fmt:(v)=>n(v,1), cls:'neutral'},
+      {key:'peg', lk:'peg', tk:'peg', fmt:(v)=>n(v,2), cls:'neutral'},
+      {key:'ps', lk:'ps', tk:'ps', fmt:(v)=>n(v,2), cls:'neutral'},
+      {key:'pb', lk:'pb', tk:'pb', fmt:(v)=>n(v,2), cls:'neutral'},
+      {key:'ev_ebitda', lk:'ev_ebitda', tk:'ev_ebitda', fmt:(v)=>n(v,1), cls:'neutral'},
+      {key:'fcf_yield', lk:'fcf_yield', tk:'fcf_yield', fmt:(v)=>n(v,1,'%'), cls:signCls},
+      {key:'pt_upside', lk:'pt_upside', tk:'pt_upside', fmt:(v)=>n(v,1,'%'), cls:signCls},
+      {key:'div_yield', lk:'div_yield', tk:'div_yield', fmt:(v)=>n(v,2,'%'), cls:'neutral'},
+    ],
+    profitability:[
+      {key:'p_profitability', lk:'pillar_prof', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'roe', lk:'roe', tk:'roe', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('roe')},
+      {key:'roa', lk:'roa', tk:'roa', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('roa')},
+      {key:'roic', lk:'roic', tk:'roic', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('roic')},
+      {key:'net_margin', lk:'net_margin', tk:'net_margin', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('net_margin')},
+      {key:'gross_margin', lk:'gross_margin', tk:'gross_margin', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('gross_margin')},
+      {key:'op_margin', lk:'op_margin', tk:'op_margin', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('op_margin')},
+      {key:'eq_score', lk:'eq_score', tk:'eq_score', fmt:(v)=>n(v,1), cls:'neutral'},
+      {key:'piotroski_f', lk:'piotroski_f', tk:'piotroski_f', fmt:(v)=>n(v,0), cls:'neutral'},
+    ],
+    growth:[
+      {key:'p_growth', lk:'pillar_growth', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'rev_growth', lk:'rev_growth', tk:'rev_growth', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('rev_growth')},
+      {key:'eps_growth', lk:'eps_growth', tk:'eps_growth', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('eps_growth')},
+      {key:'fcf_margin', lk:'fcf_margin', tk:'fcf_margin', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('fcf_margin')},
+      {key:'tr_asset_gr', lk:'tr_asset_gr', tk:'tr_asset_gr', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('tr_asset_gr')},
+    ],
+    cashflow:[
+      {key:'p_fcf', lk:'pillar_fcf', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'fcf_yield', lk:'fcf_yield', tk:'fcf_yield', fmt:(v)=>n(v,1,'%'), cls:signCls},
+      {key:'fcf_margin', lk:'fcf_margin', tk:'fcf_margin', fmt:(v)=>n(v,1,'%'), cls:signCls},
+      {key:'fcf_to_ni', lk:'fcf_to_ni', tk:'fcf_to_ni', fmt:(v)=>n(v,2), cls:'neutral'},
+      {key:'div_yield', lk:'div_yield', tk:'div_yield', fmt:(v)=>n(v,2,'%'), cls:'neutral'},
+      {key:'payout_ratio', lk:'payout_ratio', tk:'payout_ratio', fmt:(v)=>n(v,1,'%'), cls:'neutral'},
+    ],
+    health:[
+      {key:'p_health', lk:'pillar_health', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'current_ratio', lk:'current_ratio', tk:'current_ratio', fmt:(v)=>n(v,2), cls:'neutral'},
+      {key:'debt_equity', lk:'debt_equity', tk:'debt_equity', fmt:(v)=>n(v,2), cls:'neutral'},
+      {key:'altman_z', lk:'altman_z', tk:'altman_z', fmt:(v)=>n(v,2), cls:altmanCls},
+      {key:'piotroski_f', lk:'piotroski_f', tk:'piotroski_f', fmt:(v)=>n(v,0), cls:'neutral'},
+      {key:'beta', lk:'beta', tk:'beta', fmt:(v)=>n(v,2), cls:'neutral'},
+    ],
+    momentum:[
+      {key:'p_momentum', lk:'pillar_mom', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'perf_12m', lk:'perf_12m', tk:'perf_12m', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('perf_12m')},
+      {key:'perf_6m', lk:'perf_6m', tk:'perf_6m', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('perf_6m')},
+      {key:'perf_3m', lk:'perf_3m', tk:'perf_3m', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('perf_3m')},
+      {key:'perf_1m', lk:'perf_1m', tk:'perf_1m', fmt:(v)=>n(v,1,'%'), cls:signCls},
+      {key:'momentum', lk:'momentum', tk:'momentum', fmt:(v)=>n(v,1,'%'), cls:pctDistCls('momentum')},
+      {key:'beta', lk:'beta', tk:'beta', fmt:(v)=>n(v,2), cls:'neutral'},
+      {key:'tr_mom_12m', lk:'tr_mom_12m', tk:'tr_mom_12m', fmt:(v)=>n(v,1,'%'), cls:signCls},
+    ],
+    analyst:[
+      {key:'p_analyst', lk:'pillar_analyst', tk:'composite', fmt:(v)=>n(v,1), cls:scoreCls},
+      {key:'analyst_mean', lk:'analyst_mean', tk:'analyst_mean', fmt:(v)=>n(v,2), cls:'neutral'},
+      {key:'analysts', lk:'analysts', tk:'analysts', fmt:(v)=>n(v,0), cls:'neutral'},
+      {key:'pt_upside', lk:'pt_upside', tk:'pt_upside', fmt:(v)=>n(v,1,'%'), cls:signCls},
+      {key:'tr_consensus', lk:'tr_consensus', tk:'consensus', fmt:consensusFmt},
+      {key:'tr_pt_upside', lk:'tr_pt_upside', tk:'tr_pt_upside', fmt:(v)=>n(v,1,'%'), cls:signCls},
+    ],
+    tipranks:[
+      {key:'tr_smartscore', lk:'tr_smartscore', tk:'smartscore', fmt:ssBadge},
+      {key:'tr_consensus', lk:'tr_consensus', tk:'consensus', fmt:consensusFmt},
+      {key:'tr_pt_upside', lk:'tr_pt_upside', tk:'tr_pt_upside', fmt:(v)=>n(v,1,'%'), cls:signCls},
+      {key:'tr_news_bull', lk:'tr_news_bull', tk:'tr_news_bull', fmt:(v)=>n(v,0,'%'), cls:'neutral'},
+      {key:'tr_blogger_bull', lk:'tr_blogger_bull', tk:'tr_blogger_bull', fmt:(v)=>n(v,0,'%'), cls:'neutral'},
+      {key:'tr_insider', lk:'tr_insider', tk:'tr_insider', fmt:(v)=>v||'—'},
+      {key:'tr_hedge', lk:'tr_hedge', tk:'tr_hedge', fmt:(v)=>v||'—'},
+      {key:'tr_inv_chg_30d', lk:'tr_inv_chg_30d', tk:'tr_inv_chg_30d', fmt:(v)=>n(v,1,'%'), cls:signCls},
+      {key:'tr_inv_chg_7d', lk:'tr_inv_chg_7d', tk:'tr_inv_chg_7d', fmt:(v)=>n(v,1,'%'), cls:signCls},
+    ],
+  };
+}
 
 // ═══ FORMATTERS ══════════════════════════════════════════════
-function numFmt(v, dec=1, suffix='') {
-  if (v===null||v===undefined||isNaN(v)) return '<span style="color:#3a5570">—</span>';
-  return parseFloat(v).toFixed(dec) + suffix;
+function n(v,dec=1,suf=''){
+  if(v===null||v===undefined||isNaN(v)) return '<span style="color:#3a5570">—</span>';
+  return parseFloat(v).toFixed(dec)+suf;
 }
-function signCls(v) {
-  if (v===null||v===undefined||isNaN(v)) return 'neutral';
-  return parseFloat(v) > 0 ? 'pos' : parseFloat(v) < 0 ? 'neg' : 'neutral';
+function signCls(v){ if(!valid(v)) return 'neutral'; return v>0?'pos':v<0?'neg':'neutral'; }
+function scoreCls(v){ if(!valid(v)) return 'neutral'; return v>=65?'pos':v>=40?'neutral':'neg'; }
+function valCls(v){ if(!valid(v)) return 'neutral'; return v>=60?'pos':v<=30?'neg':'neutral'; }
+function altmanCls(v){ if(!valid(v)) return 'neutral'; return v>=3?'pos':v>=1.8?'neutral':'neg'; }
+function valid(v){ return v!==null&&v!==undefined&&!isNaN(v); }
+
+// ── Distribution-based coloring (relative to dataset) ──
+// Precomputed per field: P25, P75
+let _fieldPercentiles = {};
+function buildPercentiles(data){
+  const keys=['roe','roa','roic','net_margin','gross_margin','op_margin',
+               'rev_growth','eps_growth','fcf_margin','tr_asset_gr',
+               'perf_12m','perf_6m','perf_3m','perf_1m','momentum'];
+  _fieldPercentiles={};
+  keys.forEach(k=>{
+    const vals=data.map(d=>d[k]).filter(v=>valid(v)).sort((a,b)=>a-b);
+    if(!vals.length){_fieldPercentiles[k]={p25:0,p50:0,p75:0};return;}
+    const p=(pct)=>vals[Math.floor(pct*(vals.length-1))];
+    _fieldPercentiles[k]={p25:p(.25),p50:p(.5),p75:p(.75)};
+  });
 }
-function scoreCls(v) {
-  if (!v&&v!==0) return 'neutral';
-  return v>=65?'pos':v>=40?'neutral':'neg';
+function pctDistCls(field){
+  return function(v){
+    if(!valid(v)) return 'neutral';
+    const p=_fieldPercentiles[field];
+    if(!p) return signCls(v);
+    if(v>=p.p75) return 'pos';
+    if(v>=p.p50) return 'hi';
+    if(v>=p.p25) return 'mid';
+    return 'neg';
+  };
 }
-function valCls(v) {
-  if (!v&&v!==0) return 'neutral';
-  return v>=60?'pos':v<=30?'neg':'neutral';
+
+function scoreColor(v){
+  if(!valid(v)) return '#3a5570';
+  if(v>=70) return '#00c9a7'; if(v>=55) return '#f0a500';
+  if(v>=40) return '#ff9800'; return '#ff4d6d';
 }
-function altmanCls(v) {
-  if (!v&&v!==0) return 'neutral';
-  return v>=3?'pos':v>=1.8?'neutral':'neg';
+function pillarColor(v){
+  if(!valid(v)) return '#3a5570';
+  if(v>=65) return '#00c9a7'; if(v>=45) return '#f0a500'; return '#ff4d6d';
 }
-function scoreColor(v) {
-  if (!v&&v!==0) return '#3a5570';
-  if (v>=70) return '#00c9a7';
-  if (v>=55) return '#f0a500';
-  if (v>=40) return '#ff9800';
-  return '#ff4d6d';
+function ssColor(v){
+  if(!v) return {bg:'#1e2e42',color:'#6b8aaa'};
+  if(v>=8) return {bg:'#0d3320',color:'#00e676'};
+  if(v>=6) return {bg:'#1a2e0d',color:'#76ff03'};
+  if(v>=4) return {bg:'#2e2400',color:'#ffd600'};
+  return {bg:'#2e0d0d',color:'#ff5252'};
 }
-function pillarColor(v) {
-  if (!v&&v!==0) return '#3a5570';
-  if (v>=65) return '#00c9a7';
-  if (v>=45) return '#f0a500';
-  return '#ff4d6d';
-}
-function ssColor(v) {
-  if (!v) return { bg:'#1e2e42', color:'#6b8aaa' };
-  if (v>=8) return { bg:'#0d3320', color:'#00e676' };
-  if (v>=6) return { bg:'#1a2e0d', color:'#76ff03' };
-  if (v>=4) return { bg:'#2e2400', color:'#ffd600' };
-  return { bg:'#2e0d0d', color:'#ff5252' };
-}
-function scoreBar(v) {
-  const c = scoreColor(v);
-  const num = (v!==null&&v!==undefined&&!isNaN(v)) ? parseFloat(v).toFixed(1) : '—';
+function scoreBar(v){
+  const c=scoreColor(v);
+  const num=valid(v)?parseFloat(v).toFixed(1):'—';
   return `<div class="score-cell">
     <span class="score-num" style="color:${c}">${num}</span>
     <div class="score-bar-bg"><div class="score-bar-fill" style="width:${v||0}%;background:${c}"></div></div>
   </div>`;
 }
-function ssBadge(v) {
-  const c = ssColor(v);
+function ssBadge(v){
+  const c=ssColor(v);
   return `<span class="ss-badge" style="background:${c.bg};color:${c.color}">${v||'—'}</span>`;
 }
-function consensusFmt(v) {
-  if (!v) return '<span style="color:#3a5570">—</span>';
-  const c = v==='StrongBuy'?'#00e676': v.includes('Buy')?'#69f0ae': v==='Hold'?'#ffd600':'#ff5252';
-  return `<span style="color:${c};font-size:11px">${v.replace('Moderate','Mod ')}</span>`;
+function consensusFmt(v){
+  if(!v) return '<span style="color:#3a5570">—</span>';
+  const c=v==='StrongBuy'?'#00e676':v.includes('Buy')?'#69f0ae':v==='Hold'?'#ffd600':'#ff5252';
+  return `<span style="color:${c};font-size:10px">${v.replace('Moderate','Mod ')}</span>`;
 }
 
-// ═══ STATE ═══════════════════════════════════════════════════
-let allData = [], filteredData = [];
-let currentSector = 'ALL', currentSearch = '', currentView = 'score';
-let sortCol = 'rank', sortAsc = true;
+// ═══ STATE ════════════════════════════════════════════════════
+let allData=[], currentSector='ALL', currentSearch='', currentView='score';
+let sortCol='rank', sortAsc=true;
 
-// ═══ LOAD DATA ═══════════════════════════════════════════════
-async function loadData() {
-  try {
-    const r = await fetch('sp500_data.json');
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const json = await r.json();
-    allData = json.data;
-    document.getElementById('lastUpdated').innerHTML =
-      `<span class="live-dot"></span>Updated: ${json.generated||'unknown'}`;
+// ═══ LOAD DATA ════════════════════════════════════════════════
+async function loadData(){
+  try{
+    const r=await fetch('sp500_data.json?v='+Date.now());
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const json=await r.json();
+    allData=json.data;
+    document.getElementById('lastUpdated').innerHTML=
+      `<span class="live-dot"></span>${json.generated||'unknown'}`;
+    buildPercentiles(allData);
     init();
-  } catch(e) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('error-msg').style.display = 'block';
+  }catch(e){
+    document.getElementById('loading').style.display='none';
+    document.getElementById('error-msg').style.display='block';
   }
 }
 
-function init() {
-  document.getElementById('loading').style.display = 'none';
-  ['statsBar','controls','viewTabs','tableWrap'].forEach(id => {
-    document.getElementById(id).style.display = id==='statsBar'?'grid':id==='viewTabs'?'flex':'block';
-    if(id==='controls') document.getElementById(id).style.display='flex';
-  });
+function init(){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('statsBar').style.display='grid';
+  document.getElementById('controls').style.display='flex';
+  document.getElementById('viewTabs').style.display='flex';
+  document.getElementById('tableWrap').style.display='block';
 
-  // Stats
-  const n = allData.length;
-  const avg = (allData.reduce((a,b)=>a+(b.composite||0),0)/n).toFixed(1);
-  const ss8 = allData.filter(d=>d.tr_smartscore>=8).length;
-  const trCov = allData.filter(d=>d.tr_smartscore).length;
+  const n=allData.length;
+  const avg=(allData.reduce((a,b)=>a+(b.composite||0),0)/n).toFixed(1);
+  const ss8=allData.filter(d=>d.tr_smartscore>=8).length;
+  const trCov=allData.filter(d=>d.tr_smartscore).length;
   const secMap={};
   allData.forEach(d=>{if(!secMap[d.sector])secMap[d.sector]=[];secMap[d.sector].push(d.composite||0);});
-  const topSec = Object.entries(secMap).map(([s,v])=>[s,v.reduce((a,b)=>a+b,0)/v.length]).sort((a,b)=>b[1]-a[1])[0][0];
+  const topSec=Object.entries(secMap).map(([s,v])=>[s,v.reduce((a,b)=>a+b,0)/v.length]).sort((a,b)=>b[1]-a[1])[0][0];
 
-  document.getElementById('statTotal').textContent = n;
-  document.getElementById('statAvg').textContent = avg;
-  document.getElementById('statTopSector').textContent = topSec.replace('Information Technology','Info Tech').replace('Communication Services','Comm Svcs').replace('Consumer Discretionary','Cons Disc').replace('Consumer Staples','Cons Staples');
-  document.getElementById('statSS8').textContent = ss8;
-  document.getElementById('statTR').textContent = Math.round(trCov/n*100)+'%';
+  document.getElementById('statTotal').textContent=n;
+  document.getElementById('statAvg').textContent=avg;
+  document.getElementById('statTopSector').textContent=topSec.replace('Information Technology','Info Tech').replace('Communication Services','Comm Svcs').replace('Consumer Discretionary','Cons Disc').replace('Consumer Staples','Cons Staples');
+  document.getElementById('statSS8').textContent=ss8;
+  document.getElementById('statTR').textContent=Math.round(trCov/n*100)+'%';
 
-  // Sector buttons
-  const sectors = ['ALL', ...Object.keys(SECTOR_COLORS).filter(s=>allData.some(d=>d.sector===s))];
-  const container = document.getElementById('sectorFilters');
-  sectors.forEach(s=>{
-    const btn = document.createElement('button');
-    btn.className='sector-btn'+(s==='ALL'?' active':'');
-    btn.textContent = s==='ALL'?'ALL SECTORS':
-      s.replace('Information Technology','IT').replace('Communication Services','COMM').replace('Consumer Discretionary','CONS DISC').replace('Consumer Staples','CONS STPL').replace('Health Care','HEALTH').toUpperCase();
-    btn.addEventListener('click',()=>{
-      document.querySelectorAll('.sector-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      currentSector=s; renderTable();
-    });
-    container.appendChild(btn);
-  });
+  buildSectorBtns();
+  buildViewTabs();
 
   document.getElementById('search').addEventListener('input',e=>{currentSearch=e.target.value.toLowerCase();renderTable();});
-
-  // View tabs
-  document.querySelectorAll('.view-tab').forEach(tab=>{
-    tab.addEventListener('click',()=>{
-      document.querySelectorAll('.view-tab').forEach(t=>t.classList.remove('active'));
-      tab.classList.add('active');
-      currentView=tab.dataset.view;
-      sortCol='rank'; sortAsc=true;
-      renderTable();
-    });
+  ['fCompMin','fCompMax','fSSMin','fConsensus','fPEMax','fPerfMin'].forEach(id=>{
+    document.getElementById(id).addEventListener('change',renderTable);
+    document.getElementById(id).addEventListener('input',renderTable);
   });
 
   renderTable();
 }
 
-function applyFilter() {
+function buildSectorBtns(){
+  const container=document.getElementById('sectorFilters');
+  container.innerHTML='';
+  const sectors=['ALL',...Object.keys(SECTOR_COLORS).filter(s=>allData.some(d=>d.sector===s))];
+  sectors.forEach(s=>{
+    const btn=document.createElement('button');
+    btn.className='sector-btn'+(s==='ALL'?' active':'');
+    const label=s==='ALL'?t('allsectors'):
+      s.replace('Information Technology','IT').replace('Communication Services','COMM').replace('Consumer Discretionary','CONS D').replace('Consumer Staples','CONS S').replace('Health Care','HEALTH').toUpperCase();
+    btn.textContent=label;
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.sector-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSector=s;renderTable();
+    });
+    container.appendChild(btn);
+  });
+}
+
+function buildViewTabs(){
+  const container=document.getElementById('viewTabs');
+  container.innerHTML='';
+  Object.keys(buildViews()).forEach(view=>{
+    const btn=document.createElement('button');
+    btn.className='view-tab'+(view===currentView?' active':'');
+    btn.textContent=ttab(view);
+    btn.dataset.view=view;
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.view-tab').forEach(t=>t.classList.remove('active'));
+      btn.classList.add('active');
+      currentView=view;sortCol='rank';sortAsc=true;
+      renderTable();
+    });
+    container.appendChild(btn);
+  });
+}
+
+function toggleFilter(){
+  const panel=document.getElementById('filterPanel');
+  const btn=document.getElementById('filterToggle');
+  const open=panel.classList.toggle('open');
+  btn.classList.toggle('open',open);
+}
+
+function resetFilters(){
+  ['fCompMin','fCompMax','fSSMin','fConsensus','fPEMax','fPerfMin'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el.tagName==='SELECT') el.value='';
+    else el.value='';
+  });
+  renderTable();
+}
+
+function getFilters(){
+  return {
+    compMin: parseFloat(document.getElementById('fCompMin').value)||null,
+    compMax: parseFloat(document.getElementById('fCompMax').value)||null,
+    ssMin:   parseFloat(document.getElementById('fSSMin').value)||null,
+    consensus: document.getElementById('fConsensus').value||null,
+    peMax:   parseFloat(document.getElementById('fPEMax').value)||null,
+    perfMin: parseFloat(document.getElementById('fPerfMin').value)||null,
+  };
+}
+
+function applyFilter(){
   let data=[...allData];
+  const f=getFilters();
   if(currentSector!=='ALL') data=data.filter(d=>d.sector===currentSector);
   if(currentSearch) data=data.filter(d=>d.ticker.toLowerCase().includes(currentSearch)||(d.company||'').toLowerCase().includes(currentSearch));
+  if(f.compMin!==null) data=data.filter(d=>(d.composite||0)>=f.compMin);
+  if(f.compMax!==null) data=data.filter(d=>(d.composite||0)<=f.compMax);
+  if(f.ssMin!==null) data=data.filter(d=>(d.tr_smartscore||0)>=f.ssMin);
+  if(f.consensus) data=data.filter(d=>(d.tr_consensus||'').includes(f.consensus.replace('Buy','').trim())||d.tr_consensus===f.consensus);
+  if(f.peMax!==null) data=data.filter(d=>d.pe&&d.pe<=f.peMax);
+  if(f.perfMin!==null) data=data.filter(d=>d.perf_12m&&d.perf_12m>=f.perfMin);
   data.sort((a,b)=>{
-    let av=a[sortCol], bv=b[sortCol];
+    let av=a[sortCol],bv=b[sortCol];
     if(typeof av==='string') return sortAsc?(av||'').localeCompare(bv||''):(bv||'').localeCompare(av||'');
     if(av===null||av===undefined) return 1;
     if(bv===null||bv===undefined) return -1;
@@ -533,68 +844,82 @@ function applyFilter() {
   return data;
 }
 
-function renderTable() {
-  filteredData = applyFilter();
-  document.getElementById('showCount').innerHTML=`<span>${filteredData.length}</span>`;
+function renderTable(){
+  const filtered=applyFilter();
+  document.getElementById('showCount').innerHTML=`<span>${filtered.length}</span>`;
+  const VIEWS=buildViews();
+  const cols=VIEWS[currentView];
 
-  const view = VIEWS[currentView];
-  const cols = view.cols;
-
-  // Build header
-  const thead = document.getElementById('tableHead');
-  let hRow = '<tr><th data-col="rank" data-tip="Composite rank — #1 is the highest scoring stock overall.">#</th>';
-  hRow += '<th data-col="ticker" data-tip="Stock ticker symbol. Click to open Yahoo Finance.">Ticker</th>';
-  hRow += '<th data-col="company" data-tip="Company name.">Company</th>';
-  hRow += '<th data-col="sector" data-tip="GICS sector classification.">Sector</th>';
+  // Header
+  const thead=document.getElementById('tableHead');
+  const fixedTH=(lk,col,w)=>{
+    const sorted=sortCol===col?(' sorted'+(sortAsc?' asc':'')):'';
+    const tipText=tt(lk)||'';
+    return `<th class="${sorted} col-${w}" data-col="${col}">
+      <div class="th-wrap">${tc(lk)}<span class="th-tip">${tipText}</span></div>
+    </th>`;
+  };
+  let hRow='<tr>';
+  hRow+=fixedTH('rank','rank','rank');
+  hRow+=fixedTH('ticker','ticker','ticker');
+  hRow+=fixedTH('company','company','company');
+  hRow+=fixedTH('sector','sector','sector');
   cols.forEach(c=>{
-    const sorted = sortCol===c.key ? (' sorted'+(sortAsc?' asc':'')) : '';
-    hRow += `<th class="${sorted}" data-col="${c.key}" data-tip="${c.tip||''}">${c.label}</th>`;
+    const sorted=sortCol===c.key?(' sorted'+(sortAsc?' asc':'')):'';
+    const tipText=tt(c.tk)||'';
+    hRow+=`<th class="${sorted} col-data" data-col="${c.key}">
+      <div class="th-wrap">${tc(c.lk)}<span class="th-tip">${tipText}</span></div>
+    </th>`;
   });
-  hRow += '</tr>';
-  thead.innerHTML = hRow;
+  hRow+='</tr>';
+  thead.innerHTML=hRow;
 
-  // Header click sort
+  // Position tooltips dynamically on hover
+  thead.querySelectorAll('th').forEach(th=>{
+    th.addEventListener('mouseenter',e=>{
+      const tip=th.querySelector('.th-tip');
+      if(!tip) return;
+      const rect=th.getBoundingClientRect();
+      tip.style.top=(rect.top-tip.offsetHeight-10)+'px';
+      tip.style.left=Math.min(rect.left+rect.width/2-110, window.innerWidth-230)+'px';
+    });
+  });
+
   thead.querySelectorAll('th[data-col]').forEach(th=>{
     th.addEventListener('click',()=>{
       const col=th.dataset.col;
       if(sortCol===col) sortAsc=!sortAsc;
-      else { sortCol=col; sortAsc=col==='rank'; }
+      else{sortCol=col;sortAsc=col==='rank'||col==='ticker'||col==='company'||col==='sector';}
       renderTable();
     });
   });
 
-  // Build body
-  const tbody = document.getElementById('tableBody');
+  // Body
+  const tbody=document.getElementById('tableBody');
   tbody.innerHTML='';
+  filtered.forEach(d=>{
+    const sc=SECTOR_COLORS[d.sector]||{bg:'#1a1a1a',color:'#999'};
+    const sectorShort=(d.sector||'').replace('Information Technology','IT').replace('Communication Services','Comm').replace('Consumer Discretionary','Cons D').replace('Consumer Staples','Cons S').replace('Health Care','Health');
 
-  filteredData.forEach(d=>{
-    const sc = SECTOR_COLORS[d.sector]||{bg:'#1a1a1a',color:'#999'};
-    const rankClass = d.rank<=3?'top3':'';
-
-    // Fixed cells
-    let cells = `
-      <td class="td-rank ${rankClass}">${d.rank}</td>
+    let cells=`
+      <td class="td-rank ${d.rank<=3?'top3':''}">${d.rank}</td>
       <td class="td-ticker"><a href="https://finance.yahoo.com/quote/${d.ticker}" target="_blank" onclick="event.stopPropagation()">${d.ticker}</a></td>
       <td class="td-company" title="${d.company||''}">${(d.company||'').substring(0,22)}</td>
-      <td><span class="sector-pill" style="background:${sc.bg};color:${sc.color}">${(d.sector||'').replace('Information Technology','IT').replace('Communication Services','Comm').replace('Consumer Discretionary','Cons D').replace('Consumer Staples','Cons S').replace('Health Care','Health')}</span></td>`;
+      <td><span class="sector-pill" style="background:${sc.bg};color:${sc.color}">${sectorShort}</span></td>`;
 
-    // Dynamic cells
     cols.forEach(c=>{
-      const raw = d[c.key];
-      const content = c.fmt ? c.fmt(raw) : (raw!==null&&raw!==undefined?raw:'—');
-      const cls = c.cls ? (typeof c.cls==='function'?c.cls(raw):c.cls) : '';
-      cells += `<td class="td-num ${cls}">${content}</td>`;
+      const raw=d[c.key];
+      const content=c.fmt?c.fmt(raw):(valid(raw)?raw:'—');
+      const cls=c.cls?(typeof c.cls==='function'?c.cls(raw):c.cls):'';
+      cells+=`<td class="td-num ${cls}">${content}</td>`;
     });
 
-    const tr = document.createElement('tr');
-    tr.dataset.ticker = d.ticker;
-    tr.innerHTML = cells;
+    const tr=document.createElement('tr');
+    tr.innerHTML=cells;
 
-    // Expandable detail row
-    const trDetail = document.createElement('tr');
+    const trDetail=document.createElement('tr');
     trDetail.className='pillar-row';
-    trDetail.dataset.parent=d.ticker;
-    trDetail.innerHTML = `<td colspan="99">${buildDetail(d)}</td>`;
+    trDetail.innerHTML=`<td colspan="99">${buildDetail(d)}</td>`;
 
     tr.addEventListener('click',()=>{
       const isOpen=trDetail.classList.contains('open');
@@ -602,41 +927,39 @@ function renderTable() {
       document.querySelectorAll('tr.expanded').forEach(r=>r.classList.remove('expanded'));
       if(!isOpen){trDetail.classList.add('open');tr.classList.add('expanded');}
     });
-
     tbody.appendChild(tr);
     tbody.appendChild(trDetail);
   });
 }
 
-function buildDetail(d) {
+function buildDetail(d){
   const pillars=[
     ['VALUATION',d.p_valuation],['PROFITAB.',d.p_profitability],
-    ['GROWTH',d.p_growth],['EQ QUAL',d.p_eq],['FCF QUAL',d.p_fcf],
-    ['FIN HEALTH',d.p_health],['MOMENTUM',d.p_momentum],
+    ['GROWTH',d.p_growth],['EQ QUAL',d.p_eq],['FCF',d.p_fcf],
+    ['HEALTH',d.p_health],['MOMENTUM',d.p_momentum],
     ['ANALYST',d.p_analyst],['PIOTROSKI',d.p_piotroski],
   ];
-  const pillarHtml = pillars.map(([n,v])=>`
-    <div>
-      <div class="pillar-name">${n}</div>
-      <div class="pillar-score" style="color:${pillarColor(v)}">${v?v.toFixed(0):'—'}</div>
-      <div class="pillar-bar-bg"><div class="pillar-bar-fill" style="width:${v||0}%;background:${pillarColor(v)}"></div></div>
+  const pg=pillars.map(([nm,v])=>`
+    <div><div class="pillar-name">${nm}</div>
+    <div class="pillar-score" style="color:${pillarColor(v)}">${valid(v)?v.toFixed(0):'—'}</div>
+    <div class="pillar-bar-bg"><div class="pillar-bar-fill" style="width:${v||0}%;background:${pillarColor(v)}"></div></div>
     </div>`).join('');
 
-  const details=[
-    ['Price',  d.price?'$'+d.price.toFixed(2):'—', ''],
-    ['Mkt Cap', d.market_cap?'$'+(d.market_cap/1e9).toFixed(1)+'B':'—', ''],
-    ['Altman Z', d.altman_z?d.altman_z.toFixed(2):'—', altmanCls(d.altman_z)],
-    ['Piotroski F', d.piotroski_f!==null&&d.piotroski_f!==undefined?d.piotroski_f:'—', ''],
-    ['Div Yield', d.div_yield?d.div_yield.toFixed(2)+'%':'—', ''],
-    ['vs Sector', d.vs_sector?(d.vs_sector>0?'+':'')+d.vs_sector.toFixed(1):'—', signCls(d.vs_sector)],
-    ['Beta', d.beta?d.beta.toFixed(2):'—', ''],
-    ['# Analysts', d.analysts||'—', ''],
-    ['SmartScore', d.tr_smartscore||'—', ''],
-    ['Consensus', (d.tr_consensus||'—').replace('Moderate','Mod '), ''],
-    ['TR PT Upside', d.tr_pt_upside?d.tr_pt_upside.toFixed(1)+'%':'—', signCls(d.tr_pt_upside)],
-    ['Coverage', d.coverage?d.coverage.toFixed(0)+'%':'—', ''],
+  const extras=[
+    ['Price', d.price?'$'+d.price.toFixed(2):'—',''],
+    ['Mkt Cap', d.market_cap?'$'+(d.market_cap/1e9).toFixed(1)+'B':'—',''],
+    ['Altman Z', valid(d.altman_z)?d.altman_z.toFixed(2):'—', altmanCls(d.altman_z)],
+    ['Piotroski F', valid(d.piotroski_f)?d.piotroski_f:'—',''],
+    ['Div Yield', valid(d.div_yield)?d.div_yield.toFixed(2)+'%':'—',''],
+    ['vs Sector', valid(d.vs_sector)?(d.vs_sector>0?'+':'')+d.vs_sector.toFixed(1):'—', signCls(d.vs_sector)],
+    ['Beta', valid(d.beta)?d.beta.toFixed(2):'—',''],
+    ['# Analysts', d.analysts||'—',''],
+    ['TR SmartScore', d.tr_smartscore||'—',''],
+    ['TR Consensus', (d.tr_consensus||'—').replace('Moderate','Mod '),''],
+    ['TR PT Upside', valid(d.tr_pt_upside)?d.tr_pt_upside.toFixed(1)+'%':'—', signCls(d.tr_pt_upside)],
+    ['Coverage', valid(d.coverage)?d.coverage.toFixed(0)+'%':'—',''],
   ];
-  const detailHtml = details.map(([l,v,c])=>`
+  const eg=extras.map(([l,v,c])=>`
     <div class="detail-item">
       <div class="detail-label">${l}</div>
       <div class="detail-value ${c}">${v}</div>
@@ -644,8 +967,8 @@ function buildDetail(d) {
 
   return `<div class="pillar-inner">
     <div class="pillar-header">PILLAR BREAKDOWN — ${d.ticker} · ${d.company||''}</div>
-    <div class="pillar-grid">${pillarHtml}</div>
-    <div class="detail-grid">${detailHtml}</div>
+    <div class="pillar-grid">${pg}</div>
+    <div class="detail-grid">${eg}</div>
   </div>`;
 }
 
