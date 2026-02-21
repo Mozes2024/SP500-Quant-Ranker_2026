@@ -79,7 +79,22 @@ def get_sp500_tickers():
     # ...
 
 # ========================== YAHOO FINANCE ==========================
-FUNDAMENTAL_FIELDS = [ ... ]  # (כל הרשימה כמו שהיה)
+
+FUNDAMENTAL_FIELDS = [
+    "trailingPE", "forwardPE", "pegRatio", "priceToSalesTrailing12Months",
+    "priceToBook", "enterpriseToEbitda", "returnOnEquity", "returnOnAssets",
+    "profitMargins", "grossMargins", "operatingMargins",
+    "revenueGrowth", "earningsGrowth",
+    "currentRatio", "debtToEquity", "totalDebt", "totalCash",
+    "freeCashflow", "operatingCashflow", "totalRevenue", "netIncomeToCommon",
+    "ebitda", "totalAssets", "totalStockholdersEquity", "marketCap",
+    "enterpriseValue", "dividendYield", "payoutRatio",
+    "beta", "sharesOutstanding", "shortRatio",
+    "targetMeanPrice", "currentPrice", "52WeekChange",
+    "recommendationMean", "numberOfAnalystOpinions",
+    "workingCapital", "earningsPerShare", "trailingEps", "revenuePerShare",
+    "averageVolume",
+]
 
 def fetch_yf_parallel(tickers):
     # (הקוד המלא של parallel fetch)
