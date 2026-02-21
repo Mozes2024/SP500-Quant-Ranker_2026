@@ -1048,6 +1048,52 @@ def _print_summary(df: pd.DataFrame):
 #  JSON EXPORT  (for GitHub Pages dashboard)
 # ════════════════════════════════════════════════════════════
 
+def merge_breakout_signals(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Merge breakout scan signals from MOZES_stock-screener.
+    Reads breakout_signals.json from repo root (fetched by Actions workflow).
+    Adds columns: breakout_score, breakout_rank, breakout_phase,
+                  breakout_rr, breakout_rs, breakout_stop, has_vcp,
+                  vcp_quality, breakout_entry_quality, breakout_reasons
+    """
+    import json as _json, os as _os
+    bp = "breakout_signals.json"
+    if not _os.path.exists(bp):
+        print("  ⚠  breakout_signals.json not found — skipping breakout merge")
+        for col in ["breakout_score","breakout_rank","breakout_phase",
+                    "breakout_rr","breakout_rs","breakout_stop",
+                    "has_vcp","vcp_quality","breakout_entry_quality","breakout_reasons"]:
+            df[col] = np.nan
+        df["has_vcp"] = False
+        df["breakout_entry_quality"] = ""
+        df["breakout_reasons"] = ""
+        return df
+
+    with open(bp) as f:
+        data = _json.load(f)
+
+    signals = {s["ticker"]: s for s in data.get("top_signals", [])}
+    print(f"  ✅ Loaded {len(signals)} breakout signals (scan: {data.get('scan_date','')})")
+
+    def _get(ticker, field, default=np.nan):
+        return signals.get(ticker, {}).get(field, default)
+
+    df["breakout_score"]         = df["Ticker"].apply(lambda t: _get(t, "breakout_score"))
+    df["breakout_rank"]          = df["Ticker"].apply(lambda t: _get(t, "rank"))
+    df["breakout_phase"]         = df["Ticker"].apply(lambda t: _get(t, "phase"))
+    df["breakout_rr"]            = df["Ticker"].apply(lambda t: _get(t, "risk_reward"))
+    df["breakout_rs"]            = df["Ticker"].apply(lambda t: _get(t, "rs"))
+    df["breakout_stop"]          = df["Ticker"].apply(lambda t: _get(t, "stop_loss"))
+    df["has_vcp"]                = df["Ticker"].apply(lambda t: signals.get(t, {}).get("has_vcp", False))
+    df["vcp_quality"]            = df["Ticker"].apply(lambda t: _get(t, "vcp_quality"))
+    df["breakout_entry_quality"] = df["Ticker"].apply(lambda t: signals.get(t, {}).get("entry_quality", ""))
+    df["breakout_reasons"]       = df["Ticker"].apply(lambda t: " | ".join(signals.get(t, {}).get("reasons", [])))
+
+    n_overlap = df["breakout_score"].notna().sum()
+    print(f"  🔀 Overlap with S&P 500: {n_overlap} stocks in both systems")
+    return df
+
+
 def export_json(df: pd.DataFrame):
     """Export ranking data as sp500_data.json for the web dashboard."""
     def safe(v):
@@ -1142,6 +1188,17 @@ def export_json(df: pd.DataFrame):
             "tr_mom_12m":     pct(row.get("tr_momentum_12m")),
             "coverage":       pct(row.get("coverage")),
             "vs_sector":      safe(row.get("vs_sector")),
+            # Breakout scanner
+            "breakout_score":  safe(row.get("breakout_score")),
+            "breakout_rank":   safe(row.get("breakout_rank")),
+            "breakout_phase":  safe(row.get("breakout_phase")),
+            "breakout_rr":     safe(row.get("breakout_rr")),
+            "breakout_rs":     safe(row.get("breakout_rs")),
+            "breakout_stop":   safe(row.get("breakout_stop")),
+            "has_vcp":         bool(row.get("has_vcp")) if row.get("has_vcp") else False,
+            "vcp_quality":     safe(row.get("vcp_quality")),
+            "breakout_entry":  str(row.get("breakout_entry_quality","") or ""),
+            "breakout_reasons":str(row.get("breakout_reasons","") or ""),
         })
 
     import json as _json
@@ -1258,6 +1315,8 @@ def run_pipeline(use_cache: bool = True) -> pd.DataFrame:
     plot_all(df)
     print("\n  Exporting Excel...")
     style_and_export(df, CFG["output_file"])
+    print("\n  Merging breakout scanner signals...")
+    df = merge_breakout_signals(df)
     print("\n  Exporting JSON for web dashboard...")
     export_json(df)
 
