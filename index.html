@@ -79,7 +79,17 @@ header{
 .filter-reset{padding:6px 14px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:12px;font-weight:600;cursor:pointer;}
 .filter-reset:hover{border-color:var(--red);color:var(--red);}
 
-.sector-filters{display:flex;gap:5px;flex-wrap:wrap;flex:1;}
+.sector-filters{display:flex;align-items:center;flex:1;}
+.sector-select{
+  background:var(--bg);border:1px solid var(--border);border-radius:6px;
+  padding:7px 32px 7px 12px;font-size:13px;font-weight:600;color:var(--text);
+  outline:none;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b8aaa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  min-width:220px;transition:border-color .15s;
+}
+.sector-select:focus,.sector-select:hover{border-color:var(--gold);}
 .sector-btn{
   padding:5px 11px;border-radius:5px;border:1px solid var(--border);
   background:transparent;color:var(--text2);font-size:12px;font-weight:600;
@@ -603,16 +613,17 @@ function buildSectorBtns(){
   const c=document.getElementById('sectorFilters');c.innerHTML='';
   const sectors=['ALL',...Object.keys(SECTOR_COLORS).filter(s=>allData.some(d=>d.sector===s))];
   const sMap=(T[lang]||T.en).sectors||T.en.sectors;
+  const sel=document.createElement('select');
+  sel.className='sector-select';
   sectors.forEach(s=>{
-    const btn=document.createElement('button');
-    btn.className='sector-btn'+(s==='ALL'?' active':'');
-    btn.textContent=s==='ALL'?tl('allsectors'):(lang==='he'?(sMap[s]||s):s.replace('Information Technology','IT').replace('Communication Services','COMM').replace('Consumer Discretionary','CONS D').replace('Consumer Staples','CONS S').replace('Health Care','HEALTH').toUpperCase());
-    btn.addEventListener('click',()=>{
-      document.querySelectorAll('.sector-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');currentSector=s;renderTable();
-    });
-    c.appendChild(btn);
+    const opt=document.createElement('option');
+    opt.value=s;
+    opt.textContent=s==='ALL'?tl('allsectors'):(lang==='he'?(sMap[s]||s):s);
+    if(s===currentSector) opt.selected=true;
+    sel.appendChild(opt);
   });
+  sel.addEventListener('change',()=>{currentSector=sel.value;renderTable();});
+  c.appendChild(sel);
 }
 function buildViewTabs(){
   const c=document.getElementById('viewTabs');c.innerHTML='';
