@@ -1,0 +1,40 @@
+name: Daily S&P 500 Ranking v5.2
+
+on:
+  schedule:
+    - cron: '0 13 * * *'   # 13:00 UTC = 15:00 ישראל
+  workflow_dispatch:
+
+jobs:
+  rank:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore cache (7 days)
+        uses: actions/cache@v4
+        with:
+          path: sp500_cache_v5.pkl
+          key: sp500-cache-v5-${{ runner.os }}
+          restore-keys: sp500-cache-v5-
+
+      - name: Run ranking
+        run: python sp500_ranker.py
+
+      - name: Upload results (Excel + Charts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: sp500-ranking-results
+          path: |
+            artifacts/*.xlsx
+            artifacts/*.png
+          retention-days: 30
