@@ -1,15 +1,22 @@
 name: Daily S&P 500 Ranking v5.2
-
 on:
   schedule:
     - cron: '0 13 * * *'   # 13:00 UTC = 15:00 ישראל
-  workflow_dispatch:
+  workflow_dispatch:         # הפעלה ידנית מ-GitHub UI
+
+permissions:
+  contents: write            # נדרש לעדכן sp500_data.json בrepo
+  pages: write               # נדרש ל-GitHub Pages
+  id-token: write
 
 jobs:
   rank:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -18,23 +25,53 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install yfinance pandas numpy "openpyxl==3.1.2" \
+                      requests beautifulsoup4 matplotlib seaborn \
+                      tqdm scipy
 
-      - name: Restore cache (7 days)
+      - name: Restore S&P 500 cache (7 days)
         uses: actions/cache@v4
         with:
           path: sp500_cache_v5.pkl
-          key: sp500-cache-v5-${{ runner.os }}
-          restore-keys: sp500-cache-v5-
+          key: sp500-cache-v5-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            sp500-cache-v5-${{ runner.os }}-
 
-      - name: Run ranking
-        run: python sp500_github
+      - name: Run ranking pipeline
+        run: python sp500_github.py
+        env:
+          PYTHONUNBUFFERED: "1"
 
-      - name: Upload results (Excel + Charts)
+      - name: Commit sp500_data.json to repo
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sp500_data.json
+          git diff --staged --quiet || git commit -m "📊 Update ranking data $(date +'%Y-%m-%d %H:%M')"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts (Excel + Charts + JSON)
         uses: actions/upload-artifact@v4
         with:
-          name: sp500-ranking-results
-          path: |
-            artifacts/*.xlsx
-            artifacts/*.png
+          name: sp500-ranking-${{ github.run_number }}
+          path: artifacts/
           retention-days: 30
+
+      - name: Deploy dashboard to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'          # מגיש את index.html + sp500_data.json מהroot
+
+  deploy-pages:
+    needs: rank
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
