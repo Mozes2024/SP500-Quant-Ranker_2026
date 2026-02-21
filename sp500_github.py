@@ -1133,6 +1133,13 @@ def export_json(df: pd.DataFrame):
             "avg_volume":     safe(row.get("averageVolume")),
             "pt_upside":      pct(row.get("pt_upside")),
             "analysts":       safe(row.get("numberOfAnalystOpinions")),
+            "analyst_mean":   safe(row.get("recommendationMean")),
+            "payout_ratio":   pct(row.get("payoutRatio")),
+            "fcf_to_ni":      safe(row.get("fcf_to_ni")),
+            "tr_asset_gr":    pct(row.get("tr_asset_growth")),
+            "tr_inv_chg_30d": pct(row.get("tr_investor_chg_30d")),
+            "tr_inv_chg_7d":  pct(row.get("tr_investor_chg_7d")),
+            "tr_mom_12m":     pct(row.get("tr_momentum_12m")),
             "coverage":       pct(row.get("coverage")),
             "vs_sector":      safe(row.get("vs_sector")),
         })
