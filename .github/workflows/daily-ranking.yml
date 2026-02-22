@@ -2,106 +2,108 @@ name: Daily S&P 500 Ranking v5.3
 
 on:
   schedule:
-    - cron: "45 12 * * 1-5"
-  workflow_dispatch:
+    - cron: '0 13 * * 1-5'   # גיבוי - רץ ב-13:00 UTC אם הסקרינר לא הפעיל
   repository_dispatch:
-    types: [breakout_update]
+    types: [screener-update]  # ← מופעל אוטומטית ע"י MOZES_stock-screener
+  workflow_dispatch:           # הפעלה ידנית
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
-concurrency:
-  group: sp500-ranker-pages
-  cancel-in-progress: false
-
 jobs:
-  rank_and_deploy:
+  rank:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    timeout-minutes: 90
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Log trigger source
         run: |
-          echo "Triggered by: ${{ github.event_name }}"
-          echo "Repository: ${{ github.repository }}"
-          echo "Ref: ${{ github.ref }}"
-          echo "Commit: ${{ github.sha }}"
-
-      - name: Show index.html (first 15 lines)
-        run: |
-          echo "===== index.html (first 15 lines) ====="
-          sed -n '1,15p' index.html
-          echo "======================================="
-
-      - name: Fail if index.html contains patch markers (@@)
-        run: |
-          if grep -nE '^@@ ' index.html; then
-            echo "ERROR: index.html still contains patch markers (@@). Aborting deploy."
-            exit 1
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "🔗 Triggered automatically by MOZES_stock-screener"
+            echo "   Scan date: ${{ github.event.client_payload.scan_date }}"
+            echo "   Signals:   ${{ github.event.client_payload.signals_count }}"
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "⏰ Triggered by schedule (screener may not have run yet)"
+          else
+            echo "👤 Triggered manually"
           fi
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install pandas yfinance requests
+          pip install yfinance pandas numpy "openpyxl==3.1.2" \
+                      requests beautifulsoup4 matplotlib seaborn \
+                      tqdm scipy
 
       - name: Restore S&P 500 cache (7 days)
         uses: actions/cache@v4
         with:
-          path: sp500_cache.json
-          key: sp500-cache-${{ github.run_id }}
+          path: sp500_cache_v5.pkl
+          key: sp500-cache-v5-${{ runner.os }}-${{ github.run_id }}
           restore-keys: |
-            sp500-cache-
+            sp500-cache-v5-${{ runner.os }}-
 
       - name: Verify breakout signals
         run: |
-          if [ -f breakout_signals.json ]; then
-            echo "breakout_signals.json found"
+          if [ -f "breakout_signals.json" ]; then
+            SIGNALS=$(python3 -c "import json; d=json.load(open('breakout_signals.json')); print(d.get('top_signals_count', 0))")
+            SCAN=$(python3 -c "import json; d=json.load(open('breakout_signals.json')); print(d.get('scan_date',''))")
+            echo "✅ breakout_signals.json ready: $SIGNALS signals (scan: $SCAN)"
           else
-            echo "breakout_signals.json missing — continuing without breakout merge"
+            echo "⚠ breakout_signals.json missing — fetching fallback..."
+            curl -sf "https://raw.githubusercontent.com/Mozes2024/MOZES_stock-screener/main/breakout_signals.json" \
+                 -o breakout_signals.json && echo "✅ Fetched from screener" || echo "⚠ Not available"
           fi
 
       - name: Run ranking pipeline
+        run: python sp500_github.py
+        env:
+          PYTHONUNBUFFERED: "1"      - name: Commit sp500_data.json to repo
         run: |
-          python sp500_github.py
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Validate sp500_data.json exists
-        run: |
-          if [ ! -f sp500_data.json ]; then
-            echo "ERROR: sp500_data.json was not created!"
-            exit 1
-          fi
-          echo "sp500_data.json created successfully"
-          ls -lh sp500_data.json
+          # Sync with remote to avoid non-fast-forward / rebase issues
+          git fetch origin main
+          git pull --rebase --autostash origin main
 
-      - name: List site root files (pre-deploy)
-        run: |
-          echo "===== Site root files ====="
-          ls -la
-          echo "==========================="
+          git add sp500_data.json
+          git diff --staged --quiet || git commit -m "📊 Update ranking data $(date +'%Y-%m-%d %H:%M')"
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+          # Push with a small retry (handles rare race conditions)
+          git push || (sleep 3 && git push)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Pages artifact
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sp500-ranking-${{ github.run_number }}
+          path: artifacts/
+          retention-days: 30
+
+      - name: Deploy dashboard to GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: '.'
 
+  deploy-pages:
+    needs: rank
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
