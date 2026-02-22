@@ -2,25 +2,21 @@ name: Daily S&P 500 Ranking v5.3
 
 on:
   schedule:
-    - cron: '0 13 * * 1-5'   # גיבוי - רץ ב-13:00 UTC אם הסקרינר לא הפעיל
+    - cron: "45 12 * * 1-5"
+  workflow_dispatch:
   repository_dispatch:
-    types: [screener-update]  # ← מופעל אוטומטית ע"י MOZES_stock-screener
-  workflow_dispatch:           # הפעלה ידנית
+    types: [breakout_update]
 
-# מונע התנגשויות בין ריצות (schedule + dispatch + manual) שכולן מנסות לדחוף ל-main
+permissions:
+  contents: write
+
 concurrency:
   group: sp500-ranker-main
   cancel-in-progress: false
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-
 jobs:
   rank:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
 
     steps:
       - name: Checkout repo
@@ -30,61 +26,51 @@ jobs:
 
       - name: Log trigger source
         run: |
-          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-            echo "🔗 Triggered automatically by MOZES_stock-screener"
-            echo "   Scan date: ${{ github.event.client_payload.scan_date }}"
-            echo "   Signals:   ${{ github.event.client_payload.signals_count }}"
-          elif [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "⏰ Triggered by schedule (screener may not have run yet)"
-          else
-            echo "👤 Triggered manually"
-          fi
+          echo "Triggered by: ${{ github.event_name }}"
+          echo "Repository: ${{ github.repository }}"
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
-          pip install yfinance pandas numpy "openpyxl==3.1.2"                       requests beautifulsoup4 matplotlib seaborn                       tqdm scipy
+          pip install --upgrade pip
+          pip install pandas yfinance requests
 
       - name: Restore S&P 500 cache (7 days)
         uses: actions/cache@v4
         with:
-          path: sp500_cache_v5.pkl
-          key: sp500-cache-v5-${{ runner.os }}-${{ github.run_id }}
+          path: sp500_cache.json
+          key: sp500-cache-${{ github.run_id }}
           restore-keys: |
-            sp500-cache-v5-${{ runner.os }}-
+            sp500-cache-
 
       - name: Verify breakout signals
         run: |
-          if [ -f "breakout_signals.json" ]; then
-            SIGNALS=$(python3 -c "import json; d=json.load(open('breakout_signals.json')); print(d.get('top_signals_count', 0))")
-            SCAN=$(python3 -c "import json; d=json.load(open('breakout_signals.json')); print(d.get('scan_date',''))")
-            echo "✅ breakout_signals.json ready: $SIGNALS signals (scan: $SCAN)"
+          if [ -f breakout_signals.json ]; then
+            echo "breakout_signals.json found"
           else
-            # הסקרינר דוחף את breakout_signals.json ישירות לריפו הזה דרך GitHub API.
-            # אם אין קובץ (למשל ריצה מתוזמנת לפני הסקרינר) — נמשיך בלי merge.
-            echo "⚠ breakout_signals.json missing — continuing without breakout merge"
+            echo "breakout_signals.json missing — continuing without breakout merge"
           fi
 
       - name: Run ranking pipeline
-        run: python sp500_github.py
-        env:
-          PYTHONUNBUFFERED: "1"
+        run: |
+          python sp500_github.py
 
       - name: Commit sp500_data.json to repo
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # תמיד להסתנכרן עם ה-remote לפני Push כדי למנוע 'fetch first'
+          # קודם כל מסתנכרנים עם ה-remote
           git fetch origin main
           git pull --rebase origin main
 
+          # עכשיו מוסיפים שינויים
           git add sp500_data.json
+
           if git diff --staged --quiet; then
             echo "No changes to commit"
             exit 0
@@ -92,30 +78,10 @@ jobs:
 
           git commit -m "📊 Update ranking data $(date +'%Y-%m-%d %H:%M')"
 
-          # ניסיון Push, ואם עדיין יש התנגשות (נדיר כשיש concurrency) — Pull+Rebase נוסף ו-Push שוב
-          git push || (git pull --rebase origin main && git push)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: sp500-ranking-${{ github.run_number }}
-          path: artifacts/
-          retention-days: 30
+          git push
 
       - name: Deploy dashboard to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: '.'
-
-  deploy-pages:
-    needs: rank
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
