@@ -146,6 +146,20 @@ td{padding:11px 8px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ── Double Signal ── */
+tbody tr.double-signal-row{background:linear-gradient(90deg,rgba(245,166,35,.07) 0%,transparent 60%);border-left:3px solid var(--gold);}
+tbody tr.double-signal-row:hover{background:linear-gradient(90deg,rgba(245,166,35,.13) 0%,var(--surface2) 60%);}
+tbody tr.double-signal-row.expanded{background:linear-gradient(90deg,rgba(245,166,35,.13) 0%,var(--surface2) 60%);}
+.ds-badge{display:inline-flex;align-items:center;gap:3px;background:linear-gradient(135deg,#f5a623,#ff6b35);color:#000;font-size:9px;font-weight:900;letter-spacing:.5px;padding:2px 6px;border-radius:10px;margin-bottom:2px;white-space:nowrap;}
+
+/* ── Breakout-only row (has breakout score, no double signal) ── */
+tbody tr.breakout-only-row{border-left:3px solid var(--teal);}
+
+/* ── Sector combobox ── */
+#sectorSelect{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:12px;font-weight:600;color:var(--text2);outline:none;cursor:pointer;min-width:200px;}
+#sectorSelect:focus{border-color:var(--gold);}
+#sectorSelect option{background:var(--surface);color:var(--text);}
 </style>
 </head>
 <body>
@@ -172,7 +186,7 @@ td{padding:11px 8px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis
 <div class="controls" id="controls" style="display:none">
   <div class="search-wrap"><span class="search-icon">⌕</span><input type="text" id="search" placeholder="Search ticker or company…"></div>
   <button class="filter-toggle" id="filterToggle" onclick="toggleFilter()">⚙ <span id="lbl-filters">FILTERS</span></button>
-  <div class="sector-filters" id="sectorFilters"></div>
+  <select id="sectorSelect" onchange="onSectorChange(this.value)"><option value="ALL">ALL SECTORS</option></select>
   <div class="count-badge"><span id="showCount">—</span> <span id="lbl-stocks">stocks</span></div>
 </div>
 <div class="filter-panel" id="filterPanel">
@@ -210,7 +224,7 @@ function tt(k){return((T[lang]||T.en).tips||T.en.tips)[k]||(T.en.tips)[k]||'';}
 function ttab(k){return((T[lang]||T.en).tabs||T.en.tabs)[k]||(T.en.tabs)[k]||k;}
 function tdtab(k){return((T[lang]||T.en).dtabs||T.en.dtabs)[k]||(T.en.dtabs)[k]||k;}
 function tpillar(k){return((T[lang]||T.en).pillarNames||T.en.pillarNames)[k]||(T.en.pillarNames)[k]||k;}
-function applyI18n(){const ids={'lbl-ranked':'ranked','lbl-avg':'avg','lbl-topsec':'topsec','lbl-ss8':'ss8','lbl-tr':'tr','lbl-stocks':'stocks','lbl-f-composite':'fcomposite','lbl-f-ss':'fss','lbl-f-consensus':'fconsensus','lbl-f-pe':'fpe','lbl-f-perf':'fperf','lbl-f-valuation':'fval','lbl-f-reset':'reset','lbl-filters':'filters','loadingText':'loading'};Object.entries(ids).forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.textContent=tl(key);});document.getElementById('search').placeholder=tl('searchph');buildSectorBtns();buildViewTabs();if(allData.length)updateTopSector();}
+function applyI18n(){const ids={'lbl-ranked':'ranked','lbl-avg':'avg','lbl-topsec':'topsec','lbl-ss8':'ss8','lbl-tr':'tr','lbl-stocks':'stocks','lbl-f-composite':'fcomposite','lbl-f-ss':'fss','lbl-f-consensus':'fconsensus','lbl-f-pe':'fpe','lbl-f-perf':'fperf','lbl-f-valuation':'fval','lbl-f-reset':'reset','lbl-filters':'filters','loadingText':'loading'};Object.entries(ids).forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.textContent=tl(key);});document.getElementById('search').placeholder=tl('searchph');buildSectorSelect();buildViewTabs();if(allData.length)updateTopSector();}
 
 const SECTOR_COLORS={'Information Technology':{bg:'#0d2137',color:'#4fc3f7'},'Health Care':{bg:'#0d2118',color:'#69f0ae'},'Financials':{bg:'#1a1a0d',color:'#fff176'},'Consumer Discretionary':{bg:'#1a100d',color:'#ffab91'},'Communication Services':{bg:'#150d1a',color:'#ce93d8'},'Industrials':{bg:'#0d1a1a',color:'#80deea'},'Consumer Staples':{bg:'#1a160d',color:'#ffcc80'},'Energy':{bg:'#1a0d0d',color:'#ef9a9a'},'Real Estate':{bg:'#0d1a13',color:'#a5d6a7'},'Materials':{bg:'#0d1318',color:'#90caf9'},'Utilities':{bg:'#120d1a',color:'#b39ddb'}};
 
@@ -281,21 +295,45 @@ function init(){
   document.getElementById('statAvg').textContent=avg;
   document.getElementById('statSS8').textContent=ss8;
   document.getElementById('statTR').textContent=Math.round(trCov/nn*100)+'%';
-  updateTopSector();buildSectorBtns();buildViewTabs();
+  updateTopSector();buildSectorSelect();buildViewTabs();
   document.getElementById('search').addEventListener('input',e=>{currentSearch=e.target.value.toLowerCase();renderTable();});
   ['fCompMin','fCompMax','fSSMin','fConsensus','fPEMax','fPerfMin','fValMin'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('change',renderTable);el.addEventListener('input',renderTable);}});
   renderTable();
 }
 
-function buildSectorBtns(){const c=document.getElementById('sectorFilters');c.innerHTML='';const sectors=['ALL',...Object.keys(SECTOR_COLORS).filter(s=>allData.some(d=>d.sector===s))];const sMap=(T[lang]||T.en).sectors||T.en.sectors;sectors.forEach(s=>{const btn=document.createElement('button');btn.className='sector-btn'+(s==='ALL'?' active':'');btn.textContent=s==='ALL'?tl('allsectors'):(lang==='he'?(sMap[s]||s):s.replace('Information Technology','IT').replace('Communication Services','COMM').replace('Consumer Discretionary','CONS D').replace('Consumer Staples','CONS S').replace('Health Care','HEALTH').toUpperCase());btn.addEventListener('click',()=>{document.querySelectorAll('.sector-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentSector=s;renderTable();});c.appendChild(btn);});}
+function onSectorChange(val){currentSector=val;renderTable();}
 
-function buildViewTabs(){const c=document.getElementById('viewTabs');c.innerHTML='';Object.keys(buildViews()).forEach(view=>{const btn=document.createElement('button');btn.className='view-tab'+(view===currentView?' active':'');btn.textContent=ttab(view);btn.dataset.view=view;btn.addEventListener('click',()=>{document.querySelectorAll('.view-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');currentView=view;sortCol='rank';sortAsc=true;renderTable();});c.appendChild(btn);});}
+function buildSectorSelect(){
+  const sel=document.getElementById('sectorSelect');
+  const prev=currentSector||'ALL';
+  sel.innerHTML='';
+  const allOpt=document.createElement('option');
+  allOpt.value='ALL';
+  allOpt.textContent=tl('allsectors');
+  sel.appendChild(allOpt);
+  const sMap=(T[lang]||T.en).sectors||T.en.sectors;
+  Object.keys(SECTOR_COLORS).filter(s=>allData.some(d=>d.sector===s)).forEach(s=>{
+    const opt=document.createElement('option');
+    opt.value=s;
+    opt.textContent=lang==='he'?(sMap[s]||s):s;
+    sel.appendChild(opt);
+  });
+  sel.value=prev;
+}
+
+function buildViewTabs(){const c=document.getElementById('viewTabs');c.innerHTML='';const breakoutCount=allData.filter(d=>valid(d.breakout_score)).length;Object.keys(buildViews()).forEach(view=>{const btn=document.createElement('button');btn.className='view-tab'+(view===currentView?' active':'');const label=ttab(view);btn.innerHTML=view==='breakout'&&breakoutCount?`${label} <span style="background:var(--teal);color:#000;font-size:9px;font-weight:800;padding:1px 5px;border-radius:8px;margin-left:3px">${breakoutCount}</span>`:label;btn.dataset.view=view;btn.addEventListener('click',()=>{document.querySelectorAll('.view-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');currentView=view;sortCol='rank';sortAsc=true;renderTable();});c.appendChild(btn);});}
 
 function toggleFilter(){const panel=document.getElementById('filterPanel'),btn=document.getElementById('filterToggle');const open=panel.classList.toggle('open');btn.classList.toggle('open',open);}
 function resetFilters(){['fCompMin','fCompMax','fSSMin','fConsensus','fPEMax','fPerfMin','fValMin'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});renderTable();}
 function getFilters(){return{compMin:parseFloat(document.getElementById('fCompMin').value)||null,compMax:parseFloat(document.getElementById('fCompMax').value)||null,ssMin:parseFloat(document.getElementById('fSSMin').value)||null,consensus:document.getElementById('fConsensus').value||null,peMax:parseFloat(document.getElementById('fPEMax').value)||null,perfMin:parseFloat(document.getElementById('fPerfMin').value)||null,valMin:parseFloat(document.getElementById('fValMin').value)||null};}
 
-function applyFilter(){let data=[...allData];const f=getFilters();if(currentSector!=='ALL')data=data.filter(d=>d.sector===currentSector);if(currentSearch)data=data.filter(d=>d.ticker.toLowerCase().includes(currentSearch)||(d.company||'').toLowerCase().includes(currentSearch));if(f.compMin!==null)data=data.filter(d=>(d.composite||0)>=f.compMin);if(f.compMax!==null)data=data.filter(d=>(d.composite||0)<=f.compMax);if(f.ssMin!==null)data=data.filter(d=>(d.tr_smartscore||0)>=f.ssMin);if(f.consensus)data=data.filter(d=>(d.tr_consensus||'')===f.consensus||(d.tr_consensus||'').includes(f.consensus.replace('Buy','').trim()));if(f.peMax!==null)data=data.filter(d=>valid(d.pe)&&parseFloat(d.pe)<=f.peMax);if(f.perfMin!==null)data=data.filter(d=>valid(d.perf_12m)&&parseFloat(d.perf_12m)>=f.perfMin);if(f.valMin!==null)data=data.filter(d=>(d.valuation||0)>=f.valMin);data.sort((a,b)=>{let av=a[sortCol],bv=b[sortCol];if(typeof av==='string')return sortAsc?(av||'').localeCompare(bv||''):(bv||'').localeCompare(av||'');if(!valid(av))return 1;if(!valid(bv))return-1;return sortAsc?parseFloat(av)-parseFloat(bv):parseFloat(bv)-parseFloat(av);});return data;}
+function applyFilter(){let data=[...allData];const f=getFilters();if(currentSector!=='ALL')data=data.filter(d=>d.sector===currentSector);if(currentSearch)data=data.filter(d=>d.ticker.toLowerCase().includes(currentSearch)||(d.company||'').toLowerCase().includes(currentSearch));if(f.compMin!==null)data=data.filter(d=>(d.composite||0)>=f.compMin);if(f.compMax!==null)data=data.filter(d=>(d.composite||0)<=f.compMax);if(f.ssMin!==null)data=data.filter(d=>(d.tr_smartscore||0)>=f.ssMin);if(f.consensus)data=data.filter(d=>(d.tr_consensus||'')===f.consensus||(d.tr_consensus||'').includes(f.consensus.replace('Buy','').trim()));if(f.peMax!==null)data=data.filter(d=>valid(d.pe)&&parseFloat(d.pe)<=f.peMax);if(f.perfMin!==null)data=data.filter(d=>valid(d.perf_12m)&&parseFloat(d.perf_12m)>=f.perfMin);if(f.valMin!==null)data=data.filter(d=>(d.valuation||0)>=f.valMin);
+  // Breakout tab: only show stocks with a real breakout score
+  if(currentView==='breakout')data=data.filter(d=>valid(d.breakout_score));
+  // Default sort for breakout tab = breakout_score desc
+  const effectiveSortCol=(currentView==='breakout'&&sortCol==='rank')?'breakout_score':sortCol;
+  const effectiveSortAsc=(currentView==='breakout'&&sortCol==='rank')?false:sortAsc;
+  data.sort((a,b)=>{let av=a[effectiveSortCol],bv=b[effectiveSortCol];if(typeof av==='string')return effectiveSortAsc?(av||'').localeCompare(bv||''):(bv||'').localeCompare(av||'');if(!valid(av))return 1;if(!valid(bv))return-1;return effectiveSortAsc?parseFloat(av)-parseFloat(bv):parseFloat(bv)-parseFloat(av);});return data;}
 
 function renderTable(){
   const filtered=applyFilter();
@@ -314,12 +352,16 @@ function renderTable(){
   filtered.forEach(d=>{
     const sc=SECTOR_COLORS[d.sector]||{bg:'#1a1a1a',color:'#999'};
     const sMap=(T[lang]||T.en).sectors||T.en.sectors;
-    const sLabel=lang==='he'?(sMap[d.sector]||d.sector):(d.sector||'').replace('Information Technology','IT').replace('Communication Services','Comm').replace('Consumer Discretionary','Cons D').replace('Consumer Staples','Cons S').replace('Health Care','Health');
+    const sLabel=lang==='he'?(sMap[d.sector]||d.sector):(d.sector||'');
     const isBreakout=valid(d.breakout_score);
     const doubleSignal=isBreakout&&(d.composite||0)>=65;
-    let cells=`<td class="td-rank ${d.rank<=3?'top3':''}">${d.rank}</td><td class="td-ticker">${doubleSignal?'<span title="Double Signal!" style="color:var(--gold);font-size:10px;display:block;line-height:1">⚡★</span>':''}<a href="https://finance.yahoo.com/quote/${d.ticker}" target="_blank" onclick="event.stopPropagation()">${d.ticker}</a></td><td class="td-company" title="${d.company||''}">${(d.company||'').substring(0,24)}</td><td><span class="sector-pill" style="background:${sc.bg};color:${sc.color}">${sLabel}</span></td>`;
+    const dsBadge=doubleSignal?'<span class="ds-badge">⚡ SIGNAL</span>':'';
+    let cells=`<td class="td-rank ${d.rank<=3?'top3':''}">${d.rank}</td><td class="td-ticker">${dsBadge}<a href="https://finance.yahoo.com/quote/${d.ticker}" target="_blank" onclick="event.stopPropagation()">${d.ticker}</a></td><td class="td-company" title="${d.company||''}">${(d.company||'').substring(0,24)}</td><td><span class="sector-pill" style="background:${sc.bg};color:${sc.color}">${sLabel}</span></td>`;
     cols.forEach(c=>{const raw=d[c.key];const content=c.fmt?c.fmt(raw):(valid(raw)?raw:'—');const cls=c.cls?(typeof c.cls==='function'?c.cls(raw):c.cls):'';cells+=`<td class="td-num ${cls}">${content}</td>`;});
-    const tr=document.createElement('tr');tr.innerHTML=cells;
+    const tr=document.createElement('tr');
+    if(doubleSignal)tr.classList.add('double-signal-row');
+    else if(isBreakout)tr.classList.add('breakout-only-row');
+    tr.innerHTML=cells;
     const detailRow=document.createElement('tr');detailRow.className='stock-detail-row';
     detailRow.innerHTML=`<td colspan="99">${buildDetailPanel(d)}</td>`;
     tr.addEventListener('click',()=>{const isOpen=detailRow.classList.contains('open');document.querySelectorAll('.stock-detail-row.open').forEach(r=>r.classList.remove('open'));document.querySelectorAll('tr.expanded').forEach(r=>r.classList.remove('expanded'));if(!isOpen){detailRow.classList.add('open');tr.classList.add('expanded');}});
@@ -337,17 +379,41 @@ function buildDetailPanel(d){
   const pillarGrid=pillarDefs.map(([k,v])=>`<div class="pillar-card"><div class="pillar-card-name">${tpillar(k)}</div><div class="pillar-card-score" style="color:${pillarColor(v)}">${valid(v)?parseFloat(v).toFixed(0):'—'}</div><div class="pillar-bar-bg"><div class="pillar-bar-fill" style="width:${valid(v)?parseFloat(v):0}%;background:${pillarColor(v)}"></div></div></div>`).join('');
   const mf=(label,val,cls='',sub='')=>`<div class="metric-card"><div class="metric-label">${label}</div><div class="metric-value ${cls}">${val}</div>${sub?`<div class="metric-sub">${sub}</div>`:''}</div>`;
   const metricsGrid=[mf(DL.Price,valid(d.price)?'$'+parseFloat(d.price).toFixed(2):'—','gold'),mf(DL.MktCap,valid(d.market_cap)?'$'+(d.market_cap/1e9).toFixed(1)+'B':'—'),mf(DL.DivYield,valid(d.div_yield)?parseFloat(d.div_yield).toFixed(2)+'%':'—'),mf(DL.Beta,valid(d.beta)?parseFloat(d.beta).toFixed(2):'—'),mf(DL.PiotroskiF,valid(d.piotroski_f)?d.piotroski_f:'—','','0–9'),mf(DL.AltmanZ,valid(d.altman_z)?parseFloat(d.altman_z).toFixed(2):'—',altmanCls(d.altman_z)),mf(DL.Analysts,d.analysts||'—'),mf(DL.vsSector,valid(d.vs_sector)?(parseFloat(d.vs_sector)>0?'+':'')+parseFloat(d.vs_sector).toFixed(1):'—',signCls(d.vs_sector)),mf(DL.Coverage,valid(d.coverage)?parseFloat(d.coverage).toFixed(0)+'%':'—'),mf('ROE %',valid(d.roe)?parseFloat(d.roe).toFixed(1)+'%':'—',signCls(d.roe)),mf('Net Margin',valid(d.net_margin)?parseFloat(d.net_margin).toFixed(1)+'%':'—',signCls(d.net_margin)),mf('Rev Growth',valid(d.rev_growth)?parseFloat(d.rev_growth).toFixed(1)+'%':'—',signCls(d.rev_growth))].join('');
-  const valCards=[{l:'P/E',v:d.pe,dec:1},{l:'Fwd P/E',v:d.fwd_pe,dec:1},{l:'P/B',v:d.pb,dec:2},{l:'EV/EBITDA',v:d.ev_ebitda,dec:1},{l:'FCF Yield',v:d.fcf_yield,suf:'%',dec:1}].map(({l,v,dec,suf='',cls=''})=>`<div class="val-card"><div class="val-label">${l}</div><div class="val-num ${signCls(v)}">${valid(v)?parseFloat(v).toFixed(dec)+suf:'—'}</div></div>`).join('');
+  const valCards=[{l:'P/E',v:d.pe,dec:1},{l:'Fwd P/E',v:d.fwd_pe,dec:1},{l:'P/B',v:d.pb,dec:2},{l:'EV/EBITDA',v:d.ev_ebitda,dec:1},{l:'FCF Yield',v:d.fcf_yield,suf:'%',dec:1}].map(({l,v,dec,suf=''})=>`<div class="val-card"><div class="val-label">${l}</div><div class="val-num ${signCls(v)}">${valid(v)?parseFloat(v).toFixed(dec)+suf:'—'}</div></div>`).join('');
   const ptUpside=valid(d.pt_upside)?`<div class="val-card"><div class="val-label">PT Upside</div><div class="val-num ${signCls(d.pt_upside)}">${parseFloat(d.pt_upside).toFixed(1)}%</div></div>`:'';
   const trBull=valid(d.tr_news_bull)?parseFloat(d.tr_news_bull):null;
   const trBlogger=valid(d.tr_blogger_bull)?parseFloat(d.tr_blogger_bull):null;
   const trCard1=`<div class="tr-card"><div class="tr-card-title">SmartScore</div><div class="ss-big" style="background:${ss.bg};color:${ss.color}">${d.tr_smartscore||'—'}</div><div class="tr-card-sub">${(d.tr_consensus||'—').replace('Moderate','Mod ').replace('Strong','Str. ')}</div></div>`;
   const trCard2=`<div class="tr-card"><div class="tr-card-title">News Sentiment</div><div class="tr-card-main" style="color:${trBull&&trBull>50?'var(--teal)':'var(--red2)'}">${trBull!==null?trBull.toFixed(0)+'%':'—'}</div><div class="sentiment-bar"><div class="sentiment-fill" style="width:${trBull||0}%;background:${trBull&&trBull>50?'var(--teal)':'var(--red2)'}"></div></div><div class="tr-card-sub">Bullish news · ${trBlogger!==null?trBlogger.toFixed(0)+'%':'—'} bloggers</div></div>`;
   const trCard3=`<div class="tr-card"><div class="tr-card-title">Institutional & Insider</div><div class="tr-card-main">${d.tr_insider||'—'}</div><div class="tr-card-sub">Insider trading direction</div><div style="margin-top:8px"><div class="tr-card-title">30D Change</div><div class="metric-value ${signCls(d.tr_inv_chg_30d)}" style="font-size:16px">${valid(d.tr_inv_chg_30d)?parseFloat(d.tr_inv_chg_30d).toFixed(1)+'%':'—'}</div></div></div>`;
-  return`<div class="stock-detail-inner"><div class="detail-header"><div><div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span class="detail-ticker-big">${d.ticker}</span><span class="detail-pill-sector" style="background:${sc.bg};color:${sc.color}">${sLabel}</span></div><div class="detail-company-name">${d.company||''}</div></div><div style="text-align:right"><div class="detail-price">${valid(d.price)?'$'+parseFloat(d.price).toFixed(2):'—'}</div><div style="font-size:12px;color:var(--text2);margin-top:2px">Rank #${d.rank} · Score ${valid(d.composite)?parseFloat(d.composite).toFixed(1):'—'}</div><a href="https://finance.yahoo.com/quote/${d.ticker}" target="_blank" style="font-size:11px;color:var(--teal);text-decoration:none;display:inline-block;margin-top:4px">Open Yahoo Finance ↗</a></div></div><div class="detail-tabs" id="dtabs-${d.ticker}"><button class="detail-tab active" data-dtab="overview" onclick="switchDetailTab('${d.ticker}','overview')">Overview</button><button class="detail-tab" data-dtab="pillars" onclick="switchDetailTab('${d.ticker}','pillars')">Pillars</button><button class="detail-tab" data-dtab="valuation" onclick="switchDetailTab('${d.ticker}','valuation')">Valuation</button><button class="detail-tab" data-dtab="tipranks" onclick="switchDetailTab('${d.ticker}','tipranks')">TipRanks</button></div><div id="dtab-${d.ticker}-overview"><div class="metrics-grid">${metricsGrid}</div></div><div id="dtab-${d.ticker}-pillars" style="display:none"><div class="pillar-grid">${pillarGrid}</div></div><div id="dtab-${d.ticker}-valuation" style="display:none"><div class="val-grid">${valCards}${ptUpside}</div></div><div id="dtab-${d.ticker}-tipranks" style="display:none"><div class="tr-grid">${trCard1}${trCard2}${trCard3}</div></div></div>`;
+  // Breakout panel (only if data exists)
+  const hasBreakout=valid(d.breakout_score);
+  const doubleSignal=hasBreakout&&(d.composite||0)>=65;
+  const bkBadge=doubleSignal?`<div style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#f5a623,#ff6b35);color:#000;font-weight:900;font-size:11px;padding:4px 12px;border-radius:20px;margin-bottom:12px">⚡ DOUBLE SIGNAL — Top Breakout + High Composite</div>`:'';
+  const bm=(label,val,cls='')=>`<div class="metric-card"><div class="metric-label">${label}</div><div class="metric-value ${cls}">${val}</div></div>`;
+  const breakoutPanel=hasBreakout?`
+    ${bkBadge}
+    <div class="metrics-grid" style="grid-template-columns:repeat(6,1fr)">
+      ${bm('Breakout Score',breakoutScoreBadge(d.breakout_score))}
+      ${bm('Scan Rank',valid(d.breakout_rank)?'#'+parseInt(d.breakout_rank):'-')}
+      ${bm('Phase',phaseBadge(d.breakout_phase))}
+      ${bm('Risk/Reward',valid(d.breakout_rr)?parseFloat(d.breakout_rr).toFixed(1)+'x':'-')}
+      ${bm('Rel. Strength',valid(d.breakout_rs)?parseFloat(d.breakout_rs).toFixed(3):'-',rsCls(d.breakout_rs))}
+      ${bm('Stop Loss',valid(d.breakout_stop)?'$'+parseFloat(d.breakout_stop).toFixed(2):'-','neg')}
+    </div>
+    <div class="metrics-grid" style="grid-template-columns:repeat(4,1fr);margin-top:8px">
+      ${bm('VCP Pattern',d.has_vcp?'<span style="color:var(--gold);font-weight:800">✦ YES</span>':'No')}
+      ${bm('VCP Quality',valid(d.vcp_quality)?parseFloat(d.vcp_quality).toFixed(0)+'/100':'-')}
+      ${bm('Entry Quality',d.breakout_entry||'—')}
+      ${bm('Composite Score',valid(d.composite)?parseFloat(d.composite).toFixed(1):'—',scoreCls(d.composite))}
+    </div>`:
+    `<div style="text-align:center;padding:30px;color:var(--text3);font-size:13px">No breakout scanner data for this stock</div>`;
+  const breakoutTabBtn=`<button class="detail-tab" data-dtab="breakout" onclick="switchDetailTab('${d.ticker}','breakout')" style="${hasBreakout?'color:var(--gold)':''}">⚡ Breakout${hasBreakout?`<span style="background:var(--gold);color:#000;font-size:8px;font-weight:900;padding:1px 4px;border-radius:6px;margin-left:4px">!</span>`:''}
+</button>`;
+  return`<div class="stock-detail-inner"><div class="detail-header"><div><div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span class="detail-ticker-big">${d.ticker}</span><span class="detail-pill-sector" style="background:${sc.bg};color:${sc.color}">${sLabel}</span>${doubleSignal?'<span class="ds-badge">⚡ SIGNAL</span>':''}</div><div class="detail-company-name">${d.company||''}</div></div><div style="text-align:right"><div class="detail-price">${valid(d.price)?'$'+parseFloat(d.price).toFixed(2):'—'}</div><div style="font-size:12px;color:var(--text2);margin-top:2px">Rank #${d.rank} · Score ${valid(d.composite)?parseFloat(d.composite).toFixed(1):'—'}</div><a href="https://finance.yahoo.com/quote/${d.ticker}" target="_blank" style="font-size:11px;color:var(--teal);text-decoration:none;display:inline-block;margin-top:4px">Open Yahoo Finance ↗</a></div></div><div class="detail-tabs" id="dtabs-${d.ticker}"><button class="detail-tab active" data-dtab="overview" onclick="switchDetailTab('${d.ticker}','overview')">Overview</button><button class="detail-tab" data-dtab="pillars" onclick="switchDetailTab('${d.ticker}','pillars')">Pillars</button><button class="detail-tab" data-dtab="valuation" onclick="switchDetailTab('${d.ticker}','valuation')">Valuation</button><button class="detail-tab" data-dtab="tipranks" onclick="switchDetailTab('${d.ticker}','tipranks')">TipRanks</button>${breakoutTabBtn}</div><div id="dtab-${d.ticker}-overview"><div class="metrics-grid">${metricsGrid}</div></div><div id="dtab-${d.ticker}-pillars" style="display:none"><div class="pillar-grid">${pillarGrid}</div></div><div id="dtab-${d.ticker}-valuation" style="display:none"><div class="val-grid">${valCards}${ptUpside}</div></div><div id="dtab-${d.ticker}-tipranks" style="display:none"><div class="tr-grid">${trCard1}${trCard2}${trCard3}</div></div><div id="dtab-${d.ticker}-breakout" style="display:none">${breakoutPanel}</div></div>`;
 }
 
-function switchDetailTab(ticker,tab){const tc=document.getElementById(`dtabs-${ticker}`);if(!tc)return;tc.querySelectorAll('.detail-tab').forEach(t=>{t.classList.toggle('active',t.dataset.dtab===tab);});['overview','pillars','valuation','tipranks'].forEach(t=>{const el=document.getElementById(`dtab-${ticker}-${t}`);if(el)el.style.display=t===tab?'block':'none';});}
+function switchDetailTab(ticker,tab){const tc=document.getElementById(`dtabs-${ticker}`);if(!tc)return;tc.querySelectorAll('.detail-tab').forEach(t=>{t.classList.toggle('active',t.dataset.dtab===tab);});['overview','pillars','valuation','tipranks','breakout'].forEach(t=>{const el=document.getElementById(`dtab-${ticker}-${t}`);if(el)el.style.display=t===tab?'block':'none';});}
 
 loadData();
 </script>
