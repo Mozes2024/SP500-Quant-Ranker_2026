@@ -147,19 +147,28 @@ td{padding:11px 8px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 
-/* ── Double Signal ── */
-tbody tr.double-signal-row{background:linear-gradient(90deg,rgba(245,166,35,.07) 0%,transparent 60%);border-left:3px solid var(--gold);}
-tbody tr.double-signal-row:hover{background:linear-gradient(90deg,rgba(245,166,35,.13) 0%,var(--surface2) 60%);}
-tbody tr.double-signal-row.expanded{background:linear-gradient(90deg,rgba(245,166,35,.13) 0%,var(--surface2) 60%);}
-.ds-badge{display:inline-flex;align-items:center;gap:3px;background:linear-gradient(135deg,#f5a623,#ff6b35);color:#000;font-size:9px;font-weight:900;letter-spacing:.5px;padding:2px 6px;border-radius:10px;margin-bottom:2px;white-space:nowrap;}
+/* ── Double Signal row ── */
+tbody tr.double-signal-row{background:linear-gradient(90deg,rgba(245,166,35,.08) 0%,transparent 70%);border-left:3px solid var(--gold);}
+tbody tr.double-signal-row:hover{background:linear-gradient(90deg,rgba(245,166,35,.15) 0%,var(--surface2) 60%);}
+tbody tr.double-signal-row.expanded{background:linear-gradient(90deg,rgba(245,166,35,.15) 0%,var(--surface2) 60%);}
+.ds-badge{display:inline-flex;align-items:center;gap:3px;background:linear-gradient(135deg,#f5a623,#ff6b35);color:#000;font-size:9px;font-weight:900;letter-spacing:.5px;padding:2px 7px;border-radius:10px;margin-bottom:2px;white-space:nowrap;}
 
-/* ── Breakout-only row (has breakout score, no double signal) ── */
+/* ── Breakout-only row ── */
 tbody tr.breakout-only-row{border-left:3px solid var(--teal);}
+tbody tr.breakout-only-row:hover{background:rgba(0,212,170,.04);}
 
 /* ── Sector combobox ── */
-#sectorSelect{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:12px;font-weight:600;color:var(--text2);outline:none;cursor:pointer;min-width:200px;}
+#sectorSelect{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 11px;font-size:12px;font-weight:600;color:var(--text2);outline:none;cursor:pointer;min-width:190px;}
 #sectorSelect:focus{border-color:var(--gold);}
-#sectorSelect option{background:var(--surface);color:var(--text);}
+#sectorSelect option{background:#0c1520;color:var(--text);}
+
+/* ── Breakout market-regime banner ── */
+.regime-banner{display:flex;align-items:center;gap:18px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 16px;margin-bottom:16px;flex-wrap:wrap;}
+.regime-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;}
+.regime-value{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;}
+.regime-risk-on{color:var(--teal);}
+.regime-risk-off{color:var(--red);}
+.regime-divider{width:1px;height:28px;background:var(--border);}
 </style>
 </head>
 <body>
@@ -214,7 +223,7 @@ tbody tr.breakout-only-row{border-left:3px solid var(--teal);}
   }
 
 
-const T={en:{ranked:'Stocks Ranked',avg:'Avg Composite',topsec:'Top Sector',ss8:'SmartScore ≥ 8',tr:'TR Coverage',stocks:'stocks',searchph:'Search ticker or company…',filters:'FILTERS',reset:'✕ Reset',fcomposite:'Composite Score',fss:'SmartScore Min',fconsensus:'Consensus',fpe:'P/E Max',fperf:'12M Return Min %',fval:'Val. Score Min',loading:'LOADING MARKET DATA...',allsectors:'ALL SECTORS',topSectors:{'Information Technology':'Info Tech','Communication Services':'Comm Svcs','Consumer Discretionary':'Cons Disc','Consumer Staples':'Cons Staples','Health Care':'Health'},tabs:{score:'📊 Score',valuation:'💰 Valuation',profitability:'💹 Profitability',growth:'🚀 Growth',cashflow:'💵 Cash Flow',health:'🏦 Balance Sheet',momentum:'⚡ Momentum',analyst:'🔭 Analyst',tipranks:'🎯 TipRanks',breakout:'⚡ Breakout'},dtabs:{overview:'Overview',pillars:'Pillars',valuation:'Valuation',tipranks:'TipRanks'},cols:{rank:'#',ticker:'Ticker',company:'Company',sector:'Sector',composite:'Composite',valuation:'Valuation',smartscore:'SmartScore',consensus:'Consensus',pe:'P/E',fwd_pe:'Fwd P/E',peg:'PEG',ps:'P/S',pb:'P/B',ev_ebitda:'EV/EBITDA',fcf_yield:'FCF Yield %',pt_upside:'PT Upside %',div_yield:'Div Yield %',pillar_prof:'Pillar',roe:'ROE %',roa:'ROA %',roic:'ROIC %',net_margin:'Net Margin %',gross_margin:'Gross Margin %',op_margin:'Op. Margin %',eq_score:'EQ Score',piotroski_f:'Piotroski F',pillar_growth:'Pillar',rev_growth:'Rev Growth %',eps_growth:'EPS Growth %',fcf_margin:'FCF Margin %',tr_asset_gr:'Asset Growth %',pillar_fcf:'FCF Pillar',fcf_to_ni:'FCF/NI',payout_ratio:'Payout %',pillar_health:'Health Pillar',current_ratio:'Current Ratio',debt_equity:'Debt/Equity',altman_z:'Altman Z',beta:'Beta',pillar_mom:'Mom. Pillar',perf_12m:'12M %',perf_6m:'6M %',perf_3m:'3M %',perf_1m:'1M %',momentum:'Composite Mom.',tr_mom_12m:'TR Tech Mom.',pillar_analyst:'Analyst Pillar',analyst_mean:'Yahoo Rating',analysts:'# Analysts',tr_consensus:'TR Consensus',tr_pt_upside:'TR PT Upside %',tr_smartscore:'SmartScore',tr_news_bull:'News Bull. %',tr_blogger_bull:'Blogger Bull. %',tr_insider:'Insider',tr_hedge:'Hedge Fund',tr_inv_chg_30d:'Inv. 30D %',tr_inv_chg_7d:'Inv. 7D %',breakout_score:'Breakout Score',breakout_rank:'Scan Rank',breakout_phase:'Phase',breakout_rr:'Risk/Reward',breakout_rs:'Rel. Strength',breakout_stop:'Stop Loss',has_vcp:'VCP Pattern',vcp_quality:'VCP Quality',breakout_entry:'Entry Quality',vs_sector:'vs Sector',coverage:'Coverage %',p_profitability:'Profitab.',p_growth:'Growth',p_eq:'EQ Qual.',p_fcf:'FCF',p_health:'Health',p_momentum:'Momentum',p_analyst:'Analyst',p_piotroski:'Piotroski'},tips:{composite:'Weighted average of all 9 pillars (10–100). Higher = better overall quality + value.',valuation:'How cheap vs expensive vs sector peers. 100 = deeply undervalued.',smartscore:'TipRanks SmartScore 1–10: AI aggregation of analyst, news, insider and hedge fund signals.',pe:'Price / Earnings (trailing 12M). Lower = potentially cheaper.',fwd_pe:'Forward P/E on next 12M EPS estimate. More forward-looking.',roe:'Return on Equity: net income / equity. Measures how efficiently equity is used.',net_margin:'Net income / revenue. % of each dollar of revenue that ends as profit.',rev_growth:'Year-over-year revenue growth. Core measure of top-line momentum.',perf_12m:'12-month price return. Strongest predictor in momentum factor investing.',altman_z:'Altman Z-Score: > 3 = safe, 1.8–3 = grey zone, < 1.8 = distress.',beta:'Price volatility vs S&P 500. > 1 = amplified moves. < 1 = more stable.',vs_sector:'Composite score minus the sector median — how much above/below sector peers.',coverage:'Data completeness: % of the 17 core metrics available.'},detailLabels:{Price:'Price',MktCap:'Mkt Cap',AltmanZ:'Altman Z',PiotroskiF:'Piotroski F',DivYield:'Div Yield',vsSector:'vs Sector',Beta:'Beta',Analysts:'# Analysts',SmartScore:'SmartScore',Consensus:'TR Consensus',TRUpside:'TR PT Upside',Coverage:'Coverage'},sectors:{'Information Technology':'IT','Health Care':'Health','Financials':'Financials','Consumer Discretionary':'Cons D','Communication Services':'Comm','Industrials':'Industrials','Consumer Staples':'Cons S','Energy':'Energy','Real Estate':'Real Est.','Materials':'Materials','Utilities':'Utilities'},pillarNames:{VALUATION:'VALUATION',PROFITAB:'PROFITAB.',GROWTH:'GROWTH',EQ_QUAL:'EQ QUAL',FCF:'FCF',HEALTH:'HEALTH',MOMENTUM:'MOMENTUM',ANALYST:'ANALYST',PIOTROSKI:'PIOTROSKI'}},he:{ranked:'מניות מדורגות',avg:'ציון ממוצע',topsec:'סקטור מוביל',ss8:'ציון חכם ≥ 8',tr:'כיסוי TipRanks',stocks:'מניות',searchph:'חפש טיקר או חברה…',filters:'פילטרים',reset:'✕ איפוס',fcomposite:'ציון קומפוזיט',fss:'ציון חכם מינ.',fconsensus:'קונצנזוס',fpe:'P/E מקסימום',fperf:'תשואה 12M מינ. %',fval:'ציון שווי מינ.',loading:'טוען נתוני שוק...',allsectors:'כל הסקטורים',topSectors:{'Information Technology':'טכנולוגיה','Communication Services':'תקשורת','Consumer Discretionary':'צריכה מחזורית','Consumer Staples':'צריכה בסיסית','Health Care':'בריאות'},tabs:{score:'📊 ציון',valuation:'💰 שווי',profitability:'💹 רווחיות',growth:'🚀 צמיחה',cashflow:'💵 תזרים',health:'🏦 מאזן',momentum:'⚡ מומנטום',analyst:'🔭 אנליסטים',tipranks:'🎯 TipRanks',breakout:'⚡ פריצה'},dtabs:{overview:'סקירה',pillars:'פילרים',valuation:'שווי',tipranks:'TipRanks'},cols:{rank:'#',ticker:'טיקר',company:'חברה',sector:'סקטור',composite:'ציון קומפוזיט',valuation:'שווי',smartscore:'ציון חכם',consensus:'קונצנזוס',pe:'P/E',fwd_pe:'P/E עתידי',peg:'PEG',ps:'P/S',pb:'P/B',ev_ebitda:'EV/EBITDA',fcf_yield:'תשואת FCF %',pt_upside:'יעד מחיר %',div_yield:'תשואת דיב. %',pillar_prof:'פילר',roe:'ROE %',roa:'ROA %',roic:'ROIC %',net_margin:'מרג׳ין נטו %',gross_margin:'מרג׳ין גולמי %',op_margin:'מרג׳ין תפעולי %',eq_score:'איכות רווח',piotroski_f:'Piotroski F',pillar_growth:'פילר',rev_growth:'צמיחת הכנסות %',eps_growth:'צמיחת EPS %',fcf_margin:'מרג׳ין FCF %',tr_asset_gr:'צמיחת נכסים %',pillar_fcf:'פילר FCF',fcf_to_ni:'FCF/רווח',payout_ratio:'יחס חלוקה %',pillar_health:'פילר בריאות',current_ratio:'יחס שוטף',debt_equity:'חוב/הון',altman_z:'Altman Z',beta:'בטא',pillar_mom:'פילר מומנטום',perf_12m:'12M %',perf_6m:'6M %',perf_3m:'3M %',perf_1m:'1M %',momentum:'מומנטום משוקלל',tr_mom_12m:'מומנטום TR',pillar_analyst:'פילר אנליסטים',analyst_mean:'דירוג Yahoo',analysts:'מס׳ אנליסטים',tr_consensus:'קונצנזוס TR',tr_pt_upside:'יעד TR %',tr_smartscore:'ציון חכם',tr_news_bull:'חדשות חיוביות %',tr_blogger_bull:'בלוגרים חיוביים %',tr_insider:'מסחר פנים',tr_hedge:'קרנות גידור',tr_inv_chg_30d:'מוסדי 30י %',tr_inv_chg_7d:'מוסדי 7י %',breakout_score:'ציון פריצה',breakout_rank:'דירוג סקאנר',breakout_phase:'פאזה',breakout_rr:'סיכוי/סיכון',breakout_rs:'חוזק יחסי',breakout_stop:'סטופ לוס',has_vcp:'דפוס VCP',vcp_quality:'איכות VCP',breakout_entry:'איכות כניסה',vs_sector:'מול סקטור',coverage:'כיסוי נתונים %',p_profitability:'רווחיות',p_growth:'צמיחה',p_eq:'איכות רווח',p_fcf:'FCF',p_health:'בריאות',p_momentum:'מומנטום',p_analyst:'אנליסטים',p_piotroski:'Piotroski'},tips:{composite:'ממוצע משוקלל של 9 פילרים (10–100).',valuation:'עד כמה המניה זולה ביחס לעמיתים בסקטור.',smartscore:'ציון חכם של TipRanks 1–10.',pe:'מחיר / רווח. נמוך = פוטנציאל זול יותר.',fwd_pe:'P/E עתידי על בסיס תחזית EPS.',roe:'תשואה על ההון.',net_margin:'רווח נקי / הכנסות.',rev_growth:'צמיחת הכנסות שנה על שנה.',perf_12m:'תשואת מחיר ל-12 חודשים.',altman_z:'Altman Z-Score: > 3 = בטוח.',beta:'תנודתיות ביחס ל-S&P 500.',vs_sector:'ציון קומפוזיט פחות חציון הסקטור.',coverage:'שלמות נתונים.'},detailLabels:{Price:'מחיר',MktCap:'שווי שוק',AltmanZ:'Altman Z',PiotroskiF:'Piotroski F',DivYield:'תשואת דיב.',vsSector:'מול סקטור',Beta:'בטא',Analysts:'אנליסטים',SmartScore:'ציון חכם',Consensus:'קונצנזוס TR',TRUpside:'יעד TR',Coverage:'כיסוי'},sectors:{'Information Technology':'טכנולוגיה','Health Care':'בריאות','Financials':'פיננסים','Consumer Discretionary':'צריכה מחזורית','Communication Services':'תקשורת','Industrials':'תעשייה','Consumer Staples':'צריכה בסיסית','Energy':'אנרגיה','Real Estate':'נדל"ן','Materials':'חומרים','Utilities':'תשתיות'},pillarNames:{VALUATION:'שווי',PROFITAB:'רווחיות',GROWTH:'צמיחה',EQ_QUAL:'איכות רווח',FCF:'FCF',HEALTH:'בריאות',MOMENTUM:'מומנטום',ANALYST:'אנליסטים',PIOTROSKI:'Piotroski'}}};
+const T={en:{ranked:'Stocks Ranked',avg:'Avg Composite',topsec:'Top Sector',ss8:'SmartScore ≥ 8',tr:'TR Coverage',stocks:'stocks',searchph:'Search ticker or company…',filters:'FILTERS',reset:'✕ Reset',fcomposite:'Composite Score',fss:'SmartScore Min',fconsensus:'Consensus',fpe:'P/E Max',fperf:'12M Return Min %',fval:'Val. Score Min',loading:'LOADING MARKET DATA...',allsectors:'ALL SECTORS',topSectors:{'Information Technology':'Info Tech','Communication Services':'Comm Svcs','Consumer Discretionary':'Cons Disc','Consumer Staples':'Cons Staples','Health Care':'Health'},tabs:{score:'📊 Score',valuation:'💰 Valuation',profitability:'💹 Profitability',growth:'🚀 Growth',cashflow:'💵 Cash Flow',health:'🏦 Balance Sheet',momentum:'⚡ Momentum',analyst:'🔭 Analyst',tipranks:'🎯 TipRanks',breakout:'⚡ Breakout'},dtabs:{overview:'Overview',pillars:'Pillars',valuation:'Valuation',tipranks:'TipRanks'},cols:{rank:'#',ticker:'Ticker',company:'Company',sector:'Sector',composite:'Composite',valuation:'Valuation',smartscore:'SmartScore',consensus:'Consensus',pe:'P/E',fwd_pe:'Fwd P/E',peg:'PEG',ps:'P/S',pb:'P/B',ev_ebitda:'EV/EBITDA',fcf_yield:'FCF Yield %',pt_upside:'PT Upside %',div_yield:'Div Yield %',pillar_prof:'Pillar',roe:'ROE %',roa:'ROA %',roic:'ROIC %',net_margin:'Net Margin %',gross_margin:'Gross Margin %',op_margin:'Op. Margin %',eq_score:'EQ Score',piotroski_f:'Piotroski F',pillar_growth:'Pillar',rev_growth:'Rev Growth %',eps_growth:'EPS Growth %',fcf_margin:'FCF Margin %',tr_asset_gr:'Asset Growth %',pillar_fcf:'FCF Pillar',fcf_to_ni:'FCF/NI',payout_ratio:'Payout %',pillar_health:'Health Pillar',current_ratio:'Current Ratio',debt_equity:'Debt/Equity',altman_z:'Altman Z',beta:'Beta',pillar_mom:'Mom. Pillar',perf_12m:'12M %',perf_6m:'6M %',perf_3m:'3M %',perf_1m:'1M %',momentum:'Composite Mom.',tr_mom_12m:'TR Tech Mom.',pillar_analyst:'Analyst Pillar',analyst_mean:'Yahoo Rating',analysts:'# Analysts',tr_consensus:'TR Consensus',tr_pt_upside:'TR PT Upside %',tr_smartscore:'SmartScore',tr_news_bull:'News Bull. %',tr_blogger_bull:'Blogger Bull. %',tr_insider:'Insider',tr_hedge:'Hedge Fund',tr_inv_chg_30d:'Inv. 30D %',tr_inv_chg_7d:'Inv. 7D %',breakout_score:'Breakout Score',breakout_rank:'Scan Rank',breakout_phase:'Phase',breakout_rr:'Risk/Reward',breakout_rs:'Rel. Strength',breakout_stop:'Stop Loss',has_vcp:'VCP Pattern',vcp_quality:'VCP Quality',breakout_entry:'Entry Quality',vs_sector:'vs Sector',coverage:'Coverage %',p_profitability:'Profitab.',p_growth:'Growth',p_eq:'EQ Qual.',p_fcf:'FCF',p_health:'Health',p_momentum:'Momentum',p_analyst:'Analyst',p_piotroski:'Piotroski'},tips:{composite:'Weighted average of all 9 pillars (10–100). Higher = better overall quality + value.',valuation:'How cheap vs expensive vs sector peers. 100 = deeply undervalued, 0 = very expensive.',smartscore:'TipRanks SmartScore 1–10: AI aggregation of analyst ratings, news sentiment, insider trading and hedge fund activity.',pe:'Price / Earnings (trailing 12M). Lower = potentially cheaper relative to earnings.',fwd_pe:'Forward P/E on next 12M EPS estimate. More forward-looking than trailing P/E.',peg:'PEG Ratio = P/E ÷ EPS Growth. Below 1 = potentially undervalued relative to growth rate.',ps:'Price / Sales. Useful for high-growth companies with low or no profits.',pb:'Price / Book Value. Below 1 = trading below asset value.',ev_ebitda:'Enterprise Value / EBITDA. Key metric for comparing companies across different capital structures.',fcf_yield:'Free Cash Flow / Market Cap %. Higher = more cash generated per dollar invested.',pt_upside:'Analyst consensus price target vs current price. % upside potential to target.',div_yield:'Annual dividend / share price. Income return on investment.',pillar_prof:'Profitability Pillar (0–100): composite of ROE, ROA, ROIC, net/gross/operating margins.',p_profitability:'Profitability Pillar (0–100): composite of ROE, ROA, ROIC, net/gross/operating margins.',roe:'Return on Equity: net income / equity. Measures how efficiently equity is used to generate profit.',roa:'Return on Assets: net income / total assets. Efficiency of all assets in generating profit.',roic:'Return on Invested Capital (NOPAT / invested capital). Best measure of capital allocation quality.',net_margin:'Net income / revenue. % of each dollar of revenue that becomes profit.',gross_margin:'(Revenue − COGS) / Revenue. Efficiency of core business before operating expenses.',op_margin:'Operating income / revenue. Efficiency before interest and taxes.',eq_score:'Earnings Quality Score: measures whether reported earnings are backed by real cash flow. Higher = more reliable earnings.',piotroski_f:'Piotroski F-Score (0–9): 9 binary financial health signals. ≥7 = strong, ≤2 = weak. Predicts stock returns.',pillar_growth:'Growth Pillar (0–100): composite of revenue growth, EPS growth, FCF margin and asset growth.',p_growth:'Growth Pillar (0–100): composite of revenue growth, EPS growth, FCF margin and asset growth.',rev_growth:'Year-over-year revenue growth. Core measure of top-line business momentum.',eps_growth:'Year-over-year EPS (earnings per share) growth. Measures profit expansion.',fcf_margin:'Free Cash Flow / Revenue. % of revenue converted into free cash flow.',tr_asset_gr:'Asset growth rate. Rapid asset growth can dilute returns and signal aggressive accounting.',pillar_fcf:'FCF Pillar (0–100): measures FCF yield, FCF margin, FCF-to-net-income ratio, and dividend sustainability.',p_fcf:'FCF Pillar (0–100): measures FCF yield, FCF margin, FCF-to-net-income ratio, and dividend sustainability.',fcf_to_ni:'FCF / Net Income. Ratio > 1 = earnings are well backed by real cash. < 0.5 = low earnings quality.',payout_ratio:'Dividends paid / Net Income. High payout can limit reinvestment; payout > 100% is unsustainable.',pillar_health:'Balance Sheet Pillar (0–100): current ratio, debt/equity and Altman Z-Score combined.',p_health:'Balance Sheet Pillar (0–100): current ratio, debt/equity and Altman Z-Score combined.',current_ratio:'Current Assets / Current Liabilities. > 1.5 = healthy short-term liquidity.',debt_equity:'Total Debt / Equity. Higher = more leveraged. Acceptability depends heavily on industry.',altman_z:'Altman Z-Score predicts bankruptcy risk. > 3 = safe, 1.8–3 = grey zone, < 1.8 = distress.',beta:'Price volatility vs S&P 500. > 1 = amplified moves (more risk & potential reward). < 1 = more stable.',pillar_mom:'Momentum Pillar (0–100): composite of 12/6/3/1 month price returns vs sector peers.',p_momentum:'Momentum Pillar (0–100): composite of 12/6/3/1 month price returns vs sector peers.',perf_12m:'12-month price return. The strongest single predictor in factor-based momentum investing.',perf_6m:'6-month price return. Strong intermediate-term momentum signal.',perf_3m:'3-month price return. Recent trend confirmation.',perf_1m:'1-month price return. Short-term momentum; watch for mean reversion risk.',momentum:'Composite momentum: weighted average of 12M/6M/3M/1M returns (higher weight on 12M).',tr_mom_12m:'TipRanks 12-month technical momentum score based on price trend analysis.',pillar_analyst:'Analyst Pillar (0–100): analyst rating, number of analysts, price target upside and TipRanks consensus.',p_analyst:'Analyst Pillar (0–100): analyst rating, number of analysts, price target upside and TipRanks consensus.',analyst_mean:'Yahoo Finance analyst mean rating. 1=Strong Buy, 2=Buy, 3=Hold, 4=Sell, 5=Strong Sell.',analysts:'Number of Wall Street analysts providing coverage. More analysts = more reliable consensus.',tr_consensus:'TipRanks analyst consensus: Strong Buy / Moderate Buy / Hold / Sell based on all TipRanks analysts.',consensus:'TipRanks analyst consensus: Strong Buy / Moderate Buy / Hold / Sell.',tr_pt_upside:'TipRanks aggregated price target implied upside from current price.',tr_smartscore:'TipRanks SmartScore 1–10: AI aggregation of analyst, news, insider and hedge fund signals.',tr_news_bull:'% of recent news articles with bullish sentiment from TipRanks news analysis.',tr_blogger_bull:'% of financial bloggers with bullish outlook according to TipRanks blogger sentiment.',tr_insider:'Insider trading direction: Positive = recent net buying, Negative = recent net selling.',tr_hedge:'Hedge fund activity trend: are institutional funds adding or reducing positions?',tr_inv_chg_30d:'% change in institutional investor (hedge fund) holdings over the past 30 days.',tr_inv_chg_7d:'% change in institutional investor (hedge fund) holdings over the past 7 days.',breakout_score:'Breakout Score (0–110): Minervini Trend Template score. Measures Stage 2 uptrend strength, relative strength, volume and fundamentals.',breakout_rank:'Rank among all S&P 500 breakout candidates from latest scanner run.',breakout_phase:'Minervini market stage. 1=Base (accumulation), 2=Uptrend (BUY ZONE), 3=Distribution (caution), 4=Downtrend (avoid).',breakout_rr:'Risk/Reward ratio to analyst price target with ATR-based stop loss. Minimum 2:1 required. Higher = better setup.',breakout_rs:'Relative Strength vs SPY over 63 days. > 1 = outperforming the market. Key Minervini filter.',breakout_stop:'ATR-based stop loss price. Risk is limited to ~8–10% from entry. Position size accordingly.',has_vcp:'VCP = Volatility Contraction Pattern (Minervini). Series of progressively tighter price contractions = institutional accumulation.',vcp_quality:'VCP quality score (0–100). Higher = tighter and more well-formed contractions, better setup.',breakout_entry:'Entry quality assessment: Ideal = tight base near 52W high, Good = solid setup, OK = borderline.',p_eq:'Earnings Quality Pillar (0–100): measures reliability and sustainability of reported earnings vs. cash flow.',p_piotroski:'Piotroski F-Score Pillar (0–100): derived from 9-point binary financial health score.',vs_sector:'Composite score minus the sector median — how much this stock outperforms its sector peers.',coverage:'Data completeness: % of the 17 core financial metrics available from data sources. < 70% = limited data.'},detailLabels:{Price:'Price',MktCap:'Mkt Cap',AltmanZ:'Altman Z',PiotroskiF:'Piotroski F',DivYield:'Div Yield',vsSector:'vs Sector',Beta:'Beta',Analysts:'# Analysts',SmartScore:'SmartScore',Consensus:'TR Consensus',TRUpside:'TR PT Upside',Coverage:'Coverage'},sectors:{'Information Technology':'IT','Health Care':'Health','Financials':'Financials','Consumer Discretionary':'Cons D','Communication Services':'Comm','Industrials':'Industrials','Consumer Staples':'Cons S','Energy':'Energy','Real Estate':'Real Est.','Materials':'Materials','Utilities':'Utilities'},pillarNames:{VALUATION:'VALUATION',PROFITAB:'PROFITAB.',GROWTH:'GROWTH',EQ_QUAL:'EQ QUAL',FCF:'FCF',HEALTH:'HEALTH',MOMENTUM:'MOMENTUM',ANALYST:'ANALYST',PIOTROSKI:'PIOTROSKI'}},he:{ranked:'מניות מדורגות',avg:'ציון ממוצע',topsec:'סקטור מוביל',ss8:'ציון חכם ≥ 8',tr:'כיסוי TipRanks',stocks:'מניות',searchph:'חפש טיקר או חברה…',filters:'פילטרים',reset:'✕ איפוס',fcomposite:'ציון קומפוזיט',fss:'ציון חכם מינ.',fconsensus:'קונצנזוס',fpe:'P/E מקסימום',fperf:'תשואה 12M מינ. %',fval:'ציון שווי מינ.',loading:'טוען נתוני שוק...',allsectors:'כל הסקטורים',topSectors:{'Information Technology':'טכנולוגיה','Communication Services':'תקשורת','Consumer Discretionary':'צריכה מחזורית','Consumer Staples':'צריכה בסיסית','Health Care':'בריאות'},tabs:{score:'📊 ציון',valuation:'💰 שווי',profitability:'💹 רווחיות',growth:'🚀 צמיחה',cashflow:'💵 תזרים',health:'🏦 מאזן',momentum:'⚡ מומנטום',analyst:'🔭 אנליסטים',tipranks:'🎯 TipRanks',breakout:'⚡ פריצה'},dtabs:{overview:'סקירה',pillars:'פילרים',valuation:'שווי',tipranks:'TipRanks'},cols:{rank:'#',ticker:'טיקר',company:'חברה',sector:'סקטור',composite:'ציון קומפוזיט',valuation:'שווי',smartscore:'ציון חכם',consensus:'קונצנזוס',pe:'P/E',fwd_pe:'P/E עתידי',peg:'PEG',ps:'P/S',pb:'P/B',ev_ebitda:'EV/EBITDA',fcf_yield:'תשואת FCF %',pt_upside:'יעד מחיר %',div_yield:'תשואת דיב. %',pillar_prof:'פילר',roe:'ROE %',roa:'ROA %',roic:'ROIC %',net_margin:'מרג׳ין נטו %',gross_margin:'מרג׳ין גולמי %',op_margin:'מרג׳ין תפעולי %',eq_score:'איכות רווח',piotroski_f:'Piotroski F',pillar_growth:'פילר',rev_growth:'צמיחת הכנסות %',eps_growth:'צמיחת EPS %',fcf_margin:'מרג׳ין FCF %',tr_asset_gr:'צמיחת נכסים %',pillar_fcf:'פילר FCF',fcf_to_ni:'FCF/רווח',payout_ratio:'יחס חלוקה %',pillar_health:'פילר בריאות',current_ratio:'יחס שוטף',debt_equity:'חוב/הון',altman_z:'Altman Z',beta:'בטא',pillar_mom:'פילר מומנטום',perf_12m:'12M %',perf_6m:'6M %',perf_3m:'3M %',perf_1m:'1M %',momentum:'מומנטום משוקלל',tr_mom_12m:'מומנטום TR',pillar_analyst:'פילר אנליסטים',analyst_mean:'דירוג Yahoo',analysts:'מס׳ אנליסטים',tr_consensus:'קונצנזוס TR',tr_pt_upside:'יעד TR %',tr_smartscore:'ציון חכם',tr_news_bull:'חדשות חיוביות %',tr_blogger_bull:'בלוגרים חיוביים %',tr_insider:'מסחר פנים',tr_hedge:'קרנות גידור',tr_inv_chg_30d:'מוסדי 30י %',tr_inv_chg_7d:'מוסדי 7י %',breakout_score:'ציון פריצה',breakout_rank:'דירוג סקאנר',breakout_phase:'פאזה',breakout_rr:'סיכוי/סיכון',breakout_rs:'חוזק יחסי',breakout_stop:'סטופ לוס',has_vcp:'דפוס VCP',vcp_quality:'איכות VCP',breakout_entry:'איכות כניסה',vs_sector:'מול סקטור',coverage:'כיסוי נתונים %',p_profitability:'רווחיות',p_growth:'צמיחה',p_eq:'איכות רווח',p_fcf:'FCF',p_health:'בריאות',p_momentum:'מומנטום',p_analyst:'אנליסטים',p_piotroski:'Piotroski'},tips:{composite:'ממוצע משוקלל של 9 פילרים (10–100).',valuation:'עד כמה המניה זולה ביחס לעמיתים בסקטור.',smartscore:'ציון חכם של TipRanks 1–10.',pe:'מחיר / רווח. נמוך = פוטנציאל זול יותר.',fwd_pe:'P/E עתידי על בסיס תחזית EPS.',roe:'תשואה על ההון.',net_margin:'רווח נקי / הכנסות.',rev_growth:'צמיחת הכנסות שנה על שנה.',perf_12m:'תשואת מחיר ל-12 חודשים.',altman_z:'Altman Z-Score: > 3 = בטוח.',beta:'תנודתיות ביחס ל-S&P 500.',vs_sector:'ציון קומפוזיט פחות חציון הסקטור.',coverage:'שלמות נתונים.'},detailLabels:{Price:'מחיר',MktCap:'שווי שוק',AltmanZ:'Altman Z',PiotroskiF:'Piotroski F',DivYield:'תשואת דיב.',vsSector:'מול סקטור',Beta:'בטא',Analysts:'אנליסטים',SmartScore:'ציון חכם',Consensus:'קונצנזוס TR',TRUpside:'יעד TR',Coverage:'כיסוי'},sectors:{'Information Technology':'טכנולוגיה','Health Care':'בריאות','Financials':'פיננסים','Consumer Discretionary':'צריכה מחזורית','Communication Services':'תקשורת','Industrials':'תעשייה','Consumer Staples':'צריכה בסיסית','Energy':'אנרגיה','Real Estate':'נדל"ן','Materials':'חומרים','Utilities':'תשתיות'},pillarNames:{VALUATION:'שווי',PROFITAB:'רווחיות',GROWTH:'צמיחה',EQ_QUAL:'איכות רווח',FCF:'FCF',HEALTH:'בריאות',MOMENTUM:'מומנטום',ANALYST:'אנליסטים',PIOTROSKI:'Piotroski'}}};
 
 let lang='en';
 function setLang(l){lang=l;document.body.classList.toggle('rtl',l==='he');document.getElementById('btnEn').classList.toggle('active',l==='en');document.getElementById('btnHe').classList.toggle('active',l==='he');applyI18n();if(allData.length)renderTable();}
@@ -263,14 +272,40 @@ function ssBadge(v){const c=ssColorFn(v);return`<span class="ss-badge" style="ba
 function consensusFmt(v){if(!v)return'<span style="color:var(--text4)">—</span>';const c=v==='StrongBuy'?'#00e676':v.includes('Buy')?'#69f0ae':v==='Hold'?'#ffd600':'#ff5252';return`<span style="color:${c};font-size:12px;font-weight:600">${v.replace('Moderate','Mod ').replace('Strong','Str. ')}</span>`;}
 
 let allData=[],currentSector='ALL',currentSearch='',currentView='score',sortCol='rank',sortAsc=true;
+let breakoutMeta=null,breakoutTopSignals=[];
 
 async function loadData(){
   try{
-    const r=await fetch(makeUrl("sp500_data.json"));
-    if(!r.ok)throw new Error(`HTTP ${r.status}`);
-    const json=await r.json();
+    const [r1,r2]=await Promise.all([
+      fetch(makeUrl("sp500_data.json")),
+      fetch(makeUrl("breakout_signals.json")).catch(()=>null)
+    ]);
+    if(!r1.ok)throw new Error(`HTTP ${r1.status}`);
+    const json=await r1.json();
     allData=json.data;
     document.getElementById('lastUpdated').innerHTML=`<span class="live-dot"></span>${json.generated||''}`;
+    // Load breakout signals metadata
+    if(r2&&r2.ok){
+      const bj=await r2.json();
+      breakoutMeta=bj;
+      breakoutTopSignals=bj.top_signals||[];
+      // Enrich allData with top signals data (in case not merged)
+      breakoutTopSignals.forEach(sig=>{
+        const stock=allData.find(d=>d.ticker===sig.ticker);
+        if(stock&&!valid(stock.breakout_score)){
+          stock.breakout_score=sig.breakout_score;
+          stock.breakout_rank=sig.rank;
+          stock.breakout_phase=sig.phase;
+          stock.breakout_entry=sig.entry_quality;
+          stock.breakout_rr=sig.risk_reward;
+          stock.breakout_rs=sig.rs;
+          stock.breakout_stop=sig.stop_loss;
+          stock.has_vcp=sig.has_vcp;
+          stock.vcp_quality=sig.vcp_quality;
+          stock._breakout_reasons=sig.reasons||[];
+        }
+      });
+    }
     buildPercentiles(allData);
     init();
   }catch(e){
@@ -302,38 +337,33 @@ function init(){
 }
 
 function onSectorChange(val){currentSector=val;renderTable();}
-
 function buildSectorSelect(){
   const sel=document.getElementById('sectorSelect');
   const prev=currentSector||'ALL';
   sel.innerHTML='';
-  const allOpt=document.createElement('option');
-  allOpt.value='ALL';
-  allOpt.textContent=tl('allsectors');
-  sel.appendChild(allOpt);
+  const allOpt=document.createElement('option');allOpt.value='ALL';allOpt.textContent=tl('allsectors');sel.appendChild(allOpt);
   const sMap=(T[lang]||T.en).sectors||T.en.sectors;
   Object.keys(SECTOR_COLORS).filter(s=>allData.some(d=>d.sector===s)).forEach(s=>{
-    const opt=document.createElement('option');
-    opt.value=s;
-    opt.textContent=lang==='he'?(sMap[s]||s):s;
-    sel.appendChild(opt);
+    const opt=document.createElement('option');opt.value=s;opt.textContent=lang==='he'?(sMap[s]||s):s;sel.appendChild(opt);
   });
   sel.value=prev;
 }
 
-function buildViewTabs(){const c=document.getElementById('viewTabs');c.innerHTML='';const breakoutCount=allData.filter(d=>valid(d.breakout_score)).length;Object.keys(buildViews()).forEach(view=>{const btn=document.createElement('button');btn.className='view-tab'+(view===currentView?' active':'');const label=ttab(view);btn.innerHTML=view==='breakout'&&breakoutCount?`${label} <span style="background:var(--teal);color:#000;font-size:9px;font-weight:800;padding:1px 5px;border-radius:8px;margin-left:3px">${breakoutCount}</span>`:label;btn.dataset.view=view;btn.addEventListener('click',()=>{document.querySelectorAll('.view-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');currentView=view;sortCol='rank';sortAsc=true;renderTable();});c.appendChild(btn);});}
+function buildViewTabs(){const c=document.getElementById('viewTabs');c.innerHTML='';const bCount=allData.filter(d=>valid(d.breakout_score)).length;const bTotal=breakoutMeta?breakoutMeta.total_buy_signals:null;Object.keys(buildViews()).forEach(view=>{const btn=document.createElement('button');btn.className='view-tab'+(view===currentView?' active':'');if(view==='breakout'){const num=bTotal||bCount;btn.innerHTML=`${ttab(view)} <span style="background:var(--teal);color:#000;font-size:9px;font-weight:900;padding:1px 6px;border-radius:8px;margin-left:3px">${num}</span>`;}else{btn.textContent=ttab(view);}btn.dataset.view=view;btn.addEventListener('click',()=>{document.querySelectorAll('.view-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');currentView=view;sortCol='rank';sortAsc=true;renderTable();});c.appendChild(btn);});}
 
 function toggleFilter(){const panel=document.getElementById('filterPanel'),btn=document.getElementById('filterToggle');const open=panel.classList.toggle('open');btn.classList.toggle('open',open);}
 function resetFilters(){['fCompMin','fCompMax','fSSMin','fConsensus','fPEMax','fPerfMin','fValMin'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});renderTable();}
 function getFilters(){return{compMin:parseFloat(document.getElementById('fCompMin').value)||null,compMax:parseFloat(document.getElementById('fCompMax').value)||null,ssMin:parseFloat(document.getElementById('fSSMin').value)||null,consensus:document.getElementById('fConsensus').value||null,peMax:parseFloat(document.getElementById('fPEMax').value)||null,perfMin:parseFloat(document.getElementById('fPerfMin').value)||null,valMin:parseFloat(document.getElementById('fValMin').value)||null};}
 
 function applyFilter(){let data=[...allData];const f=getFilters();if(currentSector!=='ALL')data=data.filter(d=>d.sector===currentSector);if(currentSearch)data=data.filter(d=>d.ticker.toLowerCase().includes(currentSearch)||(d.company||'').toLowerCase().includes(currentSearch));if(f.compMin!==null)data=data.filter(d=>(d.composite||0)>=f.compMin);if(f.compMax!==null)data=data.filter(d=>(d.composite||0)<=f.compMax);if(f.ssMin!==null)data=data.filter(d=>(d.tr_smartscore||0)>=f.ssMin);if(f.consensus)data=data.filter(d=>(d.tr_consensus||'')===f.consensus||(d.tr_consensus||'').includes(f.consensus.replace('Buy','').trim()));if(f.peMax!==null)data=data.filter(d=>valid(d.pe)&&parseFloat(d.pe)<=f.peMax);if(f.perfMin!==null)data=data.filter(d=>valid(d.perf_12m)&&parseFloat(d.perf_12m)>=f.perfMin);if(f.valMin!==null)data=data.filter(d=>(d.valuation||0)>=f.valMin);
-  // Breakout tab: only show stocks with a real breakout score
+  // Breakout tab: only stocks with a real breakout score
   if(currentView==='breakout')data=data.filter(d=>valid(d.breakout_score));
-  // Default sort for breakout tab = breakout_score desc
-  const effectiveSortCol=(currentView==='breakout'&&sortCol==='rank')?'breakout_score':sortCol;
-  const effectiveSortAsc=(currentView==='breakout'&&sortCol==='rank')?false:sortAsc;
-  data.sort((a,b)=>{let av=a[effectiveSortCol],bv=b[effectiveSortCol];if(typeof av==='string')return effectiveSortAsc?(av||'').localeCompare(bv||''):(bv||'').localeCompare(av||'');if(!valid(av))return 1;if(!valid(bv))return-1;return effectiveSortAsc?parseFloat(av)-parseFloat(bv):parseFloat(bv)-parseFloat(av);});return data;}
+  // Default sort for breakout = breakout_score descending
+  const effCol=(currentView==='breakout'&&sortCol==='rank')?'breakout_score':sortCol;
+  const effAsc=(currentView==='breakout'&&sortCol==='rank')?false:sortAsc;
+  data.sort((a,b)=>{let av=a[effCol],bv=b[effCol];if(typeof av==='string')return effAsc?(av||'').localeCompare(bv||''):(bv||'').localeCompare(av||'');if(!valid(av))return 1;if(!valid(bv))return-1;return effAsc?parseFloat(av)-parseFloat(bv):parseFloat(bv)-parseFloat(av);});
+  return data;
+}
 
 function renderTable(){
   const filtered=applyFilter();
@@ -348,7 +378,27 @@ function renderTable(){
     th.addEventListener('mouseenter',()=>{const tip=th.querySelector('.th-tip');if(!tip)return;const rect=th.getBoundingClientRect();tip.style.top=Math.max(8,rect.top-tip.offsetHeight-8)+'px';tip.style.left=Math.min(rect.left+rect.width/2-115,window.innerWidth-240)+'px';});
     th.addEventListener('click',()=>{const col=th.dataset.col;if(sortCol===col)sortAsc=!sortAsc;else{sortCol=col;sortAsc=['rank','ticker','company','sector'].includes(col);}renderTable();});
   });
+  // Breakout tab regime banner
   const tbody=document.getElementById('tableBody');tbody.innerHTML='';
+  if(currentView==='breakout'&&breakoutMeta){
+    const regime=breakoutMeta.market_regime||'';
+    const isRiskOn=regime.toUpperCase().includes('RISK-ON');
+    const regimeClass=isRiskOn?'regime-risk-on':'regime-risk-off';
+    const bannerRow=document.createElement('tr');
+    bannerRow.innerHTML=`<td colspan="99" style="padding:12px 8px 4px">
+      <div class="regime-banner">
+        <div><div class="regime-label">Market Regime</div><div class="regime-value ${regimeClass}">${regime||'—'}</div></div>
+        <div class="regime-divider"></div>
+        <div><div class="regime-label">Total BUY Signals</div><div class="regime-value" style="color:var(--teal)">${breakoutMeta.total_buy_signals||0}</div></div>
+        <div class="regime-divider"></div>
+        <div><div class="regime-label">Phase 2 Stocks</div><div class="regime-value">${breakoutMeta.phase2_pct||0}%</div></div>
+        <div class="regime-divider"></div>
+        <div><div class="regime-label">Scanner Date</div><div class="regime-value" style="font-size:11px">${breakoutMeta.scan_date||'—'}</div></div>
+        <div style="margin-left:auto;font-size:11px;color:var(--text3)">Showing top signals merged into S&P 500 data · ${breakoutMeta.total_buy_signals||0} total signals detected</div>
+      </div>
+    </td>`;
+    tbody.appendChild(bannerRow);
+  }
   filtered.forEach(d=>{
     const sc=SECTOR_COLORS[d.sector]||{bg:'#1a1a1a',color:'#999'};
     const sMap=(T[lang]||T.en).sectors||T.en.sectors;
@@ -356,7 +406,7 @@ function renderTable(){
     const isBreakout=valid(d.breakout_score);
     const doubleSignal=isBreakout&&(d.composite||0)>=65;
     const dsBadge=doubleSignal?'<span class="ds-badge">⚡ SIGNAL</span>':'';
-    let cells=`<td class="td-rank ${d.rank<=3?'top3':''}">${d.rank}</td><td class="td-ticker">${dsBadge}<a href="https://finance.yahoo.com/quote/${d.ticker}" target="_blank" onclick="event.stopPropagation()">${d.ticker}</a></td><td class="td-company" title="${d.company||''}">${(d.company||'').substring(0,24)}</td><td><span class="sector-pill" style="background:${sc.bg};color:${sc.color}">${sLabel}</span></td>`;
+    let cells=`<td class="td-rank ${d.rank<=3?'top3':''}">${d.rank}</td><td class="td-ticker" style="vertical-align:middle">${dsBadge}<a href="https://finance.yahoo.com/quote/${d.ticker}" target="_blank" onclick="event.stopPropagation()">${d.ticker}</a></td><td class="td-company" title="${d.company||''}">${(d.company||'').substring(0,24)}</td><td><span class="sector-pill" style="background:${sc.bg};color:${sc.color}">${sLabel}</span></td>`;
     cols.forEach(c=>{const raw=d[c.key];const content=c.fmt?c.fmt(raw):(valid(raw)?raw:'—');const cls=c.cls?(typeof c.cls==='function'?c.cls(raw):c.cls):'';cells+=`<td class="td-num ${cls}">${content}</td>`;});
     const tr=document.createElement('tr');
     if(doubleSignal)tr.classList.add('double-signal-row');
@@ -375,6 +425,8 @@ function buildDetailPanel(d){
   const sLabel=lang==='he'?(sMap[d.sector]||d.sector):d.sector;
   const ss=ssColorFn(d.tr_smartscore);
   const DL=(T[lang]||T.en).detailLabels||T.en.detailLabels;
+  const isBreakout=valid(d.breakout_score);
+  const doubleSignal=isBreakout&&(d.composite||0)>=65;
   const pillarDefs=[['VALUATION',d.p_valuation],['PROFITAB',d.p_profitability],['GROWTH',d.p_growth],['EQ_QUAL',d.p_eq],['FCF',d.p_fcf],['HEALTH',d.p_health],['MOMENTUM',d.p_momentum],['ANALYST',d.p_analyst],['PIOTROSKI',d.p_piotroski]];
   const pillarGrid=pillarDefs.map(([k,v])=>`<div class="pillar-card"><div class="pillar-card-name">${tpillar(k)}</div><div class="pillar-card-score" style="color:${pillarColor(v)}">${valid(v)?parseFloat(v).toFixed(0):'—'}</div><div class="pillar-bar-bg"><div class="pillar-bar-fill" style="width:${valid(v)?parseFloat(v):0}%;background:${pillarColor(v)}"></div></div></div>`).join('');
   const mf=(label,val,cls='',sub='')=>`<div class="metric-card"><div class="metric-label">${label}</div><div class="metric-value ${cls}">${val}</div>${sub?`<div class="metric-sub">${sub}</div>`:''}</div>`;
@@ -386,31 +438,57 @@ function buildDetailPanel(d){
   const trCard1=`<div class="tr-card"><div class="tr-card-title">SmartScore</div><div class="ss-big" style="background:${ss.bg};color:${ss.color}">${d.tr_smartscore||'—'}</div><div class="tr-card-sub">${(d.tr_consensus||'—').replace('Moderate','Mod ').replace('Strong','Str. ')}</div></div>`;
   const trCard2=`<div class="tr-card"><div class="tr-card-title">News Sentiment</div><div class="tr-card-main" style="color:${trBull&&trBull>50?'var(--teal)':'var(--red2)'}">${trBull!==null?trBull.toFixed(0)+'%':'—'}</div><div class="sentiment-bar"><div class="sentiment-fill" style="width:${trBull||0}%;background:${trBull&&trBull>50?'var(--teal)':'var(--red2)'}"></div></div><div class="tr-card-sub">Bullish news · ${trBlogger!==null?trBlogger.toFixed(0)+'%':'—'} bloggers</div></div>`;
   const trCard3=`<div class="tr-card"><div class="tr-card-title">Institutional & Insider</div><div class="tr-card-main">${d.tr_insider||'—'}</div><div class="tr-card-sub">Insider trading direction</div><div style="margin-top:8px"><div class="tr-card-title">30D Change</div><div class="metric-value ${signCls(d.tr_inv_chg_30d)}" style="font-size:16px">${valid(d.tr_inv_chg_30d)?parseFloat(d.tr_inv_chg_30d).toFixed(1)+'%':'—'}</div></div></div>`;
-  // Breakout panel (only if data exists)
-  const hasBreakout=valid(d.breakout_score);
-  const doubleSignal=hasBreakout&&(d.composite||0)>=65;
-  const bkBadge=doubleSignal?`<div style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#f5a623,#ff6b35);color:#000;font-weight:900;font-size:11px;padding:4px 12px;border-radius:20px;margin-bottom:12px">⚡ DOUBLE SIGNAL — Top Breakout + High Composite</div>`:'';
-  const bm=(label,val,cls='')=>`<div class="metric-card"><div class="metric-label">${label}</div><div class="metric-value ${cls}">${val}</div></div>`;
-  const breakoutPanel=hasBreakout?`
-    ${bkBadge}
+  // Breakout panel
+  const reasons=d._breakout_reasons&&d._breakout_reasons.length?`<div style="margin-top:14px"><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px">Scanner Reasons</div>${d._breakout_reasons.map(r=>`<div style="font-size:12px;color:var(--text2);padding:3px 0;border-bottom:1px solid var(--border)">✓ ${r}</div>`).join('')}</div>`:'';
+  const bm=(label,val,cls='')=>`<div class="metric-card"><div class="metric-label">${label}</div><div class="metric-value ${cls}" style="font-size:13px">${val}</div></div>`;
+  const dsBanner=doubleSignal?`<div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f5a623,#ff6b35);color:#000;font-weight:900;font-size:11px;padding:5px 14px;border-radius:20px;margin-bottom:14px">⚡ DOUBLE SIGNAL — Top Breakout Scanner + High Composite Score</div>`:'';
+  const breakoutContent=isBreakout?`${dsBanner}
     <div class="metrics-grid" style="grid-template-columns:repeat(6,1fr)">
       ${bm('Breakout Score',breakoutScoreBadge(d.breakout_score))}
-      ${bm('Scan Rank',valid(d.breakout_rank)?'#'+parseInt(d.breakout_rank):'-')}
+      ${bm('Scan Rank',valid(d.breakout_rank)?'#'+parseInt(d.breakout_rank):'—')}
       ${bm('Phase',phaseBadge(d.breakout_phase))}
-      ${bm('Risk/Reward',valid(d.breakout_rr)?parseFloat(d.breakout_rr).toFixed(1)+'x':'-')}
-      ${bm('Rel. Strength',valid(d.breakout_rs)?parseFloat(d.breakout_rs).toFixed(3):'-',rsCls(d.breakout_rs))}
-      ${bm('Stop Loss',valid(d.breakout_stop)?'$'+parseFloat(d.breakout_stop).toFixed(2):'-','neg')}
+      ${bm('Risk / Reward',valid(d.breakout_rr)?parseFloat(d.breakout_rr).toFixed(1)+'x':'—')}
+      ${bm('Rel. Strength',valid(d.breakout_rs)?parseFloat(d.breakout_rs).toFixed(3):'—',rsCls(d.breakout_rs))}
+      ${bm('Stop Loss',valid(d.breakout_stop)?'$'+parseFloat(d.breakout_stop).toFixed(2):'—','neg')}
     </div>
     <div class="metrics-grid" style="grid-template-columns:repeat(4,1fr);margin-top:8px">
       ${bm('VCP Pattern',d.has_vcp?'<span style="color:var(--gold);font-weight:800">✦ YES</span>':'No')}
-      ${bm('VCP Quality',valid(d.vcp_quality)?parseFloat(d.vcp_quality).toFixed(0)+'/100':'-')}
+      ${bm('VCP Quality',valid(d.vcp_quality)?parseFloat(d.vcp_quality).toFixed(0)+'/100':'—')}
       ${bm('Entry Quality',d.breakout_entry||'—')}
       ${bm('Composite Score',valid(d.composite)?parseFloat(d.composite).toFixed(1):'—',scoreCls(d.composite))}
-    </div>`:
-    `<div style="text-align:center;padding:30px;color:var(--text3);font-size:13px">No breakout scanner data for this stock</div>`;
-  const breakoutTabBtn=`<button class="detail-tab" data-dtab="breakout" onclick="switchDetailTab('${d.ticker}','breakout')" style="${hasBreakout?'color:var(--gold)':''}">⚡ Breakout${hasBreakout?`<span style="background:var(--gold);color:#000;font-size:8px;font-weight:900;padding:1px 4px;border-radius:6px;margin-left:4px">!</span>`:''}
-</button>`;
-  return`<div class="stock-detail-inner"><div class="detail-header"><div><div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span class="detail-ticker-big">${d.ticker}</span><span class="detail-pill-sector" style="background:${sc.bg};color:${sc.color}">${sLabel}</span>${doubleSignal?'<span class="ds-badge">⚡ SIGNAL</span>':''}</div><div class="detail-company-name">${d.company||''}</div></div><div style="text-align:right"><div class="detail-price">${valid(d.price)?'$'+parseFloat(d.price).toFixed(2):'—'}</div><div style="font-size:12px;color:var(--text2);margin-top:2px">Rank #${d.rank} · Score ${valid(d.composite)?parseFloat(d.composite).toFixed(1):'—'}</div><a href="https://finance.yahoo.com/quote/${d.ticker}" target="_blank" style="font-size:11px;color:var(--teal);text-decoration:none;display:inline-block;margin-top:4px">Open Yahoo Finance ↗</a></div></div><div class="detail-tabs" id="dtabs-${d.ticker}"><button class="detail-tab active" data-dtab="overview" onclick="switchDetailTab('${d.ticker}','overview')">Overview</button><button class="detail-tab" data-dtab="pillars" onclick="switchDetailTab('${d.ticker}','pillars')">Pillars</button><button class="detail-tab" data-dtab="valuation" onclick="switchDetailTab('${d.ticker}','valuation')">Valuation</button><button class="detail-tab" data-dtab="tipranks" onclick="switchDetailTab('${d.ticker}','tipranks')">TipRanks</button>${breakoutTabBtn}</div><div id="dtab-${d.ticker}-overview"><div class="metrics-grid">${metricsGrid}</div></div><div id="dtab-${d.ticker}-pillars" style="display:none"><div class="pillar-grid">${pillarGrid}</div></div><div id="dtab-${d.ticker}-valuation" style="display:none"><div class="val-grid">${valCards}${ptUpside}</div></div><div id="dtab-${d.ticker}-tipranks" style="display:none"><div class="tr-grid">${trCard1}${trCard2}${trCard3}</div></div><div id="dtab-${d.ticker}-breakout" style="display:none">${breakoutPanel}</div></div>`;
+    </div>${reasons}`:
+    `<div style="text-align:center;padding:30px;color:var(--text3);font-size:13px">⚡ No breakout scanner data for this stock<br><span style="font-size:11px;margin-top:6px;display:block">Scanner detects Minervini Stage 2 setups — this stock did not qualify in the last run</span></div>`;
+  const bkTabStyle=isBreakout?`color:var(--teal);`:'';
+  const bkTabBadge=isBreakout?`<span style="background:var(--teal);color:#000;font-size:8px;font-weight:900;padding:1px 5px;border-radius:6px;margin-left:4px">${doubleSignal?'⚡':'✓'}</span>`:'';
+  return`<div class="stock-detail-inner">
+    <div class="detail-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <span class="detail-ticker-big">${d.ticker}</span>
+          <span class="detail-pill-sector" style="background:${sc.bg};color:${sc.color}">${sLabel}</span>
+          ${doubleSignal?'<span class="ds-badge">⚡ SIGNAL</span>':''}
+        </div>
+        <div class="detail-company-name">${d.company||''}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="detail-price">${valid(d.price)?'$'+parseFloat(d.price).toFixed(2):'—'}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">Rank #${d.rank} · Score ${valid(d.composite)?parseFloat(d.composite).toFixed(1):'—'}</div>
+        <a href="https://finance.yahoo.com/quote/${d.ticker}" target="_blank" style="font-size:11px;color:var(--teal);text-decoration:none;display:inline-block;margin-top:4px">Open Yahoo Finance ↗</a>
+      </div>
+    </div>
+    <div class="detail-tabs" id="dtabs-${d.ticker}">
+      <button class="detail-tab active" data-dtab="overview" onclick="switchDetailTab('${d.ticker}','overview')">Overview</button>
+      <button class="detail-tab" data-dtab="pillars" onclick="switchDetailTab('${d.ticker}','pillars')">Pillars</button>
+      <button class="detail-tab" data-dtab="valuation" onclick="switchDetailTab('${d.ticker}','valuation')">Valuation</button>
+      <button class="detail-tab" data-dtab="tipranks" onclick="switchDetailTab('${d.ticker}','tipranks')">TipRanks</button>
+      <button class="detail-tab" data-dtab="breakout" onclick="switchDetailTab('${d.ticker}','breakout')" style="${bkTabStyle}">⚡ Breakout${bkTabBadge}</button>
+    </div>
+    <div id="dtab-${d.ticker}-overview"><div class="metrics-grid">${metricsGrid}</div></div>
+    <div id="dtab-${d.ticker}-pillars" style="display:none"><div class="pillar-grid">${pillarGrid}</div></div>
+    <div id="dtab-${d.ticker}-valuation" style="display:none"><div class="val-grid">${valCards}${ptUpside}</div></div>
+    <div id="dtab-${d.ticker}-tipranks" style="display:none"><div class="tr-grid">${trCard1}${trCard2}${trCard3}</div></div>
+    <div id="dtab-${d.ticker}-breakout" style="display:none">${breakoutContent}</div>
+  </div>`;
 }
 
 function switchDetailTab(ticker,tab){const tc=document.getElementById(`dtabs-${ticker}`);if(!tc)return;tc.querySelectorAll('.detail-tab').forEach(t=>{t.classList.toggle('active',t.dataset.dtab===tab);});['overview','pillars','valuation','tipranks','breakout'].forEach(t=>{const el=document.getElementById(`dtab-${ticker}-${t}`);if(el)el.style.display=t===tab?'block':'none';});}
