@@ -8,15 +8,20 @@ on:
     types: [breakout_update]
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
-  group: sp500-ranker-main
+  group: sp500-ranker-pages
   cancel-in-progress: false
 
 jobs:
-  rank:
+  rank_and_deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repo
@@ -29,6 +34,20 @@ jobs:
           echo "Triggered by: ${{ github.event_name }}"
           echo "Repository: ${{ github.repository }}"
           echo "Ref: ${{ github.ref }}"
+          echo "Commit: ${{ github.sha }}"
+
+      - name: Show index.html (first 15 lines)
+        run: |
+          echo "===== index.html (first 15 lines) ====="
+          sed -n '1,15p' index.html
+          echo "======================================="
+
+      - name: Fail if index.html contains patch markers (@@)
+        run: |
+          if grep -nE '^@@ ' index.html; then
+            echo "ERROR: index.html still contains patch markers (@@). Aborting deploy."
+            exit 1
+          fi
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -60,46 +79,29 @@ jobs:
         run: |
           python sp500_github.py
 
-      - name: Commit sp500_data.json to repo
+      - name: Validate sp500_data.json exists
         run: |
-          set -e
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # אם יש שינויים (לרוב sp500_data.json ועוד), עושים stash כדי לאפשר pull --rebase
-          if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git status --porcelain)" ]; then
-            echo "Working directory has changes - stashing before rebase..."
-            git stash push -u -m "pre-rebase-changes"
-          else
-            echo "Working directory clean."
+          if [ ! -f sp500_data.json ]; then
+            echo "ERROR: sp500_data.json was not created!"
+            exit 1
           fi
+          echo "sp500_data.json created successfully"
+          ls -lh sp500_data.json
 
-          # מסנכרנים עם ה-remote
-          git fetch origin main
-          git pull --rebase origin main
+      - name: List site root files (pre-deploy)
+        run: |
+          echo "===== Site root files ====="
+          ls -la
+          echo "==========================="
 
-          # מחזירים את השינויים מה-stash אם יש
-          if git stash list | grep -q "pre-rebase-changes"; then
-            echo "Restoring stashed changes..."
-            git stash pop
-          fi
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
 
-          # מוסיפים רק את הקובץ הרלוונטי
-          git add sp500_data.json
-
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
-
-          git commit -m "📊 Update ranking data $(date +'%Y-%m-%d %H:%M')"
-
-          # Push עם ניסיון נוסף במקרה של עדכון נוסף בינתיים
-          git push || (git pull --rebase origin main && git push)
-
-      - name: Deploy dashboard to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
