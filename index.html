@@ -331,14 +331,6 @@ async function loadBreakoutSignals(){
 
 function updateTopSector(){const secMap={};allData.forEach(d=>{if(!secMap[d.sector])secMap[d.sector]=[];secMap[d.sector].push(d.composite||0);});const topSec=Object.entries(secMap).map(([s,v])=>[s,v.reduce((a,b)=>a+b,0)/v.length]).sort((a,b)=>b[1]-a[1])[0][0];const topMap=(T[lang]||T.en).topSectors||T.en.topSectors;document.getElementById('statTopSector').textContent=topMap[topSec]||topSec;}
 
-
-    document.getElementById('loading').style.display='none';
-    document.getElementById('error-msg').style.display='block';
-  }
-}
-
-function updateTopSector(){const secMap={};allData.forEach(d=>{if(!secMap[d.sector])secMap[d.sector]=[];secMap[d.sector].push(d.composite||0);});const topSec=Object.entries(secMap).map(([s,v])=>[s,v.reduce((a,b)=>a+b,0)/v.length]).sort((a,b)=>b[1]-a[1])[0][0];const topMap=(T[lang]||T.en).topSectors||T.en.topSectors;document.getElementById('statTopSector').textContent=topMap[topSec]||topSec;}
-
 function init(){
   document.getElementById('loading').style.display='none';
   document.getElementById('statsBar').style.display='grid';
