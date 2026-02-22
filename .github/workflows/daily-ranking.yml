@@ -26,13 +26,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Log trigger source
-        run: |
-          echo "event_name=${{ github.event_name }}"
-          echo "actor=${{ github.actor }}"
-          echo "ref=${{ github.ref }}"
-          echo "sha=${{ github.sha }}"
-
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
@@ -43,7 +36,8 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Restore S&P 500 cache (7 days)
+      # Cache is versioned (v6) to avoid using older cached DataFrames that miss newer columns
+      - name: Restore S&P 500 cache (v6, 7 days)
         uses: actions/cache@v4
         with:
           path: sp500_cache_v6.pkl
@@ -51,15 +45,15 @@ jobs:
           restore-keys: |
             sp500-cache-v6-${{ runner.os }}-
 
-      - name: Verify breakout signals
+      - name: Ensure breakout_signals.json exists (from screener)
         run: |
           if [ -f "breakout_signals.json" ]; then
             SIGNALS=$(python3 -c "import json; d=json.load(open('breakout_signals.json')); print(d.get('top_signals_count', 0))")
             SCAN=$(python3 -c "import json; d=json.load(open('breakout_signals.json')); print(d.get('scan_date',''))")
-            echo "✅ breakout_signals.json ready: ${SIGNALS} signals (scan: ${SCAN})"
+            echo "✅ breakout_signals.json present: ${SIGNALS} signals (scan: ${SCAN})"
           else
-            echo "⚠ breakout_signals.json missing — fetching fallback..."
-            curl -sf "https://raw.githubusercontent.com/Mozes2024/MOZES_stock-screener/main/breakout_signals.json"               -o breakout_signals.json && echo "✅ Fetched from screener" || echo "⚠ Not available"
+            echo "⚠ breakout_signals.json missing — fetching from screener..."
+            curl -sf "https://raw.githubusercontent.com/Mozes2024/MOZES_stock-screener/main/breakout_signals.json"               -o breakout_signals.json && echo "✅ Fetched from screener" || echo "⚠ Not available (breakout tab will be empty)"
           fi
 
       - name: Run ranking pipeline
@@ -72,15 +66,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Sync with remote to avoid non-fast-forward / rebase issues
           git fetch origin main
           git pull --rebase --autostash origin main
 
-          # Commit updated data files if changed
           git add sp500_data.json || true
           git diff --staged --quiet || git commit -m "📊 Update ranking data $(date +'%Y-%m-%d %H:%M')"
-
-          # Push with a small retry (handles rare race conditions)
           git push || (sleep 3 && git push)
 
       - name: Configure Pages
