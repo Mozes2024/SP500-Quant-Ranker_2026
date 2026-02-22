@@ -258,17 +258,42 @@ function consensusFmt(v){if(!v)return'<span style="color:var(--text4)">—</span
 
 let allData=[],currentSector='ALL',currentSearch='',currentView='score',sortCol='rank',sortAsc=true;
 
+async function fetchJsonWithFallback(urls){
+  let lastErr=null;
+  for(const u of urls){
+    try{
+      const r=await fetch(u, {cache:'no-store'});
+      if(!r.ok) throw new Error(`HTTP ${r.status} for ${u}`);
+      const txt=await r.text();
+      try{ return JSON.parse(txt); }
+      catch(pe){
+        const head=txt.slice(0,200).replace(/\s+/g,' ');
+        throw new Error(`JSON parse error for ${u}: ${pe.message}. First chars: ${head}`);
+      }
+    }catch(e){ lastErr=e; }
+  }
+  throw lastErr||new Error('Unknown fetch error');
+}
+
 async function loadData(){
+  const cacheBuster=Date.now();
+  // Try relative (normal Pages), then explicit Pages URL, then raw GitHub as last resort
+  const base = `${location.origin}${location.pathname.replace(/\/[^\/]*$/, '/')}`;
+  const urls=[
+    `sp500_data.json?v=${cacheBuster}`,
+    `${base}sp500_data.json?v=${cacheBuster}`,
+    `https://raw.githubusercontent.com/Mozes2024/SP500-Quant-Ranker_2026/main/sp500_data.json?v=${cacheBuster}`
+  ];
+
   try{
-    const r=await fetch('sp500_data.json?v='+Date.now());
-    if(!r.ok)throw new Error(`HTTP ${r.status}`);
-    const json=await r.json();
+    const json=await fetchJsonWithFallback(urls);
 
     // Accept both {data:[...]} and raw array formats
     allData = Array.isArray(json) ? json : (json.data || []);
+
     document.getElementById('lastUpdated').innerHTML=`<span class="live-dot"></span>${(json.generated||'')}`;
 
-    // Try to enrich with breakout data (from MOZES_stock-screener repo) if available on Pages
+    // Try to enrich with breakout data (from MOZES_stock-screener repo) if available
     await loadBreakoutSignals();
 
     buildPercentiles(allData);
@@ -276,7 +301,9 @@ async function loadData(){
   }catch(e){
     console.error(e);
     document.getElementById('loading').style.display='none';
-    document.getElementById('error-msg').style.display='block';
+    const em=document.getElementById('error-msg');
+    em.style.display='block';
+    em.innerHTML=`⚠ Could not load sp500_data.json<br><span style="font-weight:400;color:var(--text3)">${String(e.message).replace(/</g,'&lt;')}</span>`;
   }
 }
 
