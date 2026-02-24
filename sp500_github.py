@@ -301,6 +301,7 @@ def fetch_price_multi(tickers: list) -> pd.DataFrame:
 
 def fetch_spy_returns() -> dict:
     """Fetch SPY 2y price and return 12m/6m/3m/1m returns (decimal)."""
+    time.sleep(2.0)  # FIX: avoid rate-limit after bulk stock downloads
     for attempt in range(2):
         try:
             raw = yf.download("SPY", period="2y", auto_adjust=True, progress=False, threads=False)
@@ -329,7 +330,7 @@ def fetch_spy_returns() -> dict:
             return out
         except Exception as e:
             if attempt == 0:
-                time.sleep(1.0)
+                time.sleep(5.0)  # FIX: longer retry delay for SPY
             else:
                 print(f"  ⚠️  SPY fetch failed: {e} — RS columns will be NaN")
     return {}
@@ -775,8 +776,10 @@ def load_cache() -> "pd.DataFrame | None":
                     pickle.dump((data, _SECTOR_THRESHOLDS, ts), fw)
             except Exception:
                 pass
-        if "rs_12m" not in data.columns or "pillar_relative_strength" not in data.columns:
-            print(f"  ℹ️  Cache missing 10-pillar columns (rs_12m, pillar_relative_strength) — full rebuild")
+        rs_ok = "rs_12m" in data.columns and not data["rs_12m"].isna().all()
+        pr_ok = "pillar_relative_strength" in data.columns and not data["pillar_relative_strength"].isna().all()
+        if not rs_ok or not pr_ok:
+            print(f"  ℹ️  Cache missing or empty RS/pillar_relative_strength — full rebuild")
             return None
         age = datetime.now() - ts
         if age < timedelta(hours=CFG["cache_hours"]):
