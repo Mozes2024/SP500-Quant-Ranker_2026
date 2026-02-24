@@ -67,7 +67,7 @@ CFG = {
 }
 assert abs(sum(CFG["weights"].values()) - 1.0) < 1e-6, "Weights must sum to 1.0"
 
-CACHE_FILE = "sp500_cache_v6.pkl"
+CACHE_FILE = "sp500_cache_v7.pkl"
 
 
 # ════════════════════════════════════════════════════════════
@@ -724,8 +724,10 @@ def compute_coverage(df: pd.DataFrame) -> pd.Series:
 
 
 def add_sector_context(df: pd.DataFrame) -> pd.DataFrame:
-    pillar_cols = list(PILLAR_MAP.values())
-    sector_med  = (df.groupby("sector")[pillar_cols + ["composite_score"]]
+    pillar_cols = [c for c in PILLAR_MAP.values() if c in df.columns]
+    cols = pillar_cols + ["composite_score"]
+    cols = [c for c in cols if c in df.columns]
+    sector_med  = (df.groupby("sector")[cols]
                    .median().add_prefix("sector_med_"))
     df = df.merge(sector_med, on="sector", how="left")
     df["vs_sector"] = df["composite_score"] - df["sector_med_composite_score"]
