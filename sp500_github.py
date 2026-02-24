@@ -328,6 +328,24 @@ def _get_one(ticker: str) -> tuple:
         return ticker, {}
 
 
+# ── Diagnostic probe: test eps_revisions on a few tickers before bulk fetch ──
+def _probe_earnings_revisions(sample_tickers: list):
+    """Run once before parallel fetch to diagnose eps_revisions availability."""
+    print("  🔍 Probing eps_revisions/eps_trend on sample tickers...")
+    for tk in sample_tickers[:3]:
+        try:
+            t_obj = yf.Ticker(tk)
+            rev = t_obj.eps_revisions
+            trend = t_obj.eps_trend
+            rev_status = "None" if rev is None else ("empty" if rev.empty else f"OK {rev.shape} cols={list(rev.columns)} idx={list(rev.index)}")
+            trend_status = "None" if trend is None else ("empty" if trend.empty else f"OK {trend.shape} cols={list(trend.columns)} idx={list(trend.index)}")
+            print(f"    {tk}: eps_revisions={rev_status}")
+            print(f"    {tk}: eps_trend={trend_status}")
+        except Exception as e:
+            print(f"    {tk}: ERROR — {e}")
+    print()
+
+
 def fetch_yf_parallel(tickers: list) -> dict:
     results = {}
     with ThreadPoolExecutor(max_workers=CFG["max_workers_yf"]) as executor:
@@ -1569,10 +1587,19 @@ def run_pipeline(use_cache: bool = True) -> pd.DataFrame:
 
         # 3. Yahoo Finance (parallel)
         print(f"\n[1/6]  Yahoo Finance ({len(tickers)} tickers, parallel)...")
+        _probe_earnings_revisions(tickers)  # diagnostic: test 3 tickers before bulk
         yf_data = fetch_yf_parallel(tickers)   # always returns dict, never None
         fund_df = pd.DataFrame.from_dict(yf_data, orient="index")
         fund_df.index.name = "ticker"
         fund_df = fund_df.reset_index()
+        # ── Earnings revision coverage stats ──
+        _rev_keys = ["rev_ratio_30d", "eps_revision_pct_90d"]
+        for _rk in _rev_keys:
+            if _rk in fund_df.columns:
+                _n = fund_df[_rk].notna().sum()
+                print(f"  📊 {_rk}: {_n}/{len(fund_df)} stocks have data ({_n*100//max(len(fund_df),1)}%)")
+            else:
+                print(f"  ⚠️  {_rk}: column not in data — eps_revisions/eps_trend may not be available in this yfinance version")
         df = universe.merge(fund_df, on="ticker", how="left")
 
         # 4. TipRanks
