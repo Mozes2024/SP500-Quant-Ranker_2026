@@ -36,14 +36,14 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      # Cache is versioned (v7) so 10-pillar cache is separate from old 9-pillar cache
-      - name: Restore S&P 500 cache (v7, 7 days)
+      # Cache v8: no v8 cache exists yet, so next run does full rebuild (incl. RS vs SPY). Then future runs use v8.
+      - name: Restore S&P 500 cache (v8, 7 days)
         uses: actions/cache@v4
         with:
-          path: sp500_cache_v7.pkl
-          key: sp500-cache-v7-${{ runner.os }}-${{ github.run_id }}
+          path: sp500_cache_v8.pkl
+          key: sp500-cache-v8-${{ runner.os }}-${{ github.run_id }}
           restore-keys: |
-            sp500-cache-v7-${{ runner.os }}-
+            sp500-cache-v8-${{ runner.os }}-
 
       - name: Ensure breakout_signals.json exists (from screener)
         run: |
