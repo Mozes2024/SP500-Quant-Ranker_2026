@@ -50,7 +50,7 @@ CFG = {
         "earnings_quality":  0.09,
         "fcf_quality":       0.13,
         "financial_health":  0.10,
-        "momentum":          0.07,   # reduced to make room for relative_strength
+        "momentum":          0.08,   # reduced from 0.12 to make room for relative_strength
         "relative_strength": 0.08,   # excess return vs SPY (Minervini-style RS)
         "analyst":           0.04,   # reduced
         "piotroski":         0.02,
