@@ -301,19 +301,38 @@ def fetch_price_multi(tickers: list) -> pd.DataFrame:
 
 def fetch_spy_returns() -> dict:
     """Fetch SPY 2y price and return 12m/6m/3m/1m returns (decimal)."""
-    try:
-        raw = yf.download("SPY", period="2y", auto_adjust=True, progress=False, threads=False)
-        if raw.empty or "Close" not in raw.columns:
-            return {}
-        s = raw["Close"].dropna()
-        if len(s) < 21:
-            return {}
-        out = {}
-        for n_days, key in [(252, "12m"), (126, "6m"), (63, "3m"), (21, "1m")]:
-            out[key] = (s.iloc[-1] / s.iloc[-n_days] - 1) if len(s) >= n_days else np.nan
-        return out
-    except Exception:
-        return {}
+    for attempt in range(2):
+        try:
+            raw = yf.download("SPY", period="2y", auto_adjust=True, progress=False, threads=False)
+            if raw.empty:
+                continue
+            close = None
+            if hasattr(raw.columns, "get_level_values") and isinstance(raw.columns, pd.MultiIndex):
+                try:
+                    close = raw["Close"].squeeze()
+                except (KeyError, TypeError):
+                    for col in raw.columns:
+                        if (isinstance(col, tuple) and "Close" in col) or col == "Close":
+                            close = raw[col].squeeze()
+                            break
+            elif "Close" in raw.columns:
+                close = raw["Close"].squeeze()
+            if close is None:
+                continue
+            s = pd.Series(close).dropna()
+            if len(s) < 21:
+                continue
+            out = {}
+            for n_days, key in [(252, "12m"), (126, "6m"), (63, "3m"), (21, "1m")]:
+                out[key] = (float(s.iloc[-1] / s.iloc[-n_days] - 1)) if len(s) >= n_days else np.nan
+            print(f"  ✅  SPY returns: 12m={out.get('12m', np.nan):.2%} 6m={out.get('6m', np.nan):.2%}")
+            return out
+        except Exception as e:
+            if attempt == 0:
+                time.sleep(1.0)
+            else:
+                print(f"  ⚠️  SPY fetch failed: {e} — RS columns will be NaN")
+    return {}
 
 
 def add_price_momentum(df: pd.DataFrame, tickers: list) -> pd.DataFrame:
