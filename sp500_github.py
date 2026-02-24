@@ -65,7 +65,7 @@ CFG = {
 }
 assert abs(sum(CFG["weights"].values()) - 1.0) < 1e-6, "Weights must sum to 1.0"
 
-CACHE_FILE = "sp500_cache_v5.pkl"
+CACHE_FILE = "sp500_cache_v6.pkl"
 
 
 # ════════════════════════════════════════════════════════════
