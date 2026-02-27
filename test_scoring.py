@@ -179,13 +179,30 @@ class TestROIC:
             totalStockholdersEquity=30_000_000_000,
             totalDebt=20_000_000_000,
             totalCash=5_000_000_000,
+            sector="Information Technology",
         )
         roic = compute_roic(row)
-        # NOPAT = ebitda * 0.82 * (1 - 0.21)
-        nopat = 10e9 * 0.82 * 0.79
+        # FIX B1: sector-aware ROIC. Tech D&A ratio = 0.90 (not old hardcoded 0.82)
+        # NOPAT = ebitda * 0.90 * (1 - 0.21)
+        nopat = 10e9 * 0.90 * 0.79
         inv_cap = 30e9 + 20e9 - 5e9
         expected = nopat / inv_cap
         assert abs(roic - expected) < 0.001, f"ROIC should be {expected:.4f}, got {roic:.4f}"
+
+    def test_roic_sector_variation(self):
+        """Verify different sectors produce different ROIC for same inputs."""
+        base = dict(
+            ebitda=10_000_000_000,
+            totalStockholdersEquity=30_000_000_000,
+            totalDebt=20_000_000_000,
+            totalCash=5_000_000_000,
+        )
+        tech_roic   = compute_roic(make_row(sector="Information Technology", **base))
+        energy_roic = compute_roic(make_row(sector="Energy", **base))
+        assert tech_roic > energy_roic, (
+            f"Tech (asset-light) should have higher ROIC than Energy (asset-heavy), "
+            f"got Tech={tech_roic:.4f} vs Energy={energy_roic:.4f}"
+        )
 
 
 # ═══════════════════════════════════════════════════
@@ -359,6 +376,80 @@ class TestJSONOutput:
         required = ["rank", "ticker", "company", "sector", "composite", "valuation"]
         for field in required:
             assert field in first, f"Missing field '{field}' in JSON record"
+
+
+# ═══════════════════════════════════════════════════
+#  TEST: FIX B2 — FCF zero value handling
+# ═══════════════════════════════════════════════════
+
+class TestFCFZero:
+    """Verify that FCF=0 returns 0.0 (not NaN) — fix for Python truthy bug."""
+
+    def test_fcf_zero_yield_is_zero(self):
+        row = make_row(freeCashflow=0, marketCap=100_000_000_000)
+        metrics = compute_fcf_metrics(row)
+        assert metrics["fcf_yield"] == 0.0, f"FCF=0 should give yield=0.0, got {metrics['fcf_yield']}"
+
+    def test_fcf_zero_margin_is_zero(self):
+        row = make_row(freeCashflow=0, totalRevenue=50_000_000_000)
+        metrics = compute_fcf_metrics(row)
+        assert metrics["fcf_margin"] == 0.0, f"FCF=0 should give margin=0.0, got {metrics['fcf_margin']}"
+
+    def test_fcf_zero_to_ni_is_zero(self):
+        row = make_row(freeCashflow=0, netIncomeToCommon=10_000_000_000)
+        metrics = compute_fcf_metrics(row)
+        assert metrics["fcf_to_ni"] == 0.0, f"FCF=0 should give to_ni=0.0, got {metrics['fcf_to_ni']}"
+
+    def test_fcf_none_returns_nan(self):
+        row = make_row(freeCashflow=None)
+        metrics = compute_fcf_metrics(row)
+        assert np.isnan(metrics["fcf_yield"]), "FCF=None should give NaN"
+
+    def test_denominator_zero_returns_nan(self):
+        row = make_row(freeCashflow=5_000_000_000, marketCap=0)
+        metrics = compute_fcf_metrics(row)
+        assert np.isnan(metrics["fcf_yield"]), "Market cap=0 should give NaN (not division error)"
+
+
+# ═══════════════════════════════════════════════════
+#  TEST: FIX B3 — Altman Z unknown sector handling
+# ═══════════════════════════════════════════════════
+
+class TestAltmanUnknownSector:
+    """Verify Altman Z handles unknown/new sectors gracefully."""
+
+    def test_unknown_sector_uses_service_model(self):
+        """Unknown sector should default to Z'' (service) and not crash."""
+        row = make_row(sector="New Sector That Doesnt Exist")
+        z = compute_altman(row)
+        assert z is not None and not np.isnan(z), "Unknown sector should still compute Z (using Z'' fallback)"
+
+    def test_empty_sector_uses_service_model(self):
+        row = make_row(sector="")
+        z = compute_altman(row)
+        # Empty sector falls through to Z'' model (default)
+        assert z is not None and not np.isnan(z)
+
+
+# ═══════════════════════════════════════════════════
+#  TEST: FIX B1 — ROIC uses operatingIncome when available
+# ═══════════════════════════════════════════════════
+
+class TestROICOperatingIncome:
+    """Verify ROIC prefers operatingIncome (EBIT) over EBITDA proxy."""
+
+    def test_operating_income_preferred(self):
+        row = make_row(
+            operatingIncome=8_000_000_000,
+            ebitda=10_000_000_000,
+            totalStockholdersEquity=30_000_000_000,
+            totalDebt=20_000_000_000,
+            totalCash=5_000_000_000,
+        )
+        roic = compute_roic(row)
+        # Should use operatingIncome, not EBITDA
+        expected = 8e9 * (1 - 0.21) / (30e9 + 20e9 - 5e9)
+        assert abs(roic - expected) < 0.001, f"Should use operatingIncome, got {roic:.4f} vs expected {expected:.4f}"
 
 
 if __name__ == "__main__":
