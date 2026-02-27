@@ -1,8 +1,8 @@
 <div dir="rtl" align="right">
 
-# 🏆 מערכת דירוג המניות המובילה בעולם  — S&P 500 Quant Ranker v5.3
+# 🏆 מערכת דירוג כמותי — S&P 500 Quant Ranker v5.3
 
-### @MOZES 
+### @MOZES Edition
 
 ---
 
