@@ -140,7 +140,11 @@ def run_pipeline(use_cache: bool = True) -> pd.DataFrame:
 
         # 9. Dynamic thresholds
         print("\n[5/6]  Dynamic sector thresholds...")
-        _cfg._SECTOR_THRESHOLDS = build_sector_thresholds(df)
+        # FIX: mutate the dict in-place so all modules that imported the
+        # reference (or access it via ranker.config) see the updated values.
+        _new_thresholds = build_sector_thresholds(df)
+        _cfg._SECTOR_THRESHOLDS.clear()
+        _cfg._SECTOR_THRESHOLDS.update(_new_thresholds)
 
         # 10. Pillar scores
         print("\n[6/6]  Pillar scores...")
