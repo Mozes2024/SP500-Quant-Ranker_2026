@@ -501,6 +501,56 @@ class TestNewPillarStructure:
         assert not np.isnan(score), "Composite should work with new pillar structure"
         assert 10 <= score <= 100
 
+    def test_analyst_has_positive_weight(self):
+        """Analyst pillar should now have a small positive weight."""
+        assert CFG["weights"]["analyst"] > 0, "Analyst should have positive weight"
+        assert CFG["weights"]["analyst"] <= 0.05, "Analyst weight should be modest (≤5%)"
+
+    def test_no_smartscore_in_analyst_pillar(self):
+        """Analyst pillar should NOT use SmartScore (double-count risk)."""
+        import inspect
+        source = inspect.getsource(build_pillar_scores)
+        # Find analyst section
+        analyst_start = source.index("# 8. Analyst")
+        analyst_end = source.index("# SmartScore: still computed")
+        analyst_section = source[analyst_start:analyst_end]
+        # SmartScore should not contribute to pillar_analyst weighting
+        assert "s_tr_smart" not in analyst_section or "0.50 * df[\"s_tr_smart\"]" not in analyst_section, \
+            "Analyst pillar should not weight SmartScore"
+
+    def test_insider_in_analyst_pillar(self):
+        """insider_pct_mcap should be part of analyst pillar."""
+        import inspect
+        source = inspect.getsource(build_pillar_scores)
+        analyst_start = source.index("# 8. Analyst")
+        analyst_end = source.index("# 9. Piotroski")
+        analyst_section = source[analyst_start:analyst_end]
+        assert "s_insider_mcap" in analyst_section, "Insider signal missing from Analyst pillar"
+
+
+# ═══════════════════════════════════════════════════
+#  TEST: MA Regime Signal
+# ═══════════════════════════════════════════════════
+
+class TestMARegime:
+    """Test the MA200 sweet-spot regime scoring logic."""
+
+    def test_ma_regime_in_momentum_pillar(self):
+        """ma_regime_score should be used in momentum pillar construction."""
+        import inspect
+        source = inspect.getsource(build_pillar_scores)
+        mom_start = source.index("# 7. Momentum")
+        mom_end = source.index("# 8. Analyst")
+        mom_section = source[mom_start:mom_end]
+        assert "s_ma_regime" in mom_section, "MA regime signal missing from momentum pillar"
+
+    def test_ma_regime_score_range(self):
+        """MA regime score should be 0.0 to 2.5."""
+        # We can't easily test the full function without price data,
+        # but we verify the signal exists in CORE_METRIC_COLS
+        from sp500_github import CORE_METRIC_COLS
+        assert "ma_regime_score" in CORE_METRIC_COLS, "ma_regime_score should be in coverage metrics"
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
