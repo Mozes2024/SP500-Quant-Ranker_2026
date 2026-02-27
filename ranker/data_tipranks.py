@@ -3,6 +3,7 @@ import time
 import numpy as np
 import pandas as pd
 import requests
+from tqdm import tqdm
 from ranker.config import CFG, TR_URL, TR_HEADERS, _CONSENSUS, _TREND, _SENTIMENT, _SMA
 
 def _parse_tipranks(item: dict) -> dict:
