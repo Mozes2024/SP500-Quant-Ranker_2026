@@ -22,35 +22,39 @@
 
 ## ארכיטקטורה
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    מקורות נתונים                         │
-│  Yahoo Finance (fundamentals + מחירים)                   │
-│  TipRanks (SmartScore, סנטימנט, אינסיידרים)             │
-│  Wikipedia / GitHub CSV (רשימת S&P 500)                  │
-│  breakout_signals.json (סורק פריצות Minervini)           │
-└──────────────────┬──────────────────────────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────────────────────────┐
-│                  מנוע חישוב (Python)                     │
-│                                                          │
-│  ① שליפת נתונים מקבילית (20 workers)                     │
-│  ② חישוב מדדים נגזרים (ROIC, Altman Z, Piotroski, FCF)  │
-│  ③ מומנטום רב-מסגרתי (12M/6M/3M/1M) + RS vs SPY        │
-│  ④ MA Regime Signal (חצייה + sweet-spot מעל MA200)       │
-│  ⑤ נורמליזציה סקטוריאלית (sector percentile)             │
-│  ⑥ בניית 10 פילרים + Composite Score                     │
-│  ⑦ סינון נזילות + כיסוי נתונים                           │
-└──────────────────┬──────────────────────────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────────────────────────┐
-│                     תוצרים                               │
-│  📊 sp500_data.json → דשבורד אינטראקטיבי (index.html)   │
-│  📈 sp500_ranking_v5.3.xlsx → Excel מעוצב                │
-│  📉 artifacts/*.png → 6 גרפי ויזואליזציה                 │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph DATA ["📥 Data Sources"]
+        YF["Yahoo Finance\nFundamentals + Prices 2Y"]
+        TR["TipRanks\nSmartScore, Sentiment, Insiders"]
+        WK["Wikipedia / GitHub CSV\nS&P 500 List"]
+    end
+
+    subgraph SCREENER ["🔍 MOZES Stock Screener — External Project"]
+        SC["3,800+ US Stocks Daily Scan\n8 Minervini Criteria + VCP"]
+        SC --> BJ["breakout_signals.json"]
+    end
+
+    subgraph ENGINE ["⚙️ Compute Engine — Python"]
+        S1["① Parallel Data Fetch — 20 workers"]
+        S2["② Derived Metrics — ROIC, Altman Z, Piotroski, FCF"]
+        S3["③ Multi-frame Momentum — 12M/6M/3M/1M + RS vs SPY"]
+        S4["④ MA Regime Signal — Sweet-spot above MA200"]
+        S5["⑤ Sector Percentile Normalization"]
+        S6["⑥ 10 Pillars + Composite Score"]
+        S7["⑦ Merge Breakout Signals + Liquidity Filter"]
+        S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7
+    end
+
+    subgraph OUTPUT ["📤 Outputs"]
+        JSON["📊 sp500_data.json → Dashboard"]
+        XLSX["📈 sp500_ranking_v5.3.xlsx"]
+        PNG["📉 artifacts/*.png — 6 Charts"]
+    end
+
+    DATA --> ENGINE
+    BJ --> S7
+    ENGINE --> OUTPUT
 ```
 
 ---
@@ -154,16 +158,81 @@
 
 ---
 
-## Breakout Scanner — שילוב עם Minervini Stage Analysis
+## סורק הפריצות — MOZES Stock Screener
 
-המערכת מזהה מניות שנמצאות ב-Stage 2 (uptrend) לפי מתודולוגיית Mark Minervini, ומשלבת את הסיגנלים עם הדירוג הכמותי:
+### הפרויקט האחורי
 
-| סיגנל | תיאור |
+סיגנלי הפריצה שמשולבים בדירוג מגיעים מפרויקט נפרד — [**MOZES Stock Screener**](https://github.com/Mozes2024/MOZES_stock-screener) — מערכת סריקה אוטומטית שרצה מדי יום דרך GitHub Actions וסורקת **3,800+ מניות אמריקאיות** לזיהוי מניות ב-Stage 2 Uptrend לפי מתודולוגיית Mark Minervini.
+
+הסורק מייצר קובץ `breakout_signals.json` ש-Quant Ranker שואב ומשלב עם הדירוג הכמותי.
+
+### 8 הקריטריונים של Minervini — Trend Template
+
+מניה מוגדרת כ-Stage 2 Uptrend רק אם היא עוברת את **כל** 8 הקריטריונים:
+
+| # | קריטריון | הסבר |
+|---|----------|------|
+| 1 | מחיר נוכחי מעל MA150 ו-MA200 | המניה נסחרת מעל שני הממוצעים הנעים הארוכים |
+| 2 | MA150 מעל MA200 | הממוצע הקצר יותר מוביל — מבנה שורי |
+| 3 | MA200 עולה לפחות חודש | הטרנד הארוך הוא חד-משמעית כלפי מעלה |
+| 4 | MA50 מעל MA150 ו-MA200 | כל הממוצעים בסדר הנכון (50 > 150 > 200) |
+| 5 | מחיר נוכחי מעל MA50 | המניה בטרנד קצר-טווח חיובי |
+| 6 | מחיר לפחות 30% מעל שפל 52 שבועות | המניה כבר הוכיחה חוזק — לא "סכין נופלת" |
+| 7 | מחיר לא יותר מ-25% מתחת לשיא 52 שבועות | עדיין קרובה לשיא — לא בתיקון עמוק |
+| 8 | דירוג RS (Relative Strength) לפחות 70 | המניה מכה 70% מהשוק — מובילה, לא מפגרת |
+
+> **מקור:** Mark Minervini, *Trade Like a Stock Market Wizard* (2013) ו-*Think and Trade Like a Champion* (2017). Minervini הוא אלוף השקעות דו-פעמי בתחרות ה-U.S. Investing Championship.
+
+### תכונות הסורק
+
+| תכונה | תיאור |
 |--------|-------|
-| **VCP** (Volatility Contraction Pattern) | צמצום תנודתיות — דפוס פריצה קלאסי |
-| **Risk/Reward** | יחס סיכוי/סיכון מחושב עם Stop Loss |
-| **Phase Detection** | Stage 1 (בסיס) → Stage 2 (עלייה) → Stage 3 (שיא) → Stage 4 (ירידה) |
-| **Double Signal** ⚡ | מניה עם ציון Composite גבוה + סיגנל Breakout = סיגנל חזק כפול |
+| **Phase Detection** | זיהוי אוטומטי של 4 שלבי מחזור שוק: Stage 1 (בסיס/צבירה) → Stage 2 (עלייה) → Stage 3 (שיא/הפצה) → Stage 4 (ירידה) |
+| **VCP Detection** | זיהוי Volatility Contraction Pattern — צמצום תנודתיות מבסיס שמאלי לפריצה ימנית. 2–4 contractions אידיאלי |
+| **Risk/Reward** | חישוב אוטומטי של יחס סיכוי/סיכון עם Stop Loss מחושב |
+| **RS Momentum** | Relative Strength scoring חלק (ליניארי) מול SPY |
+| **Smart Caching** | מנגנון cache חכם שמפחית 74% מקריאות ה-API |
+| **Market Regime Filter** | סינון לפי מצב שוק כללי — מפחית סיגנלים בשוק דובי |
+| **התראות אוטומטיות** | שליחת התראות על סיגנלים חדשים (email) |
+
+### שילוב עם Quant Ranker — Double Signal ⚡
+
+כשמניה מקבלת **גם** ציון Composite גבוה בדירוג הכמותי (פונדמנטלס + ערך + מומנטום) **וגם** סיגנל Breakout מהסורק (טכני + Stage 2 + VCP), זהו **סיגנל כפול** — שילוב של שני מנועים עצמאיים שמסכימים על אותה מניה:
+
+```mermaid
+flowchart LR
+    subgraph SCREENER ["🔍 MOZES Stock Screener"]
+        A["3,800+ מניות"] --> B["8 Minervini Criteria"]
+        B --> C["VCP + Phase + R/R"]
+        C --> D["breakout_signals.json"]
+    end
+
+    subgraph RANKER ["🏆 S&P 500 Quant Ranker"]
+        E["~500 מניות S&P"] --> F["10 Pillars Scoring"]
+        F --> G["Composite Score"]
+    end
+
+    D --> H["🔗 Merge"]
+    G --> H
+    H --> I["⚡ Double Signal\nComposite גבוה + Breakout"]
+```
+
+השדות שמשולבים מהסורק לדשבורד ולאקסל:
+
+| שדה | תיאור |
+|------|-------|
+| `breakout_score` | ציון פריצה כולל (0–100) |
+| `breakout_rank` | דירוג בתוך כל המניות הפורצות |
+| `breakout_phase` | Stage נוכחי (1/2/3/4) |
+| `breakout_rr` | יחס Risk/Reward מחושב |
+| `breakout_rs` | Relative Strength score |
+| `breakout_stop` | Stop Loss מומלץ ($) |
+| `has_vcp` | האם זוהה VCP pattern |
+| `vcp_quality` | איכות ה-VCP (מספר contractions, עומק) |
+| `breakout_entry_quality` | הערכת איכות נקודת הכניסה |
+| `breakout_reasons` | רשימת סיבות לסיגנל |
+
+> **הערה חשובה:** הסורק סורק את **כל** השוק האמריקאי (3,800+ מניות), לא רק S&P 500. לכן, חלק מהמניות ב-breakout_signals.json לא יימצאו ב-S&P 500 — ה-merge שומר רק את החפיפה.
 
 ---
 
@@ -219,11 +288,12 @@ python -m pytest test_scoring.py -v
 
 ## מקורות נתונים
 
-| מקור | נתונים | אמינות | הערות |
-|------|--------|--------|-------|
-| **Yahoo Finance** | Fundamentals, מחירים (2 שנים), EPS Revisions, Analyst Consensus | ✅ גבוהה | API רשמי, 20 workers מקביליים |
-| **TipRanks** | SmartScore, סנטימנט, אינסיידרים, Hedge Funds, PT | ⚠️ בינונית | Mobile API ללא מפתח — עלול להישבר |
-| **Wikipedia** | רשימת חברות S&P 500 | ✅ גבוהה | עם 2 fallbacks (GitHub CSV, hardcoded) |
+| מקור | נתונים | הערות |
+|------|--------|-------|
+| **Yahoo Finance** | Fundamentals, מחירים (2 שנים), EPS Revisions, Analyst Consensus | API רשמי, 20 workers מקביליים |
+| **TipRanks** | SmartScore, סנטימנט, אינסיידרים, Hedge Funds, PT | Mobile API ללא מפתח — עלול להישבר. יש fallback weights |
+| **Wikipedia** | רשימת חברות S&P 500 | עם 2 fallbacks (GitHub CSV, hardcoded) |
+| **MOZES Stock Screener** | סיגנלי פריצה, VCP, Phase, R/R, Stop Loss | פרויקט נפרד — [GitHub](https://github.com/Mozes2024/MOZES_stock-screener) |
 
 > כש-TipRanks לא זמין, המערכת עוברת **אוטומטית** למשקלות חלופיים (`CFG_WEIGHTS_NO_TR`) שמבטלים את הפילרים התלויים ב-TR ומחזקים את הפילרים הפונדמנטליים.
 
