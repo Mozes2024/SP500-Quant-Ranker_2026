@@ -51,16 +51,16 @@ CFG = {
         #  • Analyst revived at 5% — now includes insider_pct_mcap signal (not just SmartScore)
         #  • Piotroski removed entirely (proxy-based F-Score without Y/Y data = noise)
         #  • Growth trimmed — Earnings Revisions signals extracted to own pillar
-        "valuation":          0.15,
-        "profitability":      0.19,
-        "growth":             0.10,   # was 0.14 — trimmed: earn_rev signals moved to own pillar
+        "valuation":          0.14,   # was 0.15 — gave 1% to revived Analyst
+        "profitability":      0.18,   # was 0.19 — gave 1% to revived Analyst
+        "growth":             0.10,   # trimmed: earn_rev signals moved to own pillar
         "earnings_revisions": 0.10,   # NEW pillar: extracted from Growth (Zacks alpha factor)
         "earnings_quality":   0.10,
         "fcf_quality":        0.12,
         "financial_health":   0.09,
         "momentum":           0.08,
         "relative_strength":  0.07,
-        "analyst":            0.00,   # ZEROED: SmartScore double-count risk; computed but not weighted
+        "analyst":            0.02,   # Revived: clean composition — PT Upside + Insider + Yahoo (no SmartScore)
     },
     "min_coverage":    0.45,
     "min_market_cap":  5_000_000_000,
@@ -430,7 +430,8 @@ def add_price_momentum(df: pd.DataFrame, tickers: list) -> pd.DataFrame:
     prices = fetch_price_multi(tickers)
     if prices.empty:
         for col in ["perf_12m", "perf_6m", "perf_3m", "perf_1m", "momentum_composite",
-                    "rs_12m", "rs_6m", "rs_3m", "rs_1m", "rs_composite"]:
+                    "rs_12m", "rs_6m", "rs_3m", "rs_1m", "rs_composite",
+                    "ma_regime_score", "pct_above_ma200"]:
             df[col] = np.nan
         return df
 
@@ -473,6 +474,82 @@ def add_price_momentum(df: pd.DataFrame, tickers: list) -> pd.DataFrame:
         df[col] = df[col].clip(-0.80, 5.0)
     for col in ["rs_12m", "rs_6m", "rs_3m", "rs_1m", "rs_composite"]:
         df[col] = df[col].clip(-0.80, 5.0)
+
+    # ── MA Regime Signal ─────────────────────────────────────────
+    # Sweet-spot scoring: rewards stocks just above rising MA200
+    # while penalizing over-extended stocks (>25% above).
+    # This captures the "on sale in an uptrend" thesis:
+    #   - Just crossed above rising MA200 = best entry (score 2.0)
+    #   - Moderately above = still good (1.5)
+    #   - Extended = reduced benefit (0.5)
+    #   - Over-extended or below declining MA = no benefit (0.0)
+    #
+    # References: Brock/Lakonishok/LeBaron 1992, Minervini Stage Analysis
+    def _ma_regime(prices_df: pd.DataFrame) -> dict:
+        regime = {}
+        for col in prices_df.columns:
+            try:
+                s = prices_df[col].dropna()
+                if len(s) < 200:
+                    regime[col] = np.nan
+                    continue
+                price    = float(s.iloc[-1])
+                ma200    = float(s.iloc[-200:].mean())
+                ma150    = float(s.iloc[-150:].mean()) if len(s) >= 150 else ma200
+                # MA direction: compare current MA200 to MA200 from 20 days ago
+                ma200_20d_ago = float(s.iloc[-220:-20].mean()) if len(s) >= 220 else ma200
+                ma_rising = ma200 > ma200_20d_ago
+
+                if ma200 <= 0:
+                    regime[col] = np.nan
+                    continue
+
+                pct_above = (price / ma200) - 1.0  # e.g. 0.05 = 5% above
+
+                if pct_above < 0:
+                    # Below MA200
+                    regime[col] = 0.0
+                elif not ma_rising:
+                    # Above MA200 but MA is flat/declining — weak signal
+                    regime[col] = 0.5 if pct_above <= 0.15 else 0.0
+                else:
+                    # Above rising MA200 — the sweet spot zone
+                    if pct_above <= 0.05:
+                        regime[col] = 2.0    # just crossed — best entry
+                    elif pct_above <= 0.15:
+                        regime[col] = 1.5    # healthy uptrend
+                    elif pct_above <= 0.25:
+                        regime[col] = 0.5    # getting extended
+                    else:
+                        regime[col] = 0.0    # over-extended — no bonus
+
+                # Bonus: above BOTH MA150 and MA200, both rising → confirmed Stage 2
+                if pct_above > 0 and ma_rising and price > ma150:
+                    ma150_20d_ago = float(s.iloc[-170:-20].mean()) if len(s) >= 170 else ma150
+                    if ma150 > ma150_20d_ago:
+                        regime[col] = min(regime[col] + 0.5, 2.5)  # Stage 2 bonus, capped
+
+            except Exception:
+                regime[col] = np.nan
+        return regime
+
+    ma_regime = _ma_regime(prices)
+    df["ma_regime_score"] = df["ticker"].map(ma_regime)
+    # Also store pct above MA200 for display/debugging
+    def _pct_above_ma200(prices_df):
+        out = {}
+        for col in prices_df.columns:
+            try:
+                s = prices_df[col].dropna()
+                if len(s) >= 200:
+                    out[col] = round(float(s.iloc[-1]) / float(s.iloc[-200:].mean()) - 1.0, 4)
+                else:
+                    out[col] = np.nan
+            except Exception:
+                out[col] = np.nan
+        return out
+    df["pct_above_ma200"] = df["ticker"].map(_pct_above_ma200(prices))
+
     return df
 
 
@@ -932,33 +1009,38 @@ def build_pillar_scores(df: pd.DataFrame) -> pd.DataFrame:
     df["s_beta"]   = sector_percentile(df, "beta",         False)  # FIX: moved from momentum — low vol is a risk/health signal, not momentum
     df["pillar_health"] = df[["s_cr","s_de","s_altman","s_beta"]].mean(axis=1, skipna=True)
 
-    # 7. Momentum — beta removed; now pure price-momentum + short squeeze signal
+    # 7. Momentum — pure price-momentum + MA regime + short squeeze signal
     df["s_mom"]        = sector_percentile(df, "momentum_composite", True)
     df["s_tr_mom12"]   = sector_percentile(df, "tr_momentum_12m",    True)
     df["s_tr_sma"]     = sector_percentile(df, "tr_sma_num",         True)
-    df["s_short"]      = sector_percentile(df, "shortRatio",         False)  # FIX v5.3: low short ratio = bullish signal; high short = crowded trade risk
-    df["pillar_momentum"] = df[["s_mom","s_tr_mom12","s_tr_sma","s_short"]].mean(axis=1, skipna=True)
+    df["s_short"]      = sector_percentile(df, "shortRatio",         False)  # low short ratio = bullish
+    df["s_ma_regime"]  = sector_percentile(df, "ma_regime_score",    True)   # NEW: sweet-spot MA200 signal
+    df["pillar_momentum"] = df[["s_mom","s_tr_mom12","s_tr_sma","s_short","s_ma_regime"]].mean(axis=1, skipna=True)
 
-    # 8. Analyst + TipRanks Sentiment
-    # Structure: SmartScore 50%, PT Upside avg 25%, Yahoo Analyst 10%, Insider buying 15%
-    # insider_pct_mcap: insider buying as % of market cap — stronger than binary direction
+    # 8. Analyst — REVIVED with clean composition (no SmartScore to avoid double-count)
+    # Signals:
+    #   - Price Target Upside (avg Yahoo + TR): unique forward-looking signal (40%)
+    #   - Insider buying as % MCap: skin-in-the-game, not in any other pillar (35%)
+    #   - Yahoo Recommendation Mean: broad consensus fallback (25%)
+    #   - SmartScore intentionally EXCLUDED — already baked into tr_roe, tr_momentum, etc.
     df["s_rec"]          = sector_percentile(df, "recommendationMean",   False)
     df["s_pt_upside"]    = sector_percentile(df, "pt_upside",            True)
-    df["s_tr_smart"]     = sector_percentile(df, "tr_smart_score",       True)
     df["s_tr_pt"]        = sector_percentile(df, "tr_pt_upside",         True)
-    df["s_insider_mcap"] = sector_percentile(df, "insider_pct_mcap",     True)   # FIX 3.5: was computed but unused
-    # PT: average of Yahoo and TipRanks to avoid source bias
+    df["s_insider_mcap"] = sector_percentile(df, "insider_pct_mcap",     True)
+    # PT: average of Yahoo and TipRanks to avoid single-source bias
     s_pt_avg = df[["s_pt_upside","s_tr_pt"]].mean(axis=1, skipna=True)
     df["pillar_analyst"] = (
-        0.50 * df["s_tr_smart"].fillna(df["s_rec"]) +
-        0.25 * s_pt_avg +
-        0.10 * df["s_rec"].fillna(50) +
-        0.15 * df["s_insider_mcap"].fillna(50)
+        0.40 * s_pt_avg.fillna(df["s_pt_upside"].fillna(50)) +
+        0.35 * df["s_insider_mcap"].fillna(50) +
+        0.25 * df["s_rec"].fillna(50)
     )
     # Rescale to 10–100 band (same as sector_percentile output)
     _min, _max = df["pillar_analyst"].min(), df["pillar_analyst"].max()
     if _max > _min:
         df["pillar_analyst"] = ((df["pillar_analyst"] - _min) / (_max - _min)) * 90 + 10
+
+    # SmartScore: still computed for display in dashboard, but NOT in any weighted pillar
+    df["s_tr_smart"]     = sector_percentile(df, "tr_smart_score",       True)
 
     # 9. Piotroski — DISPLAY ONLY (no weight in composite, removed from PILLAR_MAP)
     # Still computed for reference in detail panels and Excel export
@@ -1067,7 +1149,7 @@ CORE_METRIC_COLS = [
     "freeCashflow", "altman_z", "piotroski_score", "beta",
     "recommendationMean", "fcf_yield", "tr_smart_score",
     "earnings_quality_score", "momentum_composite",
-    "earnings_revision_score", "shortRatio",
+    "earnings_revision_score", "shortRatio", "ma_regime_score",
 ]
 
 
@@ -1166,6 +1248,7 @@ EXPORT_COLS = [
     "recommendationMean", "numberOfAnalystOpinions", "pt_upside",
     "marketCap", "enterpriseValue", "currentPrice", "averageVolume",
     "shortRatio", "insider_pct_mcap",
+    "ma_regime_score", "pct_above_ma200",
     "vs_sector",
 ]
 
@@ -1252,6 +1335,8 @@ FRIENDLY_NAMES = {
     "averageVolume":           "Avg Volume",
     "shortRatio":              "Short Ratio (Days)",
     "insider_pct_mcap":        "Insider Buy/Sell % MCap",
+    "ma_regime_score":         "MA Regime (0-2.5)",
+    "pct_above_ma200":         "% Above MA200",
     "vs_sector":               "vs Sector Median",
 }
 
@@ -1270,7 +1355,7 @@ PCT_COLS_FRACTION = {
     "tr_momentum_12m", "tr_roe", "tr_asset_growth", "tr_pt_upside",
     "perf_12m", "perf_6m", "perf_3m", "perf_1m", "momentum_composite",
     "rs_12m", "rs_6m", "rs_3m", "rs_1m", "rs_composite",
-    "eps_revision_pct_90d",
+    "eps_revision_pct_90d", "pct_above_ma200",
 }
 
 ALL_PCT_COLS = PCT_COLS_DECIMAL | PCT_COLS_FRACTION
@@ -1641,6 +1726,8 @@ def export_json(df: pd.DataFrame):
             # FIX v5.3: New signals
             "short_ratio":    safe(row.get("shortRatio")),
             "insider_pct_mcap": pct(row.get("insider_pct_mcap")),
+            "ma_regime":      safe(row.get("ma_regime_score")),
+            "pct_above_ma200": pct(row.get("pct_above_ma200")),
             "coverage":       pct(row.get("coverage")),
             "vs_sector":      safe(row.get("vs_sector")),
             # Breakout scanner
