@@ -1,6 +1,7 @@
 # ranker/composite.py — Composite scoring, valuation, coverage
 import numpy as np
 import pandas as pd
+import ranker.config as _cfg
 from ranker.config import CFG, CFG_WEIGHTS_NO_TR, PILLAR_MAP, _TR_AVAILABLE, CORE_METRIC_COLS
 from ranker.utils import _safe, _coverage
 
@@ -29,8 +30,11 @@ def compute_valuation_score(row: pd.Series) -> float:
         raw = _safe(row.get(col))
         if pd.isna(raw):
             return
-        cheap_thr, exp_thr = (_SECTOR_THRESHOLDS.get(col, {})
-                               .get(sector, GLOBAL_THRESHOLDS.get(col, (0, 1))))
+        # FIX: access _SECTOR_THRESHOLDS and GLOBAL_THRESHOLDS via the
+        # config module so we always see the latest values (after
+        # build_sector_thresholds populates them in pipeline.py).
+        cheap_thr, exp_thr = (_cfg._SECTOR_THRESHOLDS.get(col, {})
+                               .get(sector, _cfg.GLOBAL_THRESHOLDS.get(col, (0, 1))))
         rng  = max(exp_thr - cheap_thr, 1e-9)
         norm = (raw - cheap_thr) / rng if invert else (exp_thr - raw) / rng
         signals.append(float(np.clip(norm, 0, 1)) * 99 + 1)
