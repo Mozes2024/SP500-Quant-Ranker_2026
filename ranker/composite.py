@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 from ranker.config import CFG, CFG_WEIGHTS_NO_TR, PILLAR_MAP, _TR_AVAILABLE, CORE_METRIC_COLS
-from ranker.utils import _coverage
+from ranker.utils import _safe, _coverage
 
 def compute_composite(row: pd.Series, weights: dict = None) -> float:
     if weights is None:

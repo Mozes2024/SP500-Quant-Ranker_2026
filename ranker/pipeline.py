@@ -1,12 +1,30 @@
 # ranker/pipeline.py — Main orchestration
 import os, time
+from datetime import datetime
 import numpy as np
 import pandas as pd
-from ranker.config import CFG, _TR_AVAILABLE
-from ranker import cache
+from ranker.config import CFG, _TR_AVAILABLE, _SECTOR_THRESHOLDS, build_sector_thresholds
+from ranker.utils import _safe
+from ranker.cache import load_cache, save_cache
+from ranker.data_tickers import get_sp500_tickers
+from ranker.data_tipranks import fetch_tipranks, _parse_tipranks
+from ranker.data_yahoo import _get_one, _probe_earnings_revisions, fetch_yf_parallel, add_price_momentum
+from ranker.metrics import (
+    compute_piotroski, compute_altman, compute_roic,
+    compute_fcf_metrics, compute_earnings_quality,
+    compute_pt_upside, compute_tr_pt_upside,
+    compute_earnings_revision_score,
+)
+from ranker.pillars import build_pillar_scores
+from ranker.composite import compute_composite, compute_valuation_score, compute_coverage, add_sector_context
+from ranker.export_excel import style_and_export
+from ranker.export_json import export_json
+from ranker.charts import plot_all
+from ranker.breakout import merge_breakout_signals
+from ranker.summary import _print_summary
 
 def run_pipeline(use_cache: bool = True) -> pd.DataFrame:
-    global _SECTOR_THRESHOLDS, _TR_AVAILABLE
+    import ranker.config as _cfg  # for mutable globals
 
     print("=" * 65)
     print(f"  S&P 500 ADVANCED RANKING v5.3 – GitHub Edition")
@@ -47,12 +65,12 @@ def run_pipeline(use_cache: bool = True) -> pd.DataFrame:
             df = df.merge(tr_df, on="ticker", how="left")
             _tr_coverage = tr_df["tr_smart_score"].notna().sum() / max(len(tickers), 1)
             if _tr_coverage < 0.10:
-                _TR_AVAILABLE = False
+                _cfg._TR_AVAILABLE = False
                 print(f"  ⚠️  TR coverage only {_tr_coverage:.0%} — switching to fallback weights")
             else:
-                _TR_AVAILABLE = True
+                _cfg._TR_AVAILABLE = True
         else:
-            _TR_AVAILABLE = False
+            _cfg._TR_AVAILABLE = False
             print("  ⚠️  TipRanks unavailable — using fundamental-only weights")
             _TR_COLS = list(_parse_tipranks({}).keys())
             for col in _TR_COLS:
@@ -122,7 +140,7 @@ def run_pipeline(use_cache: bool = True) -> pd.DataFrame:
 
         # 9. Dynamic thresholds
         print("\n[5/6]  Dynamic sector thresholds...")
-        _SECTOR_THRESHOLDS = build_sector_thresholds(df)
+        _cfg._SECTOR_THRESHOLDS = build_sector_thresholds(df)
 
         # 10. Pillar scores
         print("\n[6/6]  Pillar scores...")

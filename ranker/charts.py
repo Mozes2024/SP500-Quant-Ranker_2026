@@ -6,6 +6,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 from ranker.config import PILLAR_MAP
+from ranker.utils import _safe
 
 def plot_all(df: pd.DataFrame):
     sns.set_style("whitegrid")
