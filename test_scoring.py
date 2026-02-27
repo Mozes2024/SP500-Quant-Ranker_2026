@@ -452,5 +452,55 @@ class TestROICOperatingIncome:
         assert abs(roic - expected) < 0.001, f"Should use operatingIncome, got {roic:.4f} vs expected {expected:.4f}"
 
 
+# ═══════════════════════════════════════════════════
+#  TEST: Step 3 — New Pillar Structure
+# ═══════════════════════════════════════════════════
+
+class TestNewPillarStructure:
+    """Verify the v5.3 scoring model changes are correctly implemented."""
+
+    def test_earnings_revisions_is_own_pillar(self):
+        """earnings_revisions should exist as an independent pillar in PILLAR_MAP."""
+        assert "earnings_revisions" in PILLAR_MAP, "earnings_revisions missing from PILLAR_MAP"
+        assert PILLAR_MAP["earnings_revisions"] == "pillar_earnings_revisions"
+
+    def test_piotroski_not_in_pillar_map(self):
+        """Piotroski should be removed from PILLAR_MAP (display-only, no weight)."""
+        assert "piotroski" not in PILLAR_MAP, "Piotroski should not be in PILLAR_MAP"
+
+    def test_earnings_revisions_has_weight(self):
+        """earnings_revisions should have positive weight in CFG."""
+        assert "earnings_revisions" in CFG["weights"], "earnings_revisions missing from weights"
+        assert CFG["weights"]["earnings_revisions"] > 0, "earnings_revisions should have positive weight"
+
+    def test_all_pillar_map_keys_have_weights(self):
+        """Every key in PILLAR_MAP must have a corresponding weight."""
+        for key in PILLAR_MAP:
+            assert key in CFG["weights"], f"PILLAR_MAP key '{key}' missing from weights"
+
+    def test_all_weight_keys_in_pillar_map(self):
+        """Every weight key must have a corresponding PILLAR_MAP entry."""
+        for key in CFG["weights"]:
+            assert key in PILLAR_MAP, f"Weight key '{key}' missing from PILLAR_MAP"
+
+    def test_growth_pillar_no_revision_signals(self):
+        """Growth pillar should NOT contain earnings revision signals (they moved)."""
+        import inspect
+        source = inspect.getsource(build_pillar_scores)
+        # Find the growth section
+        growth_start = source.index("# 3. Growth")
+        growth_end = source.index("# 3b. Earnings Revisions")
+        growth_section = source[growth_start:growth_end]
+        assert "earn_rev" not in growth_section, "Growth pillar still contains earnings revision signal"
+        assert "eps_rev_30d" not in growth_section, "Growth pillar still contains eps revision signal"
+
+    def test_composite_uses_new_pillar(self):
+        """Composite score should include earnings_revisions pillar."""
+        row = pd.Series({col: 60.0 for col in PILLAR_MAP.values()})
+        score = compute_composite(row)
+        assert not np.isnan(score), "Composite should work with new pillar structure"
+        assert 10 <= score <= 100
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
