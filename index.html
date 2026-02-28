@@ -151,7 +151,7 @@ td{padding:11px 8px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis
 tbody tr.double-signal-row{background:linear-gradient(90deg,rgba(245,166,35,.08) 0%,transparent 70%);border-left:3px solid var(--gold);}
 tbody tr.double-signal-row:hover{background:linear-gradient(90deg,rgba(245,166,35,.15) 0%,var(--surface2) 60%);}
 tbody tr.double-signal-row.expanded{background:linear-gradient(90deg,rgba(245,166,35,.15) 0%,var(--surface2) 60%);}
-.ds-badge{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:linear-gradient(135deg,#f5a623,#ff6b35);color:#000;font-size:9px;font-weight:900;border-radius:50%;margin-right:3px;flex-shrink:0;vertical-align:middle;line-height:1;cursor:default;}
+.ds-badge{display:inline-flex;align-items:center;justify-content:center;width:10px;height:10px;background:var(--gold);border-radius:50%;margin-right:4px;flex-shrink:0;vertical-align:middle;font-size:0;line-height:1;cursor:default;}
 
 /* ── Breakout-only row ── */
 tbody tr.breakout-only-row{border-left:3px solid var(--teal);}
@@ -269,7 +269,7 @@ tbody tr.watched{background:rgba(245,166,35,.03);}
   <div class="filter-group"><div class="filter-label" id="lbl-f-pe">P/E Max</div><input type="number" id="fPEMax" placeholder="e.g. 25" class="filter-input"></div>
   <div class="filter-group"><div class="filter-label" id="lbl-f-perf">12M Return Min %</div><input type="number" id="fPerfMin" placeholder="e.g. 10" class="filter-input"></div>
   <div class="filter-group"><div class="filter-label" id="lbl-f-valuation">Val. Score Min</div><input type="number" id="fValMin" placeholder="e.g. 60" class="filter-input"></div>
-  <div class="filter-group"><div class="filter-label">Mkt Cap Min ($B)</div><select id="fMktCap" class="filter-select"><option value="">Any</option><option value="300e9">Mega ≥$300B</option><option value="50e9">Large ≥$50B</option><option value="10e9">Mid ≥$10B</option><option value="2e9">Small ≥$2B</option></select></div>
+  <div class="filter-group"><div class="filter-label">Mkt Cap Min ($B)</div><select id="fMktCap" class="filter-select"><option value="">Any</option><option value="300e9">Mega ≥$300B</option><option value="50e9">Large ≥$50B</option><option value="10e9" selected>Mid ≥$10B</option><option value="2e9">Small ≥$2B</option></select></div>
   <button class="filter-reset" onclick="resetFilters()" id="lbl-f-reset">✕ Reset</button>
 </div>
 <div class="view-tabs" id="viewTabs" style="display:none"></div>
@@ -477,7 +477,7 @@ function renderTable(){
     const sLabel=lang==='he'?(sMap[d.sector]||d.sector):(d.sector||'');
     const isBreakout=valid(d.breakout_score);
     const doubleSignal=isBreakout&&(d.composite||0)>=65;
-    const dsBadge=doubleSignal?'<span class="ds-badge" title="⚡ Double Signal: Breakout Scanner + High Composite Score">⚡</span>':'';
+    const dsBadge=doubleSignal?'<span class="ds-badge" title="⚡ Double Signal: Breakout Scanner + High Composite Score"></span>':'';
     const isStarred=watchlist.has(d.ticker);
     const starBtn=`<button class="star-btn ${isStarred?'starred':''}" onclick="toggleStar('${d.ticker}',event)" title="Add to watchlist">${isStarred?'★':'☆'}</button>`;
     let cells=`<td class="td-rank ${d.rank<=3?'top3':''}">${d.rank}</td><td class="td-ticker" style="vertical-align:middle"><div style="display:flex;align-items:center;gap:2px">${dsBadge}${starBtn}<a href="https://finance.yahoo.com/quote/${d.ticker}" target="_blank" onclick="event.stopPropagation()">${d.ticker}</a></div></td><td class="td-company" title="${d.company||''}">${(d.company||'').substring(0,24)}</td><td><span class="sector-pill" style="background:${sc.bg};color:${sc.color}">${sLabel}</span></td>`;
